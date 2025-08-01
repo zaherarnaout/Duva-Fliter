@@ -133,21 +133,24 @@ let products = [
 
 // Initialize filter functionality
 function initializeFilter() {
-  console.log('Initializing filter functionality...');
+  console.log('Initializing filter...');
   
-  // Initialize filter header toggle
+  // Initialize filter header (expand/collapse)
   initializeFilterHeader();
+  
+  // Initialize filter fields (dropdowns and inputs)
+  initializeFilterFields();
   
   // Initialize checkboxes
   initializeFilterCheckboxes();
   
-  // Initialize dropdowns and input fields
-  initializeFilterFields();
-  
   // Initialize apply filter button
   initializeApplyFilterButton();
   
-  console.log('Filter functionality initialized');
+  // Initialize reset filter button
+  initializeResetFilterButton();
+  
+  console.log('Filter initialization complete');
 }
 
 // Filter header expand/collapse
@@ -221,7 +224,7 @@ function initializeFilterFields() {
     const dropdownMenu = createDropdownMenu(specType);
     field.appendChild(dropdownMenu);
     
-    // Add click handler for dropdown
+    // Add click handler for dropdown toggle
     field.addEventListener('click', function(e) {
       if (e.target === input) return; // Don't toggle dropdown when clicking input
       e.stopPropagation();
@@ -235,10 +238,20 @@ function initializeFilterFields() {
       applyFilters();
     });
     
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function() {
-      dropdownMenu.classList.remove('active');
+    // Add click handler for input to prevent dropdown toggle
+    input.addEventListener('click', function(e) {
+      e.stopPropagation();
     });
+  });
+  
+  // Close dropdowns when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.selection-filter-text')) {
+      const allDropdowns = document.querySelectorAll('.filter-dropdown-menu');
+      allDropdowns.forEach(dropdown => {
+        dropdown.classList.remove('active');
+      });
+    }
   });
   
   console.log('Filter fields initialized');
@@ -257,7 +270,9 @@ function createDropdownMenu(specType) {
     item.className = 'filter-dropdown-item';
     item.textContent = option;
     
-    item.addEventListener('click', function() {
+    item.addEventListener('click', function(e) {
+      e.stopPropagation(); // Prevent event bubbling
+      
       const input = this.closest('.selection-filter-text').querySelector('.lumen-input-field');
       input.value = option;
       
@@ -267,8 +282,14 @@ function createDropdownMenu(specType) {
       // Apply filters in real-time
       applyFilters();
       
-      // Close dropdown
-      this.closest('.filter-dropdown-menu').classList.remove('active');
+      // Close dropdown immediately after selection
+      dropdownMenu.classList.remove('active');
+      
+      // Remove selected class from all items and add to current
+      dropdownMenu.querySelectorAll('.filter-dropdown-item').forEach(item => {
+        item.classList.remove('selected');
+      });
+      this.classList.add('selected');
     });
     
     dropdownMenu.appendChild(item);
@@ -279,6 +300,15 @@ function createDropdownMenu(specType) {
 
 // Toggle dropdown visibility
 function toggleDropdown(dropdownMenu) {
+  // Close all other dropdowns first
+  const allDropdowns = document.querySelectorAll('.filter-dropdown-menu');
+  allDropdowns.forEach(dropdown => {
+    if (dropdown !== dropdownMenu) {
+      dropdown.classList.remove('active');
+    }
+  });
+  
+  // Toggle current dropdown
   dropdownMenu.classList.toggle('active');
 }
 
@@ -394,7 +424,14 @@ function getCMSDataFromCard(card) {
     cct: '',
     voltage: '',
     overviewTitle: '',
-    ipRating: '' // Add IP rating field
+    ipRating: '',
+    ikRating: '',
+    beam: '',
+    lumen: '',
+    cri: '',
+    outdoor: '',
+    indoor: '',
+    allText: '' // Will contain all text from the card for comprehensive searching
   };
   
   // Method 1: Try to get data from Webflow's data attributes
@@ -407,6 +444,12 @@ function getCMSDataFromCard(card) {
     cmsData.voltage = card.dataset.voltage || '';
     cmsData.overviewTitle = card.dataset.overviewTitle || card.dataset['overview-title'] || '';
     cmsData.ipRating = card.dataset.ipRating || card.dataset['ip-rating'] || card.dataset.ip || '';
+    cmsData.ikRating = card.dataset.ikRating || card.dataset['ik-rating'] || card.dataset.ik || '';
+    cmsData.beam = card.dataset.beam || '';
+    cmsData.lumen = card.dataset.lumen || '';
+    cmsData.cri = card.dataset.cri || '';
+    cmsData.outdoor = card.dataset.outdoor || '';
+    cmsData.indoor = card.dataset.indoor || '';
   }
   
   // Method 2: Try to get data from Webflow's CMS binding elements
@@ -430,6 +473,36 @@ function getCMSDataFromCard(card) {
     cmsData.ipRating = ipElement.textContent || ipElement.innerText || '';
   }
   
+  const ikElement = card.querySelector('[data-wf-cms-bind="ik"], [data-wf-cms-bind="ik-rating"], [data-wf-cms-bind="ikRating"]');
+  if (ikElement) {
+    cmsData.ikRating = ikElement.textContent || ikElement.innerText || '';
+  }
+  
+  const beamElement = card.querySelector('[data-wf-cms-bind="beam"]');
+  if (beamElement) {
+    cmsData.beam = beamElement.textContent || beamElement.innerText || '';
+  }
+  
+  const lumenElement = card.querySelector('[data-wf-cms-bind="lumen"]');
+  if (lumenElement) {
+    cmsData.lumen = lumenElement.textContent || lumenElement.innerText || '';
+  }
+  
+  const criElement = card.querySelector('[data-wf-cms-bind="cri"]');
+  if (criElement) {
+    cmsData.cri = criElement.textContent || criElement.innerText || '';
+  }
+  
+  const outdoorElement = card.querySelector('[data-wf-cms-bind="outdoor"]');
+  if (outdoorElement) {
+    cmsData.outdoor = outdoorElement.textContent || outdoorElement.innerText || '';
+  }
+  
+  const indoorElement = card.querySelector('[data-wf-cms-bind="indoor"]');
+  if (indoorElement) {
+    cmsData.indoor = indoorElement.textContent || indoorElement.innerText || '';
+  }
+  
   // Method 3: Fallback to visible text content
   if (!cmsData.productCode) {
     const mainCodeText = card.querySelector('.main-code-text');
@@ -446,34 +519,102 @@ function getCMSDataFromCard(card) {
     cmsData.fullDescription = backTitle ? backTitle.textContent : '';
   }
   
-  // Method 4: Try to get CCT from wattage elements (back of card)
+  // Method 4: Get all text from wattage elements (back of card)
+  const wattageElements = card.querySelectorAll('.wattage');
+  const wattageTexts = Array.from(wattageElements).map(el => el.textContent).join(' ');
+  
+  // Method 5: Extract specific data patterns from wattage text
   if (!cmsData.cct) {
-    const wattageElements = card.querySelectorAll('.wattage');
-    const wattageTexts = Array.from(wattageElements).map(el => el.textContent).join(' ');
-    // Look for CCT pattern in the text
     const cctMatch = wattageTexts.match(/(\d{4}K)/g);
     if (cctMatch) {
       cmsData.cct = cctMatch.join(', ');
     }
   }
   
-  // Method 5: Try to get IP rating from wattage elements (back of card)
   if (!cmsData.ipRating) {
-    const wattageElements = card.querySelectorAll('.wattage');
-    const wattageTexts = Array.from(wattageElements).map(el => el.textContent).join(' ');
-    // Look for IP pattern in the text
     const ipMatch = wattageTexts.match(/(IP\d{2})/g);
     if (ipMatch) {
       cmsData.ipRating = ipMatch.join(', ');
     }
   }
   
-  // Method 6: Search in descriptions for IP rating
+  if (!cmsData.ikRating) {
+    const ikMatch = wattageTexts.match(/(IK\d{2})/g);
+    if (ikMatch) {
+      cmsData.ikRating = ikMatch.join(', ');
+    }
+  }
+  
+  if (!cmsData.beam) {
+    const beamMatch = wattageTexts.match(/(\d+°)/g);
+    if (beamMatch) {
+      cmsData.beam = beamMatch.join(', ');
+    }
+  }
+  
+  if (!cmsData.lumen) {
+    const lumenMatch = wattageTexts.match(/(\d+lm)/gi);
+    if (lumenMatch) {
+      cmsData.lumen = lumenMatch.join(', ');
+    }
+  }
+  
+  if (!cmsData.cri) {
+    const criMatch = wattageTexts.match(/(CRI\s*\d+)/gi);
+    if (criMatch) {
+      cmsData.cri = criMatch.join(', ');
+    }
+  }
+  
+  // Method 6: Search in all descriptions and text content
+  const allText = (cmsData.shortDescription + ' ' + cmsData.fullDescription + ' ' + wattageTexts).toLowerCase();
+  cmsData.allText = allText;
+  
+  // Extract any missing data from all text
   if (!cmsData.ipRating) {
-    const allText = (cmsData.shortDescription + ' ' + cmsData.fullDescription).toLowerCase();
     const ipMatch = allText.match(/(ip\d{2})/gi);
     if (ipMatch) {
       cmsData.ipRating = ipMatch.join(', ');
+    }
+  }
+  
+  if (!cmsData.ikRating) {
+    const ikMatch = allText.match(/(ik\d{2})/gi);
+    if (ikMatch) {
+      cmsData.ikRating = ikMatch.join(', ');
+    }
+  }
+  
+  if (!cmsData.beam) {
+    const beamMatch = allText.match(/(\d+°)/g);
+    if (beamMatch) {
+      cmsData.beam = beamMatch.join(', ');
+    }
+  }
+  
+  if (!cmsData.lumen) {
+    const lumenMatch = allText.match(/(\d+lm)/gi);
+    if (lumenMatch) {
+      cmsData.lumen = lumenMatch.join(', ');
+    }
+  }
+  
+  if (!cmsData.cri) {
+    const criMatch = allText.match(/(cri\s*\d+)/gi);
+    if (criMatch) {
+      cmsData.cri = criMatch.join(', ');
+    }
+  }
+  
+  if (!cmsData.outdoor) {
+    if (allText.includes('outdoor') || allText.includes('exterior')) {
+      cmsData.outdoor = 'outdoor';
+    }
+  }
+  
+  if (!cmsData.indoor) {
+    if (allText.includes('indoor') || allText.includes('interior')) {
+      cmsData.indoor = 'indoor';
     }
   }
   
@@ -488,7 +629,7 @@ function checkProductMatchWithCMSData(cmsData) {
   
   // Check application type filters
   if (filterState.applicationType.length > 0) {
-    const searchText = (cmsData.shortDescription + ' ' + cmsData.fullDescription).toLowerCase();
+    const searchText = cmsData.allText;
     const hasMatchingApplication = filterState.applicationType.some(type => 
       searchText.includes(type.toLowerCase())
     );
@@ -500,7 +641,7 @@ function checkProductMatchWithCMSData(cmsData) {
   
   // Check mounting type filters
   if (filterState.mountingType.length > 0) {
-    const searchText = (cmsData.shortDescription + ' ' + cmsData.fullDescription).toLowerCase();
+    const searchText = cmsData.allText;
     const hasMatchingMounting = filterState.mountingType.some(type => 
       searchText.includes(type.toLowerCase())
     );
@@ -512,7 +653,7 @@ function checkProductMatchWithCMSData(cmsData) {
   
   // Check form factor filters
   if (filterState.formFactor.length > 0) {
-    const searchText = (cmsData.shortDescription + ' ' + cmsData.fullDescription).toLowerCase();
+    const searchText = cmsData.allText;
     const hasMatchingFormFactor = filterState.formFactor.some(type => 
       searchText.includes(type.toLowerCase())
     );
@@ -522,7 +663,7 @@ function checkProductMatchWithCMSData(cmsData) {
     }
   }
   
-  // Check performance specs - now using CMS data
+  // Check performance specs - now using comprehensive CMS data
   for (const [key, value] of Object.entries(filterState.performanceSpecs)) {
     if (value) {
       const searchValue = value.toLowerCase();
@@ -530,18 +671,35 @@ function checkProductMatchWithCMSData(cmsData) {
       
       let found = false;
       
-      // Check CCT specifically in CMS CCT field
+      // Check specific fields in CMS data
       if (key === 'cct' && cmsData.cct) {
         const cctValues = cmsData.cct.toLowerCase().split(',').map(v => v.trim());
         found = cctValues.includes(searchValue);
         console.log(`CCT values in CMS: ${cmsData.cct}, searching for: ${searchValue}, found: ${found}`);
       }
       
-      // Check other specs in descriptions
+      if (key === 'lumen' && cmsData.lumen) {
+        const lumenValues = cmsData.lumen.toLowerCase().split(',').map(v => v.trim());
+        found = lumenValues.includes(searchValue);
+        console.log(`Lumen values in CMS: ${cmsData.lumen}, searching for: ${searchValue}, found: ${found}`);
+      }
+      
+      if (key === 'beam' && cmsData.beam) {
+        const beamValues = cmsData.beam.toLowerCase().split(',').map(v => v.trim());
+        found = beamValues.includes(searchValue);
+        console.log(`Beam values in CMS: ${cmsData.beam}, searching for: ${searchValue}, found: ${found}`);
+      }
+      
+      if (key === 'cri' && cmsData.cri) {
+        const criValues = cmsData.cri.toLowerCase().split(',').map(v => v.trim());
+        found = criValues.includes(searchValue);
+        console.log(`CRI values in CMS: ${cmsData.cri}, searching for: ${searchValue}, found: ${found}`);
+      }
+      
+      // Check in all text if not found in specific fields
       if (!found) {
-        const searchText = (cmsData.shortDescription + ' ' + cmsData.fullDescription).toLowerCase();
-        found = searchText.includes(searchValue);
-        console.log(`Searching in descriptions for "${searchValue}", found: ${found}`);
+        found = cmsData.allText.includes(searchValue);
+        console.log(`Searching in all text for "${searchValue}", found: ${found}`);
       }
       
       if (!found) {
@@ -553,7 +711,7 @@ function checkProductMatchWithCMSData(cmsData) {
     }
   }
   
-  // Check technical specs - now with better IP handling
+  // Check technical specs - now with comprehensive search
   for (const [key, value] of Object.entries(filterState.technicalSpecs)) {
     if (value) {
       const searchValue = value.toLowerCase();
@@ -561,18 +719,33 @@ function checkProductMatchWithCMSData(cmsData) {
       
       let found = false;
       
-      // Check IP rating specifically in CMS IP field
+      // Check specific fields in CMS data
       if (key === 'ip' && cmsData.ipRating) {
         const ipValues = cmsData.ipRating.toLowerCase().split(',').map(v => v.trim());
         found = ipValues.includes(searchValue);
         console.log(`IP values in CMS: ${cmsData.ipRating}, searching for: ${searchValue}, found: ${found}`);
       }
       
-      // Check other technical specs in descriptions
+      if (key === 'ik' && cmsData.ikRating) {
+        const ikValues = cmsData.ikRating.toLowerCase().split(',').map(v => v.trim());
+        found = ikValues.includes(searchValue);
+        console.log(`IK values in CMS: ${cmsData.ikRating}, searching for: ${searchValue}, found: ${found}`);
+      }
+      
+      if (key === 'outdoor' && cmsData.outdoor) {
+        found = cmsData.outdoor.toLowerCase().includes(searchValue);
+        console.log(`Outdoor values in CMS: ${cmsData.outdoor}, searching for: ${searchValue}, found: ${found}`);
+      }
+      
+      if (key === 'indoor' && cmsData.indoor) {
+        found = cmsData.indoor.toLowerCase().includes(searchValue);
+        console.log(`Indoor values in CMS: ${cmsData.indoor}, searching for: ${searchValue}, found: ${found}`);
+      }
+      
+      // Check in all text if not found in specific fields
       if (!found) {
-        const searchText = (cmsData.shortDescription + ' ' + cmsData.fullDescription).toLowerCase();
-        found = searchText.includes(searchValue);
-        console.log(`Searching in descriptions for "${searchValue}", found: ${found}`);
+        found = cmsData.allText.includes(searchValue);
+        console.log(`Searching in all text for "${searchValue}", found: ${found}`);
       }
       
       if (!found) {
@@ -614,54 +787,87 @@ function hideEmptyState() {
   }
 }
 
-// Initialize apply filter button
+// Initialize the apply filter button
 function initializeApplyFilterButton() {
-  const applyButton = document.querySelector('.link-block-6');
-  
+  const applyButton = document.querySelector('.filter-apply-button');
   if (applyButton) {
-    applyButton.addEventListener('click', function(e) {
-      e.preventDefault();
+    applyButton.addEventListener('click', function() {
       console.log('Apply filter button clicked');
-      
-      // Apply filters
       applyFilters();
-      
-      // Close all dropdowns
-      const dropdowns = document.querySelectorAll('.filter-dropdown-menu');
-      dropdowns.forEach(dropdown => {
-        dropdown.classList.remove('active');
-      });
-      
-      // Show success message
-      showFilterAppliedMessage();
+      closeAllDropdowns();
     });
   }
 }
 
-// Show filter applied message
-function showFilterAppliedMessage() {
-  // Create a temporary success message
-  const message = document.createElement('div');
-  message.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background-color: #c0392b;
-    color: white;
-    padding: 12px 20px;
-    border-radius: 4px;
-    z-index: 10000;
-    font-family: Gotham, Georgia, sans-serif;
-    font-size: 14px;
-  `;
-  message.textContent = 'Filters applied successfully!';
+// Initialize the reset filter button
+function initializeResetFilterButton() {
+  const resetButton = document.querySelector('.filter-reset-button');
+  if (resetButton) {
+    resetButton.addEventListener('click', function() {
+      console.log('Reset filter button clicked');
+      resetAllFilters();
+    });
+  }
+}
+
+// Reset all filters and show all products
+function resetAllFilters() {
+  console.log('Resetting all filters...');
   
-  document.body.appendChild(message);
+  // Reset filter state
+  filterState = {
+    applicationType: [],
+    mountingType: [],
+    formFactor: [],
+    performanceSpecs: {
+      cct: '',
+      lumen: '',
+      beam: '',
+      cri: ''
+    },
+    technicalSpecs: {
+      ip: '',
+      ik: '',
+      outdoor: '',
+      indoor: ''
+    }
+  };
   
-  // Remove message after 3 seconds
-  setTimeout(() => {
-    message.remove();
-  }, 3000);
+  // Reset all checkboxes
+  const allCheckboxes = document.querySelectorAll('.filter-checkmark');
+  allCheckboxes.forEach(checkbox => {
+    checkbox.classList.remove('active');
+    const wrapper = checkbox.closest('.filter-checkbox-wrapper');
+    if (wrapper) {
+      wrapper.classList.remove('active');
+    }
+  });
+  
+  // Reset all input fields
+  const allInputFields = document.querySelectorAll('.lumen-input-field');
+  allInputFields.forEach(input => {
+    input.value = '';
+  });
+  
+  // Reset all dropdown selections
+  const allDropdownItems = document.querySelectorAll('.filter-dropdown-item');
+  allDropdownItems.forEach(item => {
+    item.classList.remove('selected');
+  });
+  
+  // Show all products
+  const existingProductCards = document.querySelectorAll('.collection-item');
+  existingProductCards.forEach(card => {
+    card.style.display = 'block';
+  });
+  
+  // Hide empty state message if it exists
+  const emptyState = document.querySelector('.filter-empty-state');
+  if (emptyState) {
+    emptyState.remove();
+  }
+  
+  console.log('All filters reset, all products shown');
 }
 
 // Function to add new dropdown options (for future use)
@@ -672,6 +878,14 @@ function addDropdownOption(specType, newOption) {
   } else {
     console.error(`Spec type "${specType}" not found`);
   }
+}
+
+// Close all dropdowns
+function closeAllDropdowns() {
+  const dropdowns = document.querySelectorAll('.filter-dropdown-menu');
+  dropdowns.forEach(dropdown => {
+    dropdown.classList.remove('active');
+  });
 }
 
 // Initialize when DOM is ready
