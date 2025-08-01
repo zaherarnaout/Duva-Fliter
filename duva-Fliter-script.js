@@ -147,6 +147,9 @@ function initializeFilter() {
   // Initialize apply filter button
   initializeApplyFilterButton();
   
+  // Initialize product card interactions
+  initializeProductCardInteractions();
+  
   console.log('Filter functionality initialized');
 }
 
@@ -432,6 +435,9 @@ function updateProductDisplay(filteredProducts) {
       emptyState.innerHTML = '<p>No products match your filter criteria.</p>';
       productContainer.querySelector('.collection-list-wrapper').appendChild(emptyState);
     }
+    
+    // Re-initialize product card interactions
+    initializeProductCardInteractions();
   }
 }
 
@@ -441,8 +447,11 @@ function createProductElement(product) {
   productElement.className = 'collection-item w-dyn-item';
   productElement.setAttribute('role', 'listitem');
   
+  // Create a proper link to the product page
+  const productLink = `/products/${product.name.toLowerCase().replace(/\s+/g, '-')}`;
+  
   productElement.innerHTML = `
-    <a href="#" class="current-product w-inline-block">
+    <a href="${productLink}" class="current-product w-inline-block">
       <div class="flip-card-wrapper">
         <div class="flip-card">
           <div class="flip-card-front">
@@ -497,6 +506,27 @@ function createProductElement(product) {
   `;
   
   return productElement;
+}
+
+// Initialize product card interactions
+function initializeProductCardInteractions() {
+  const productCards = document.querySelectorAll('.current-product');
+  
+  productCards.forEach(card => {
+    card.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      // Get the product name from the card
+      const productName = this.querySelector('.main-code-text').textContent;
+      console.log('Product card clicked:', productName);
+      
+      // Navigate to the product page
+      const productLink = `/products/${productName.toLowerCase().replace(/\s+/g, '-')}`;
+      window.location.href = productLink;
+    });
+  });
+  
+  console.log('Product card interactions initialized');
 }
 
 // Initialize apply filter button
