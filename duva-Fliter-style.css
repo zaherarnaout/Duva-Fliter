@@ -497,19 +497,20 @@
 
 /* === Search Functionality Styles === */
 
-/* Ensure search input is properly interactive */
+/* Ensure search input is properly interactive - OVERRIDE ALL CONFLICTS */
 .search-input-style input,
-.search-wrapper input {
+.search-wrapper input,
+input[data-search-input="true"] {
   background: transparent !important;
   border: none !important;
   outline: none !important;
   width: 100% !important;
   height: 100% !important;
-  padding: 0 !important;
+  padding: 0 40px 0 40px !important;
   margin: 0 !important;
   font-family: inherit !important;
   font-size: inherit !important;
-  color: inherit !important;
+  color: #000 !important;
   cursor: text !important;
   pointer-events: auto !important;
   position: relative !important;
@@ -521,6 +522,15 @@
   -webkit-user-select: text !important;
   -moz-user-select: text !important;
   -ms-user-select: text !important;
+  box-sizing: border-box !important;
+  resize: none !important;
+  overflow: visible !important;
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  text-overflow: clip !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
 }
 
 /* Override any potential blocking styles */
@@ -528,6 +538,7 @@
 .search-wrapper {
   position: relative !important;
   pointer-events: auto !important;
+  overflow: visible !important;
 }
 
 /* Ensure no other elements block the input */
@@ -536,26 +547,44 @@
   pointer-events: auto !important;
 }
 
+/* Force input to be interactive on all states */
+.search-input-style input:focus,
+.search-wrapper input:focus,
+input[data-search-input="true"]:focus {
+  color: #000 !important;
+  background: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.search-input-style input:hover,
+.search-wrapper input:hover,
+input[data-search-input="true"]:hover {
+  color: #000 !important;
+  background: transparent !important;
+}
+
+.search-input-style input:active,
+.search-wrapper input:active,
+input[data-search-input="true"]:active {
+  color: #000 !important;
+  background: transparent !important;
+}
+
 /* Ensure placeholder text behaves correctly */
 .search-input-style input::placeholder,
-.search-wrapper input::placeholder {
+.search-wrapper input::placeholder,
+input[data-search-input="true"]::placeholder {
   color: #999 !important;
   opacity: 1 !important;
 }
 
 /* Hide placeholder when input is focused and has content */
 .search-input-style input:focus::placeholder,
-.search-wrapper input:focus::placeholder {
+.search-wrapper input:focus::placeholder,
+input[data-search-input="true"]:focus::placeholder {
   opacity: 0 !important;
-}
-
-/* Force input to be interactive */
-.search-input-style input:focus,
-.search-wrapper input:focus {
-  color: #000 !important;
-  background: transparent !important;
-  outline: none !important;
-  box-shadow: none !important;
 }
 
 /* Search empty state styling */
