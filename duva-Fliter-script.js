@@ -298,7 +298,7 @@ function createDropdownMenu(specType) {
   return dropdownMenu;
 }
 
-// Toggle dropdown visibility
+// Toggle dropdown visibility with proper positioning
 function toggleDropdown(dropdownMenu) {
   // Close all other dropdowns first
   const allDropdowns = document.querySelectorAll('.filter-dropdown-menu');
@@ -309,6 +309,18 @@ function toggleDropdown(dropdownMenu) {
   });
   
   // Toggle current dropdown
+  const isActive = dropdownMenu.classList.contains('active');
+  
+  if (!isActive) {
+    // Position the dropdown correctly
+    const field = dropdownMenu.closest('.selection-filter-text');
+    const fieldRect = field.getBoundingClientRect();
+    
+    dropdownMenu.style.top = (fieldRect.bottom + 4) + 'px';
+    dropdownMenu.style.left = fieldRect.left + 'px';
+    dropdownMenu.style.width = fieldRect.width + 'px';
+  }
+  
   dropdownMenu.classList.toggle('active');
 }
 
@@ -833,11 +845,12 @@ function resetAllFilters() {
     }
   };
   
-  // Reset all checkboxes
+  // Reset all checkboxes and their text colors
   const allCheckboxes = document.querySelectorAll('.filter-checkmark');
   allCheckboxes.forEach(checkbox => {
     checkbox.classList.remove('active');
-    const wrapper = checkbox.closest('.filter-checkbox-wrapper');
+    // Reset the wrapper to remove active state from text
+    const wrapper = checkbox.closest('.sub-filter-wrapper');
     if (wrapper) {
       wrapper.classList.remove('active');
     }
