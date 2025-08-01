@@ -1040,23 +1040,31 @@ function initializeMainSearch() {
       searchInput = document.createElement('input');
       searchInput.type = 'text';
       searchInput.placeholder = 'Search products...';
+      searchInput.setAttribute('data-search-input', 'true');
       searchInput.style.cssText = `
-        background: transparent;
-        border: none;
-        outline: none;
-        width: 100%;
-        height: 100%;
-        padding: 0;
-        margin: 0;
-        font-family: inherit;
-        font-size: inherit;
-        color: inherit;
-        cursor: text;
-        pointer-events: auto;
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 10;
+        background: transparent !important;
+        border: none !important;
+        outline: none !important;
+        width: 100% !important;
+        height: 100% !important;
+        padding: 0 40px 0 40px !important;
+        margin: 0 !important;
+        font-family: inherit !important;
+        font-size: inherit !important;
+        color: #000 !important;
+        cursor: text !important;
+        pointer-events: auto !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        z-index: 1000 !important;
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        user-select: text !important;
+        -webkit-user-select: text !important;
+        -moz-user-select: text !important;
+        -ms-user-select: text !important;
       `;
       
       // Make container relative positioned
@@ -1154,6 +1162,11 @@ function initializeMainSearch() {
       console.log('Testing input interactivity...');
       searchInput.focus();
       console.log('Input focused successfully');
+      
+      // Try to simulate typing
+      searchInput.value = 'test';
+      searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+      console.log('Test typing completed');
     }, 1000);
     
     console.log('Main search initialized successfully');
