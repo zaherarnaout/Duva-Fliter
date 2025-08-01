@@ -228,10 +228,7 @@
 
 /* === Filter Dropdown Menu === */
 .filter-dropdown-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
+  position: fixed; /* Changed from absolute to fixed to escape container boundaries */
   background-color: white;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
