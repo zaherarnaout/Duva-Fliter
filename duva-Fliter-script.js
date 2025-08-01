@@ -350,19 +350,37 @@ function applyFilters() {
   // Get all existing product cards from Webflow CMS
   const existingProductCards = document.querySelectorAll('.collection-item');
   
-  existingProductCards.forEach(card => {
-    // Get product data from the card (this will depend on your Webflow CMS structure)
+  console.log('Found', existingProductCards.length, 'product cards');
+  
+  existingProductCards.forEach((card, index) => {
+    // Get all possible product data from the card
     const productName = card.querySelector('.main-code-text')?.textContent || '';
     const productDescription = card.querySelector('.item-description')?.textContent || '';
+    const backTitle = card.querySelector('.back-title')?.textContent || '';
+    const wattageElements = card.querySelectorAll('.wattage');
+    const wattageTexts = Array.from(wattageElements).map(el => el.textContent).join(' ');
+    
+    // Combine all text for searching
+    const allProductText = (productName + ' ' + productDescription + ' ' + backTitle + ' ' + wattageTexts).toLowerCase();
+    
+    console.log(`Product ${index + 1}:`, {
+      name: productName,
+      description: productDescription,
+      backTitle: backTitle,
+      wattageTexts: wattageTexts,
+      allText: allProductText
+    });
     
     // Check if this product matches the filter criteria
-    const shouldShow = checkProductMatch(productName, productDescription);
+    const shouldShow = checkProductMatch(productName, productDescription, backTitle, wattageTexts, allProductText);
     
     // Show/hide the card based on filter results
     if (shouldShow) {
       card.style.display = 'block';
+      console.log(`Product "${productName}" - SHOWING`);
     } else {
       card.style.display = 'none';
+      console.log(`Product "${productName}" - HIDDEN`);
     }
   });
   
@@ -379,50 +397,74 @@ function applyFilters() {
 }
 
 // Check if a product matches the filter criteria
-function checkProductMatch(productName, productDescription) {
-  // For now, we'll do basic text matching
-  // You can enhance this based on your actual product data structure
-  
-  const searchText = (productName + ' ' + productDescription).toLowerCase();
+function checkProductMatch(productName, productDescription, backTitle, wattageTexts, allProductText) {
+  console.log('Checking product match for:', productName);
+  console.log('Filter state:', filterState);
   
   // Check application type filters
   if (filterState.applicationType.length > 0) {
     const hasMatchingApplication = filterState.applicationType.some(type => 
-      searchText.includes(type.toLowerCase())
+      allProductText.includes(type.toLowerCase())
     );
-    if (!hasMatchingApplication) return false;
+    if (!hasMatchingApplication) {
+      console.log('No matching application type found');
+      return false;
+    }
   }
   
   // Check mounting type filters
   if (filterState.mountingType.length > 0) {
     const hasMatchingMounting = filterState.mountingType.some(type => 
-      searchText.includes(type.toLowerCase())
+      allProductText.includes(type.toLowerCase())
     );
-    if (!hasMatchingMounting) return false;
+    if (!hasMatchingMounting) {
+      console.log('No matching mounting type found');
+      return false;
+    }
   }
   
   // Check form factor filters
   if (filterState.formFactor.length > 0) {
     const hasMatchingFormFactor = filterState.formFactor.some(type => 
-      searchText.includes(type.toLowerCase())
+      allProductText.includes(type.toLowerCase())
     );
-    if (!hasMatchingFormFactor) return false;
+    if (!hasMatchingFormFactor) {
+      console.log('No matching form factor found');
+      return false;
+    }
   }
   
   // Check performance specs
   for (const [key, value] of Object.entries(filterState.performanceSpecs)) {
-    if (value && !searchText.includes(value.toLowerCase())) {
-      return false;
+    if (value) {
+      const searchValue = value.toLowerCase();
+      console.log(`Searching for "${searchValue}" in product text`);
+      
+      if (!allProductText.includes(searchValue)) {
+        console.log(`"${searchValue}" not found in product text`);
+        return false;
+      } else {
+        console.log(`"${searchValue}" found in product text`);
+      }
     }
   }
   
   // Check technical specs
   for (const [key, value] of Object.entries(filterState.technicalSpecs)) {
-    if (value && !searchText.includes(value.toLowerCase())) {
-      return false;
+    if (value) {
+      const searchValue = value.toLowerCase();
+      console.log(`Searching for "${searchValue}" in product text`);
+      
+      if (!allProductText.includes(searchValue)) {
+        console.log(`"${searchValue}" not found in product text`);
+        return false;
+      } else {
+        console.log(`"${searchValue}" found in product text`);
+      }
     }
   }
   
+  console.log('Product matches all filter criteria');
   return true;
 }
 
