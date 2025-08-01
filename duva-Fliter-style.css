@@ -172,6 +172,16 @@
   display: flex;
 }
 
+/* === Filter Text Color States === */
+.sub-filter-wattage {
+  color: var(--duva-light-grey) !important;
+  transition: color 0.2s ease;
+}
+
+.sub-filter-wrapper.active .sub-filter-wattage {
+  color: #212121 !important;
+}
+
 /* === Filter Section Expand/Collapse === */
 .filter-bg {
   max-height: 0;
@@ -225,15 +235,6 @@
   transform: translate(-50%, -60%) rotate(-45deg);
 }
 
-/* === Filter Text Active State === */
-.sub-filter-wattage {
-  transition: color 0.2s ease;
-}
-
-.sub-filter-wrapper.active .sub-filter-wattage {
-  color: #212121 !important;
-}
-
 /* === Filter Dropdown Styling === */
 .selection-filter-text {
   position: relative;
@@ -272,6 +273,21 @@
 .filter-dropdown-item.selected {
   background-color: #c0392b;
   color: white;
+}
+
+/* === Lumen Input Field === */
+.lumen-input-field {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  width: 100px;
+  text-align: center;
+}
+
+.lumen-input-field:focus {
+  outline: none;
+  border-color: #c0392b;
 }
 
 /* === Apply Filter Button Hover === */
