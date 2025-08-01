@@ -511,21 +511,6 @@
   font-family: inherit;
 }
 
-/* Search input focus states (if needed) */
-.search-input-style input:focus,
-.search-wrapper input:focus {
-  outline: none;
-  border-color: #C0392B;
-  box-shadow: 0 0 0 2px rgba(192, 57, 43, 0.1);
-}
-
-/* Search icon hover effect */
-.search-icon:hover,
-.search-wrapper .icon:hover {
-  opacity: 0.8;
-  cursor: pointer;
-}
-
 /* Ensure search results work well with existing filter styles */
 .search-empty-state.w-dyn-empty {
   background: transparent;
