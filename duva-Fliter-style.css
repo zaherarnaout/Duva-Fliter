@@ -527,7 +527,7 @@ input[data-search-input="true"] {
   opacity: 1 !important;
   pointer-events: auto !important;
   position: relative !important;
-  z-index: 1000 !important;
+  z-index: 9999 !important; /* Increased z-index to be above everything */
   background: transparent !important;
   border: none !important;
   outline: none !important;
@@ -577,6 +577,7 @@ input[data-search-input="true"] {
   width: 100% !important;
   min-height: 40px !important;
   box-sizing: border-box !important;
+  z-index: 9999 !important; /* Increased z-index to be above everything */
   /* Override flex properties from main styles.css */
   flex: none !important;
   align-items: center !important;
@@ -692,6 +693,26 @@ input[data-search-input="true"]:focus::placeholder {
   pointer-events: auto !important;
   position: relative !important;
   z-index: 1000 !important;
+}
+
+/* === Header/Navigation Protection === */
+/* Ensure header elements don't hide the search bar */
+header,
+nav,
+.navigation,
+.header,
+.navbar {
+  z-index: 9998 !important; /* Lower than search bar */
+}
+
+/* Ensure search bar is always on top */
+.search-input-style,
+.search-wrapper,
+.search-input-style input,
+.search-wrapper input,
+input[data-search-input="true"] {
+  z-index: 9999 !important;
+  position: relative !important;
 }
 
 
