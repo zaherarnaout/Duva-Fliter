@@ -1291,6 +1291,9 @@ function initializeMainSearch() {
       });
     }
     
+    // Show search bar immediately
+    showSearchBarImmediately();
+    
     // Clean up any duplicate text elements
     cleanupDuplicateText();
     
@@ -1305,6 +1308,7 @@ function initializeMainSearch() {
     
     // Ensure search bar is always visible
     setTimeout(() => {
+      showSearchBarImmediately();
       ensureSearchBarVisibility();
       // Also clean up duplicates after a delay to catch any late-rendering elements
       cleanupDuplicateText();
@@ -1456,43 +1460,103 @@ function fixSearchBarAlignment() {
 function aggressiveSearchBarCleanup() {
   console.log('Performing aggressive search bar cleanup...');
   
-  // Find all elements that might contain search text
+  // First, make sure the main search bar is visible
+  const searchContainers = document.querySelectorAll('.search-input-style, .search-wrapper');
+  searchContainers.forEach(container => {
+    // Make sure the main container is visible
+    container.style.display = 'flex';
+    container.style.visibility = 'visible';
+    container.style.opacity = '1';
+    container.style.position = 'relative';
+    container.style.left = 'auto';
+    container.style.top = 'auto';
+    
+    // Apply original styling
+    container.style.backgroundColor = '#fff';
+    container.style.border = '1px solid #e0e0e0';
+    container.style.borderRadius = '20px';
+    container.style.height = '28px';
+    container.style.minWidth = '300px';
+    container.style.maxWidth = '400px';
+    container.style.width = '300px';
+    container.style.paddingLeft = '40px';
+    container.style.paddingRight = '12px';
+    container.style.alignItems = 'center';
+    container.style.justifyContent = 'flex-start';
+    container.style.overflow = 'hidden';
+    container.style.whiteSpace = 'nowrap';
+    container.style.flex = '0 1 auto';
+    container.style.margin = '0 16px';
+    
+    console.log('Made search container visible:', container);
+  });
+  
+  // Find and make the main search input visible
+  const searchInputs = document.querySelectorAll('input[placeholder*="Search"], input[placeholder*="search"]');
+  if (searchInputs.length > 0) {
+    // Make the first input visible and properly styled
+    const mainInput = searchInputs[0];
+    mainInput.style.display = 'block';
+    mainInput.style.visibility = 'visible';
+    mainInput.style.opacity = '1';
+    mainInput.style.position = 'relative';
+    mainInput.style.left = 'auto';
+    mainInput.style.top = 'auto';
+    mainInput.style.zIndex = '1000';
+    mainInput.style.pointerEvents = 'auto';
+    
+    // Apply original styling
+    mainInput.style.border = '1px solid #e0e0e0';
+    mainInput.style.borderRadius = '20px';
+    mainInput.style.backgroundColor = '#fff';
+    mainInput.style.height = '28px';
+    mainInput.style.minWidth = '300px';
+    mainInput.style.maxWidth = '400px';
+    mainInput.style.width = '300px';
+    mainInput.style.paddingLeft = '40px';
+    mainInput.style.paddingRight = '12px';
+    mainInput.style.fontSize = 'inherit';
+    mainInput.style.fontFamily = 'inherit';
+    mainInput.style.color = '#000';
+    mainInput.style.outline = 'none';
+    
+    console.log('Made main search input visible:', mainInput);
+    
+    // Hide any additional inputs (duplicates)
+    for (let i = 1; i < searchInputs.length; i++) {
+      searchInputs[i].style.display = 'none';
+      searchInputs[i].style.visibility = 'hidden';
+      searchInputs[i].style.opacity = '0';
+      console.log('Hidden duplicate search input:', searchInputs[i]);
+    }
+  }
+  
+  // Only hide text elements that are actual duplicates, not the main search bar
   const allElements = document.querySelectorAll('*');
   const searchTextElements = [];
   
   allElements.forEach(el => {
     const text = el.textContent.trim();
     if (text === 'Search products...' || text === 'Search products') {
-      searchTextElements.push(el);
+      // Only hide if it's not the main search input or its container
+      const isMainSearchElement = el.closest('.search-input-style, .search-wrapper') && 
+                                 (el.tagName === 'INPUT' || el.classList.contains('search-input-style') || el.classList.contains('search-wrapper'));
+      
+      if (!isMainSearchElement) {
+        searchTextElements.push(el);
+      }
     }
   });
   
-  console.log('Found search text elements:', searchTextElements.length);
-  
-  // If we have multiple elements with the same text, keep only the first one
-  if (searchTextElements.length > 1) {
-    console.log('Multiple search text elements found, hiding duplicates...');
-    for (let i = 1; i < searchTextElements.length; i++) {
-      const element = searchTextElements[i];
-      element.style.display = 'none';
-      element.style.visibility = 'hidden';
-      element.style.opacity = '0';
-      element.style.position = 'absolute';
-      element.style.left = '-9999px';
-      console.log('Hidden duplicate element:', element);
-    }
-  }
-  
-  // Also check for any input elements that might be duplicates
-  const searchInputs = document.querySelectorAll('input[placeholder*="Search"], input[placeholder*="search"]');
-  if (searchInputs.length > 1) {
-    console.log('Multiple search inputs found, keeping only the first one');
-    for (let i = 1; i < searchInputs.length; i++) {
-      searchInputs[i].style.display = 'none';
-      searchInputs[i].style.visibility = 'hidden';
-      searchInputs[i].style.opacity = '0';
-    }
-  }
+  // Hide only the duplicate text elements, not the main search bar
+  searchTextElements.forEach(element => {
+    element.style.display = 'none';
+    element.style.visibility = 'hidden';
+    element.style.opacity = '0';
+    element.style.position = 'absolute';
+    element.style.left = '-9999px';
+    console.log('Hidden duplicate text element:', element);
+  });
 }
 
 // Function to ensure search bar border is visible
@@ -1552,6 +1616,74 @@ function ensureSearchBarBorder() {
     
     console.log('Applied original styling to search container:', container);
   });
+}
+
+// Function to immediately show the search bar
+function showSearchBarImmediately() {
+  console.log('Showing search bar immediately...');
+  
+  // Find and show the main search container
+  const searchContainers = document.querySelectorAll('.search-input-style, .search-wrapper');
+  searchContainers.forEach(container => {
+    // Force the container to be visible
+    container.style.display = 'flex';
+    container.style.visibility = 'visible';
+    container.style.opacity = '1';
+    container.style.position = 'relative';
+    container.style.left = 'auto';
+    container.style.top = 'auto';
+    container.style.zIndex = '1000';
+    
+    // Apply original styling
+    container.style.backgroundColor = '#fff';
+    container.style.border = '1px solid #e0e0e0';
+    container.style.borderRadius = '20px';
+    container.style.height = '28px';
+    container.style.minWidth = '300px';
+    container.style.maxWidth = '400px';
+    container.style.width = '300px';
+    container.style.paddingLeft = '40px';
+    container.style.paddingRight = '12px';
+    container.style.alignItems = 'center';
+    container.style.justifyContent = 'flex-start';
+    container.style.overflow = 'hidden';
+    container.style.whiteSpace = 'nowrap';
+    container.style.flex = '0 1 auto';
+    container.style.margin = '0 16px';
+    
+    console.log('Made search container immediately visible:', container);
+  });
+  
+  // Find and show the search input
+  const searchInputs = document.querySelectorAll('input[placeholder*="Search"], input[placeholder*="search"]');
+  if (searchInputs.length > 0) {
+    const mainInput = searchInputs[0];
+    mainInput.style.display = 'block';
+    mainInput.style.visibility = 'visible';
+    mainInput.style.opacity = '1';
+    mainInput.style.position = 'relative';
+    mainInput.style.left = 'auto';
+    mainInput.style.top = 'auto';
+    mainInput.style.zIndex = '1000';
+    mainInput.style.pointerEvents = 'auto';
+    
+    // Apply original styling
+    mainInput.style.border = '1px solid #e0e0e0';
+    mainInput.style.borderRadius = '20px';
+    mainInput.style.backgroundColor = '#fff';
+    mainInput.style.height = '28px';
+    mainInput.style.minWidth = '300px';
+    mainInput.style.maxWidth = '400px';
+    mainInput.style.width = '300px';
+    mainInput.style.paddingLeft = '40px';
+    mainInput.style.paddingRight = '12px';
+    mainInput.style.fontSize = 'inherit';
+    mainInput.style.fontFamily = 'inherit';
+    mainInput.style.color = '#000';
+    mainInput.style.outline = 'none';
+    
+    console.log('Made search input immediately visible:', mainInput);
+  }
 }
 
 // Apply search filter using existing filter logic
