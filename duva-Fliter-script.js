@@ -9,6 +9,19 @@ let filterState = {
   technicalSpecs: {}
 };
 
+// Dropdown options configuration - Easy to add more options
+const DROPDOWN_OPTIONS = {
+  'Wattage': ['12W', '24W', '36W', '48W', '60W', '72W', '96W'],
+  'CCT': ['2700K', '3000K', '4000K', '5000K', '6500K'],
+  'Beam': ['15°', '30°', '60°', '90°', '120°', '180°'],
+  'CRI': ['80', '85', '90', '95', '98'],
+  'UGR': ['16', '17', '18', '19', '20'],
+  'Efficancy': ['80lm/W', '90lm/W', '100lm/W', '110lm/W', '120lm/W'],
+  'IP': ['IP20', 'IP44', 'IP54', 'IP65', 'IP67', 'IP68'],
+  'IK': ['IK06', 'IK08', 'IK10'],
+  'Finish Color': ['White', 'Black', 'Silver', 'Bronze', 'Custom', 'Gold', 'Copper']
+};
+
 // Sample product data (replace with your actual data)
 let products = [
   {
@@ -68,6 +81,9 @@ function initializeFilter() {
   // Initialize dropdowns
   initializeFilterDropdowns();
   
+  // Initialize lumen input field
+  initializeLumenInput();
+  
   // Initialize apply filter button
   initializeApplyFilterButton();
   
@@ -124,6 +140,35 @@ function initializeFilterCheckboxes() {
   console.log('Filter checkboxes initialized');
 }
 
+// Initialize lumen input field
+function initializeLumenInput() {
+  const lumenField = document.querySelector('.selection-filter-text .text-filed div');
+  
+  if (lumenField && lumenField.textContent.includes('place holder text')) {
+    // Replace the div with an input field
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'lumen-input-field';
+    input.placeholder = 'Enter lumen value';
+    
+    // Replace the div with input
+    lumenField.parentNode.replaceChild(input, lumenField);
+    
+    // Add event listener for real-time filtering
+    input.addEventListener('input', function() {
+      const value = this.value.trim();
+      if (value) {
+        filterState.performanceSpecs.lumen = value;
+      } else {
+        delete filterState.performanceSpecs.lumen;
+      }
+      applyFilters();
+    });
+    
+    console.log('Lumen input field initialized');
+  }
+}
+
 // Initialize filter dropdowns
 function initializeFilterDropdowns() {
   const dropdowns = document.querySelectorAll('.selection-filter-text');
@@ -131,6 +176,9 @@ function initializeFilterDropdowns() {
   dropdowns.forEach(dropdown => {
     const textField = dropdown.querySelector('.text-filed div');
     const specType = dropdown.closest('.sub-filter-wrapper').querySelector('.sub-filter-wattage').textContent.trim();
+    
+    // Skip lumen field as it's handled separately
+    if (specType === 'Lumen') return;
     
     // Create dropdown menu
     const dropdownMenu = createDropdownMenu(specType);
@@ -156,8 +204,8 @@ function createDropdownMenu(specType) {
   const dropdownMenu = document.createElement('div');
   dropdownMenu.className = 'filter-dropdown-menu';
   
-  // Sample options based on spec type
-  const options = getOptionsForSpec(specType);
+  // Get options from configuration
+  const options = DROPDOWN_OPTIONS[specType] || ['Option 1', 'Option 2', 'Option 3'];
   
   options.forEach(option => {
     const item = document.createElement('div');
@@ -184,24 +232,6 @@ function createDropdownMenu(specType) {
   return dropdownMenu;
 }
 
-// Get options for different spec types
-function getOptionsForSpec(specType) {
-  const options = {
-    'Wattage': ['12W', '24W', '36W', '48W', '60W'],
-    'Lumen': ['1200lm', '2400lm', '3600lm', '4800lm', '6000lm'],
-    'CCT': ['2700K', '3000K', '4000K', '5000K', '6500K'],
-    'Beam': ['15°', '30°', '60°', '90°', '120°'],
-    'CRI': ['80', '85', '90', '95', '98'],
-    'UGR': ['16', '17', '18', '19', '20'],
-    'Efficancy': ['80lm/W', '90lm/W', '100lm/W', '110lm/W', '120lm/W'],
-    'IP': ['IP20', 'IP44', 'IP54', 'IP65', 'IP67'],
-    'IK': ['IK06', 'IK08', 'IK10'],
-    'Finish Color': ['White', 'Black', 'Silver', 'Bronze', 'Custom']
-  };
-  
-  return options[specType] || ['Option 1', 'Option 2', 'Option 3'];
-}
-
 // Toggle dropdown visibility
 function toggleDropdown(dropdownMenu) {
   dropdownMenu.classList.toggle('active');
@@ -220,6 +250,7 @@ function updateFilterState(filterText, isActive) {
         filterState.applicationType.push(filterText);
       }
     } else {
+      // Remove from filter state when unchecked
       filterState.applicationType = filterState.applicationType.filter(item => item !== filterText);
     }
   } else if (mountingTypes.includes(filterText)) {
@@ -228,6 +259,7 @@ function updateFilterState(filterText, isActive) {
         filterState.mountingType.push(filterText);
       }
     } else {
+      // Remove from filter state when unchecked
       filterState.mountingType = filterState.mountingType.filter(item => item !== filterText);
     }
   } else if (formFactors.includes(filterText)) {
@@ -236,6 +268,7 @@ function updateFilterState(filterText, isActive) {
         filterState.formFactor.push(filterText);
       }
     } else {
+      // Remove from filter state when unchecked
       filterState.formFactor = filterState.formFactor.filter(item => item !== filterText);
     }
   }
@@ -402,7 +435,15 @@ function initializeApplyFilterButton() {
     applyButton.addEventListener('click', function(e) {
       e.preventDefault();
       console.log('Apply filter button clicked');
+      
+      // Apply filters
       applyFilters();
+      
+      // Close all dropdowns
+      const dropdowns = document.querySelectorAll('.filter-dropdown-menu');
+      dropdowns.forEach(dropdown => {
+        dropdown.classList.remove('active');
+      });
       
       // Show success message
       showFilterAppliedMessage();
@@ -434,6 +475,16 @@ function showFilterAppliedMessage() {
   setTimeout(() => {
     message.remove();
   }, 3000);
+}
+
+// Function to add new dropdown options (for future use)
+function addDropdownOption(specType, newOption) {
+  if (DROPDOWN_OPTIONS[specType]) {
+    DROPDOWN_OPTIONS[specType].push(newOption);
+    console.log(`Added new option "${newOption}" to ${specType}`);
+  } else {
+    console.error(`Spec type "${specType}" not found`);
+  }
 }
 
 // Initialize when DOM is ready
