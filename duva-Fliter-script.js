@@ -1273,14 +1273,28 @@ function initializeMainSearch() {
       });
     }
     
+    // Clean up any duplicate text elements
+    cleanupDuplicateText();
+    
+    // Fix search bar alignment
+    fixSearchBarAlignment();
+    
     // Ensure search bar is always visible
     setTimeout(() => {
       ensureSearchBarVisibility();
+      // Also clean up duplicates after a delay to catch any late-rendering elements
+      cleanupDuplicateText();
+      fixSearchBarAlignment();
     }, 1000);
     
     // Mark as initialized to prevent duplicates
     window.searchInitialized = true;
     console.log('Main search initialized successfully');
+    
+    // Set up periodic cleanup to catch any late-rendering duplicate elements
+    setInterval(() => {
+      cleanupDuplicateText();
+    }, 2000); // Check every 2 seconds
   } else {
     console.log('Failed to find or create search input');
   }
@@ -1315,6 +1329,65 @@ function ensureSearchBarVisibility() {
     container.style.overflow = 'visible';
     console.log('Ensured container visibility:', container);
   });
+}
+
+// Function to fix search bar alignment and remove duplicates
+function fixSearchBarAlignment() {
+  console.log('Fixing search bar alignment...');
+  
+  // Find the main search container
+  const searchContainer = document.querySelector('.search-input-style, .search-wrapper');
+  if (!searchContainer) {
+    console.log('No search container found');
+    return;
+  }
+  
+  // Ensure proper positioning
+  searchContainer.style.position = 'relative';
+  searchContainer.style.display = 'flex';
+  searchContainer.style.alignItems = 'center';
+  searchContainer.style.justifyContent = 'center';
+  
+  // Find the main search input
+  const mainSearchInput = searchContainer.querySelector('input');
+  if (mainSearchInput) {
+    // Ensure the input is properly positioned
+    mainSearchInput.style.position = 'relative';
+    mainSearchInput.style.zIndex = '1000';
+    mainSearchInput.style.width = '100%';
+    mainSearchInput.style.height = '100%';
+    mainSearchInput.style.border = 'none';
+    mainSearchInput.style.outline = 'none';
+    mainSearchInput.style.background = 'transparent';
+    mainSearchInput.style.color = '#000';
+    mainSearchInput.style.fontSize = 'inherit';
+    mainSearchInput.style.fontFamily = 'inherit';
+    
+    console.log('Fixed main search input positioning');
+  }
+  
+  // Hide any duplicate elements within the search container
+  const allElements = searchContainer.querySelectorAll('*');
+  const searchTextElements = [];
+  
+  allElements.forEach(el => {
+    if (el.tagName !== 'INPUT' && el.tagName !== 'IMG') {
+      const text = el.textContent.trim();
+      if (text === 'Search products...' || text === 'Search products') {
+        searchTextElements.push(el);
+      }
+    }
+  });
+  
+  // Keep only the first text element, hide the rest
+  if (searchTextElements.length > 1) {
+    console.log('Found duplicate text elements in search container:', searchTextElements.length);
+    for (let i = 1; i < searchTextElements.length; i++) {
+      searchTextElements[i].style.display = 'none';
+      searchTextElements[i].style.visibility = 'hidden';
+      searchTextElements[i].style.opacity = '0';
+    }
+  }
 }
 
 // Apply search filter using existing filter logic
@@ -1481,4 +1554,71 @@ function showSearchPlaceholderAndIcon() {
     input.style.opacity = '1';
     input.style.pointerEvents = 'auto';
   });
+}
+
+// Function to clean up duplicate text elements
+function cleanupDuplicateText() {
+  console.log('Cleaning up duplicate text elements...');
+  
+  // Find all search containers
+  const searchContainers = document.querySelectorAll('.search-input-style, .search-wrapper');
+  
+  searchContainers.forEach(container => {
+    // Find all text elements that might be duplicates
+    const textElements = container.querySelectorAll('div, span, p, label');
+    const searchTexts = [];
+    
+    textElements.forEach(el => {
+      const text = el.textContent.trim();
+      if (text.toLowerCase().includes('search') && text.toLowerCase().includes('product')) {
+        searchTexts.push(el);
+      }
+    });
+    
+    // If we find multiple elements with "Search products" text, keep only the first one
+    if (searchTexts.length > 1) {
+      console.log('Found duplicate search text elements:', searchTexts.length);
+      for (let i = 1; i < searchTexts.length; i++) {
+        searchTexts[i].style.display = 'none';
+        searchTexts[i].style.visibility = 'hidden';
+        searchTexts[i].style.opacity = '0';
+        console.log('Hidden duplicate text element:', searchTexts[i]);
+      }
+    }
+  });
+  
+  // Also check for any input elements with duplicate placeholders
+  const searchInputs = document.querySelectorAll('input[placeholder*="Search"], input[placeholder*="search"]');
+  if (searchInputs.length > 1) {
+    console.log('Found multiple search inputs:', searchInputs.length);
+    // Keep only the first input visible, hide the rest
+    for (let i = 1; i < searchInputs.length; i++) {
+      searchInputs[i].style.display = 'none';
+      searchInputs[i].style.visibility = 'hidden';
+      searchInputs[i].style.opacity = '0';
+      console.log('Hidden duplicate search input:', searchInputs[i]);
+    }
+  }
+  
+  // Remove any duplicate text that might be outside search containers
+  const allTextElements = document.querySelectorAll('div, span, p, label');
+  const duplicateSearchTexts = [];
+  
+  allTextElements.forEach(el => {
+    const text = el.textContent.trim();
+    if (text === 'Search products...' || text === 'Search products') {
+      duplicateSearchTexts.push(el);
+    }
+  });
+  
+  if (duplicateSearchTexts.length > 1) {
+    console.log('Found duplicate "Search products" text elements:', duplicateSearchTexts.length);
+    // Keep only the first one, hide the rest
+    for (let i = 1; i < duplicateSearchTexts.length; i++) {
+      duplicateSearchTexts[i].style.display = 'none';
+      duplicateSearchTexts[i].style.visibility = 'hidden';
+      duplicateSearchTexts[i].style.opacity = '0';
+      console.log('Hidden duplicate text element outside containers:', duplicateSearchTexts[i]);
+    }
+  }
 }
