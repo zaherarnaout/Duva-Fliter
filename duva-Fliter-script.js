@@ -393,7 +393,8 @@ function getCMSDataFromCard(card) {
     fullDescription: '',
     cct: '',
     voltage: '',
-    overviewTitle: ''
+    overviewTitle: '',
+    ipRating: '' // Add IP rating field
   };
   
   // Method 1: Try to get data from Webflow's data attributes
@@ -405,6 +406,7 @@ function getCMSDataFromCard(card) {
     cmsData.cct = card.dataset.cct || '';
     cmsData.voltage = card.dataset.voltage || '';
     cmsData.overviewTitle = card.dataset.overviewTitle || card.dataset['overview-title'] || '';
+    cmsData.ipRating = card.dataset.ipRating || card.dataset['ip-rating'] || card.dataset.ip || '';
   }
   
   // Method 2: Try to get data from Webflow's CMS binding elements
@@ -421,6 +423,11 @@ function getCMSDataFromCard(card) {
   const cctElement = card.querySelector('[data-wf-cms-bind="cct"]');
   if (cctElement) {
     cmsData.cct = cctElement.textContent || cctElement.innerText || '';
+  }
+  
+  const ipElement = card.querySelector('[data-wf-cms-bind="ip"], [data-wf-cms-bind="ip-rating"], [data-wf-cms-bind="ipRating"]');
+  if (ipElement) {
+    cmsData.ipRating = ipElement.textContent || ipElement.innerText || '';
   }
   
   // Method 3: Fallback to visible text content
@@ -447,6 +454,26 @@ function getCMSDataFromCard(card) {
     const cctMatch = wattageTexts.match(/(\d{4}K)/g);
     if (cctMatch) {
       cmsData.cct = cctMatch.join(', ');
+    }
+  }
+  
+  // Method 5: Try to get IP rating from wattage elements (back of card)
+  if (!cmsData.ipRating) {
+    const wattageElements = card.querySelectorAll('.wattage');
+    const wattageTexts = Array.from(wattageElements).map(el => el.textContent).join(' ');
+    // Look for IP pattern in the text
+    const ipMatch = wattageTexts.match(/(IP\d{2})/g);
+    if (ipMatch) {
+      cmsData.ipRating = ipMatch.join(', ');
+    }
+  }
+  
+  // Method 6: Search in descriptions for IP rating
+  if (!cmsData.ipRating) {
+    const allText = (cmsData.shortDescription + ' ' + cmsData.fullDescription).toLowerCase();
+    const ipMatch = allText.match(/(ip\d{2})/gi);
+    if (ipMatch) {
+      cmsData.ipRating = ipMatch.join(', ');
     }
   }
   
@@ -526,14 +553,27 @@ function checkProductMatchWithCMSData(cmsData) {
     }
   }
   
-  // Check technical specs
+  // Check technical specs - now with better IP handling
   for (const [key, value] of Object.entries(filterState.technicalSpecs)) {
     if (value) {
       const searchValue = value.toLowerCase();
       console.log(`Searching for "${searchValue}" in CMS data`);
       
-      const searchText = (cmsData.shortDescription + ' ' + cmsData.fullDescription).toLowerCase();
-      const found = searchText.includes(searchValue);
+      let found = false;
+      
+      // Check IP rating specifically in CMS IP field
+      if (key === 'ip' && cmsData.ipRating) {
+        const ipValues = cmsData.ipRating.toLowerCase().split(',').map(v => v.trim());
+        found = ipValues.includes(searchValue);
+        console.log(`IP values in CMS: ${cmsData.ipRating}, searching for: ${searchValue}, found: ${found}`);
+      }
+      
+      // Check other technical specs in descriptions
+      if (!found) {
+        const searchText = (cmsData.shortDescription + ' ' + cmsData.fullDescription).toLowerCase();
+        found = searchText.includes(searchValue);
+        console.log(`Searching in descriptions for "${searchValue}", found: ${found}`);
+      }
       
       if (!found) {
         console.log(`"${searchValue}" not found in CMS data`);
