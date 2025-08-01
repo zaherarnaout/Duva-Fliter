@@ -65,6 +65,27 @@ let products = [
       ik: "IK08",
       finishColor: "Black"
     }
+  },
+  {
+    id: 3,
+    name: "Panel Light",
+    applicationType: ["Indoor", "Retail"],
+    mountingType: ["Surface Mounted", "Recessed Mounted"],
+    formFactor: ["Panel"],
+    performanceSpecs: {
+      wattage: "36W",
+      lumen: "3600lm",
+      cct: "3000K",
+      beam: "120°",
+      cri: "90",
+      ugr: "19",
+      efficiency: "100lm/W"
+    },
+    technicalSpecs: {
+      ip: "IP20",
+      ik: "IK08",
+      finishColor: "White"
+    }
   }
 ];
 
@@ -78,11 +99,8 @@ function initializeFilter() {
   // Initialize checkboxes
   initializeFilterCheckboxes();
   
-  // Initialize dropdowns
-  initializeFilterDropdowns();
-  
-  // Initialize lumen input field
-  initializeLumenInput();
+  // Initialize dropdowns and input fields
+  initializeFilterFields();
   
   // Initialize apply filter button
   initializeApplyFilterButton();
@@ -140,54 +158,39 @@ function initializeFilterCheckboxes() {
   console.log('Filter checkboxes initialized');
 }
 
-// Initialize lumen input field
-function initializeLumenInput() {
-  const lumenField = document.querySelector('.selection-filter-text .text-filed div');
+// Initialize all filter fields (dropdowns and inputs)
+function initializeFilterFields() {
+  const filterFields = document.querySelectorAll('.selection-filter-text');
   
-  if (lumenField && lumenField.textContent.includes('place holder text')) {
-    // Replace the div with an input field
+  filterFields.forEach(field => {
+    const textField = field.querySelector('.text-filed div');
+    const specType = field.closest('.sub-filter-wrapper').querySelector('.sub-filter-wattage').textContent.trim();
+    
+    // Create input field for all specs (can be used for both dropdown and manual input)
     const input = document.createElement('input');
     input.type = 'text';
     input.className = 'lumen-input-field';
-    input.placeholder = 'Enter lumen value';
+    input.placeholder = `Enter ${specType} value`;
     
     // Replace the div with input
-    lumenField.parentNode.replaceChild(input, lumenField);
+    textField.parentNode.replaceChild(input, textField);
     
-    // Add event listener for real-time filtering
-    input.addEventListener('input', function() {
-      const value = this.value.trim();
-      if (value) {
-        filterState.performanceSpecs.lumen = value;
-      } else {
-        delete filterState.performanceSpecs.lumen;
-      }
-      applyFilters();
-    });
-    
-    console.log('Lumen input field initialized');
-  }
-}
-
-// Initialize filter dropdowns
-function initializeFilterDropdowns() {
-  const dropdowns = document.querySelectorAll('.selection-filter-text');
-  
-  dropdowns.forEach(dropdown => {
-    const textField = dropdown.querySelector('.text-filed div');
-    const specType = dropdown.closest('.sub-filter-wrapper').querySelector('.sub-filter-wattage').textContent.trim();
-    
-    // Skip lumen field as it's handled separately
-    if (specType === 'Lumen') return;
-    
-    // Create dropdown menu
+    // Add dropdown functionality
     const dropdownMenu = createDropdownMenu(specType);
-    dropdown.appendChild(dropdownMenu);
+    field.appendChild(dropdownMenu);
     
-    // Add click handler
-    dropdown.addEventListener('click', function(e) {
+    // Add click handler for dropdown
+    field.addEventListener('click', function(e) {
+      if (e.target === input) return; // Don't toggle dropdown when clicking input
       e.stopPropagation();
       toggleDropdown(dropdownMenu);
+    });
+    
+    // Add input event listener for real-time filtering
+    input.addEventListener('input', function() {
+      const value = this.value.trim();
+      updateFieldFilterState(specType, value);
+      applyFilters();
     });
     
     // Close dropdown when clicking outside
@@ -196,7 +199,7 @@ function initializeFilterDropdowns() {
     });
   });
   
-  console.log('Filter dropdowns initialized');
+  console.log('Filter fields initialized');
 }
 
 // Create dropdown menu with options
@@ -213,11 +216,11 @@ function createDropdownMenu(specType) {
     item.textContent = option;
     
     item.addEventListener('click', function() {
-      const textField = this.closest('.selection-filter-text').querySelector('.text-filed div');
-      textField.textContent = option;
+      const input = this.closest('.selection-filter-text').querySelector('.lumen-input-field');
+      input.value = option;
       
       // Update filter state
-      updateDropdownFilterState(specType, option);
+      updateFieldFilterState(specType, option);
       
       // Apply filters in real-time
       applyFilters();
@@ -276,16 +279,26 @@ function updateFilterState(filterText, isActive) {
   console.log('Filter state updated:', filterState);
 }
 
-// Update filter state for dropdowns
-function updateDropdownFilterState(specType, value) {
-  if (specType === 'Wattage' || specType === 'Lumen' || specType === 'CCT' || 
-      specType === 'Beam' || specType === 'CRI' || specType === 'UGR' || specType === 'Efficancy') {
-    filterState.performanceSpecs[specType.toLowerCase()] = value;
-  } else if (specType === 'IP' || specType === 'IK' || specType === 'Finish Color') {
-    filterState.technicalSpecs[specType.toLowerCase().replace(' ', '')] = value;
+// Update filter state for input fields and dropdowns
+function updateFieldFilterState(specType, value) {
+  if (value) {
+    if (specType === 'Wattage' || specType === 'Lumen' || specType === 'CCT' || 
+        specType === 'Beam' || specType === 'CRI' || specType === 'UGR' || specType === 'Efficancy') {
+      filterState.performanceSpecs[specType.toLowerCase()] = value;
+    } else if (specType === 'IP' || specType === 'IK' || specType === 'Finish Color') {
+      filterState.technicalSpecs[specType.toLowerCase().replace(' ', '')] = value;
+    }
+  } else {
+    // Remove from filter state if value is empty
+    if (specType === 'Wattage' || specType === 'Lumen' || specType === 'CCT' || 
+        specType === 'Beam' || specType === 'CRI' || specType === 'UGR' || specType === 'Efficancy') {
+      delete filterState.performanceSpecs[specType.toLowerCase()];
+    } else if (specType === 'IP' || specType === 'IK' || specType === 'Finish Color') {
+      delete filterState.technicalSpecs[specType.toLowerCase().replace(' ', '')];
+    }
   }
   
-  console.log('Dropdown filter state updated:', filterState);
+  console.log('Field filter state updated:', filterState);
 }
 
 // Apply filters to products
