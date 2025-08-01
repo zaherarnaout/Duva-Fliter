@@ -587,6 +587,30 @@ input[data-search-input="true"]:focus::placeholder {
   opacity: 0 !important;
 }
 
+/* Hide placeholder text and icon when input is focused */
+.search-input-style input:focus ~ .placeholder-text,
+.search-wrapper input:focus ~ .placeholder-text,
+.search-input-style input:focus ~ .default-text,
+.search-wrapper input:focus ~ .default-text,
+.search-input-style input:focus ~ .search-icon,
+.search-wrapper input:focus ~ .search-icon {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  display: none !important;
+}
+
+/* Hide placeholder text and icon when input has content */
+.search-input-style input:not(:placeholder-shown) ~ .placeholder-text,
+.search-wrapper input:not(:placeholder-shown) ~ .placeholder-text,
+.search-input-style input:not(:placeholder-shown) ~ .default-text,
+.search-wrapper input:not(:placeholder-shown) ~ .default-text,
+.search-input-style input:not(:placeholder-shown) ~ .search-icon,
+.search-wrapper input:not(:placeholder-shown) ~ .search-icon {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  display: none !important;
+}
+
 /* Search empty state styling */
 .search-empty-state {
   text-align: center;
