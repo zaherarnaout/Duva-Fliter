@@ -1258,18 +1258,8 @@ function initializeMainSearch() {
       });
     }
     
-    // Test if the input is actually interactive
+    // Ensure search bar is always visible
     setTimeout(() => {
-      console.log('Testing input interactivity...');
-      searchInput.focus();
-      console.log('Input focused successfully');
-      
-      // Try to simulate typing
-      searchInput.value = 'test';
-      searchInput.dispatchEvent(new Event('input', { bubbles: true }));
-      console.log('Test typing completed');
-      
-      // Ensure search bar is always visible
       ensureSearchBarVisibility();
     }, 1000);
     
