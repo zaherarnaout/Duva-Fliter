@@ -174,7 +174,7 @@
 
 /* === Filter Text Color States === */
 .sub-filter-wattage {
-  color: #666666 !important; /* Darker grey for better readability */
+  color: #dddddd !important; /* Updated to requested grey */
   transition: color 0.2s ease;
 }
 
