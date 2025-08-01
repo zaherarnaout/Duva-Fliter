@@ -135,16 +135,6 @@ let products = [
 function initializeFilter() {
   console.log('Initializing filter...');
   
-  // Debug: Check if elements exist
-  console.log('Filter elements found:', {
-    filterHeader: document.querySelector('.filter-header-wraper'),
-    filterBg: document.querySelector('.filter-bg'),
-    toggleArrow: document.querySelector('.filter-header-toggle-arrow'),
-    filterFields: document.querySelectorAll('.selection-filter-text'),
-    dropdownArrows: document.querySelectorAll('.sub-filter-dropdown'),
-    checkboxes: document.querySelectorAll('.filter-checkmark')
-  });
-  
   // Initialize filter header (expand/collapse)
   initializeFilterHeader();
   
@@ -217,15 +207,9 @@ function initializeFilterCheckboxes() {
 function initializeFilterFields() {
   const filterFields = document.querySelectorAll('.selection-filter-text');
   
-  console.log('Found filter fields:', filterFields.length);
-  
-  filterFields.forEach((field, index) => {
-    console.log(`Processing field ${index + 1}:`, field);
-    
+  filterFields.forEach(field => {
     const textField = field.querySelector('.text-filed div');
     const specType = field.closest('.sub-filter-wrapper').querySelector('.sub-filter-wattage').textContent.trim();
-    
-    console.log(`Spec type for field ${index + 1}:`, specType);
     
     // Create input field for all specs (can be used for both dropdown and manual input)
     const input = document.createElement('input');
@@ -234,45 +218,24 @@ function initializeFilterFields() {
     input.placeholder = `Enter ${specType} value`;
     
     // Replace the div with input
-    if (textField && textField.parentNode) {
-      textField.parentNode.replaceChild(input, textField);
-      console.log(`Replaced text field with input for ${specType}`);
-    }
+    textField.parentNode.replaceChild(input, textField);
     
     // Add dropdown functionality
     const dropdownMenu = createDropdownMenu(specType);
     field.appendChild(dropdownMenu);
-    console.log(`Added dropdown menu for ${specType}`);
     
     // Add click handler for dropdown toggle - now works with the dropdown arrow
     const dropdownArrow = field.querySelector('.sub-filter-dropdown');
-    console.log(`Dropdown arrow for ${specType}:`, dropdownArrow);
-    
     if (dropdownArrow) {
-      // Ensure the arrow is clickable
-      dropdownArrow.style.pointerEvents = 'auto';
-      dropdownArrow.style.cursor = 'pointer';
-      dropdownArrow.style.zIndex = '1000';
-      
       dropdownArrow.addEventListener('click', function(e) {
-        console.log(`Dropdown arrow clicked for ${specType}`);
         e.stopPropagation();
-        e.preventDefault();
         toggleDropdown(dropdownMenu);
       });
-      
-      console.log(`Added click listener to dropdown arrow for ${specType}`);
-    } else {
-      console.warn(`No dropdown arrow found for ${specType}`);
     }
     
     // Also allow clicking on the field itself to toggle dropdown
     field.addEventListener('click', function(e) {
-      if (e.target === input || e.target.closest('.sub-filter-dropdown')) {
-        console.log('Click on input or arrow, not toggling dropdown');
-        return; // Don't toggle when clicking input or arrow
-      }
-      console.log(`Field clicked for ${specType}, toggling dropdown`);
+      if (e.target === input || e.target.closest('.sub-filter-dropdown')) return; // Don't toggle when clicking input or arrow
       e.stopPropagation();
       toggleDropdown(dropdownMenu);
     });
@@ -280,14 +243,12 @@ function initializeFilterFields() {
     // Add input event listener for real-time filtering
     input.addEventListener('input', function() {
       const value = this.value.trim();
-      console.log(`Input value changed for ${specType}:`, value);
       updateFieldFilterState(specType, value);
       applyFilters();
     });
     
     // Add click handler for input to prevent dropdown toggle
     input.addEventListener('click', function(e) {
-      console.log('Input clicked, preventing dropdown toggle');
       e.stopPropagation();
     });
   });
@@ -348,51 +309,28 @@ function createDropdownMenu(specType) {
 
 // Toggle dropdown visibility with proper positioning
 function toggleDropdown(dropdownMenu) {
-  console.log('toggleDropdown called with:', dropdownMenu);
-  
   // Close all other dropdowns first
   const allDropdowns = document.querySelectorAll('.filter-dropdown-menu');
-  console.log('Found dropdowns:', allDropdowns.length);
-  
   allDropdowns.forEach(dropdown => {
     if (dropdown !== dropdownMenu) {
       dropdown.classList.remove('active');
-      console.log('Closed other dropdown');
     }
   });
   
   // Toggle current dropdown
   const isActive = dropdownMenu.classList.contains('active');
-  console.log('Current dropdown active state:', isActive);
   
   if (!isActive) {
     // Position the dropdown correctly
     const field = dropdownMenu.closest('.selection-filter-text');
     const fieldRect = field.getBoundingClientRect();
     
-    console.log('Field rect:', fieldRect);
-    
     dropdownMenu.style.top = (fieldRect.bottom + 4) + 'px';
     dropdownMenu.style.left = fieldRect.left + 'px';
     dropdownMenu.style.width = fieldRect.width + 'px';
-    
-    console.log('Positioned dropdown at:', {
-      top: dropdownMenu.style.top,
-      left: dropdownMenu.style.left,
-      width: dropdownMenu.style.width
-    });
   }
   
   dropdownMenu.classList.toggle('active');
-  console.log('Dropdown active state after toggle:', dropdownMenu.classList.contains('active'));
-  
-  // Force display block if active
-  if (dropdownMenu.classList.contains('active')) {
-    dropdownMenu.style.display = 'block';
-    dropdownMenu.style.visibility = 'visible';
-    dropdownMenu.style.opacity = '1';
-    console.log('Forced dropdown to be visible');
-  }
 }
 
 // Update filter state for checkboxes
@@ -1034,26 +972,6 @@ function closeAllDropdowns() {
 document.addEventListener('DOMContentLoaded', function() {
   console.log('DOM loaded - Initializing filter');
   initializeFilter();
-  initializeMainSearch(); // Add main search initialization
-  
-  // Ensure search bar is visible immediately
-  setTimeout(() => {
-    ensureSearchBarVisibility();
-  }, 100);
-  
-  // Test dropdown functionality after a short delay
-  setTimeout(() => {
-    console.log('Testing dropdown functionality...');
-    const dropdownArrows = document.querySelectorAll('.sub-filter-dropdown');
-    console.log('Found dropdown arrows:', dropdownArrows.length);
-    
-    dropdownArrows.forEach((arrow, index) => {
-      console.log(`Dropdown arrow ${index + 1}:`, arrow);
-      console.log(`Arrow clickable:`, arrow.style.pointerEvents);
-      console.log(`Arrow cursor:`, arrow.style.cursor);
-      console.log(`Arrow z-index:`, arrow.style.zIndex);
-    });
-  }, 1000);
 });
 
 // Also initialize when Webflow loads
@@ -1061,329 +979,5 @@ if (typeof Webflow !== 'undefined') {
   Webflow.push(function() {
     console.log('Webflow loaded - Initializing filter');
     initializeFilter();
-    initializeMainSearch(); // Add main search initialization
-    
-    // Ensure search bar is visible after Webflow loads
-    setTimeout(() => {
-      ensureSearchBarVisibility();
-    }, 100);
   });
-}
-
-// Initialize main header search functionality
-function initializeMainSearch() {
-  console.log('Initializing main search...');
-  
-  // Check if we've already initialized to prevent duplicates
-  if (window.searchInitialized) {
-    console.log('Search already initialized, skipping...');
-    return;
-  }
-  
-  // Find the existing search input
-  let searchInput = document.querySelector('input[placeholder*="Search"], input[placeholder*="search"]');
-  
-  if (searchInput) {
-    console.log('Found existing search input:', searchInput);
-    
-    // Ensure the input is properly configured
-    searchInput.type = 'text';
-    searchInput.setAttribute('autocomplete', 'off');
-    searchInput.setAttribute('spellcheck', 'false');
-    
-    // Make sure it's not disabled or readonly
-    searchInput.disabled = false;
-    searchInput.readOnly = false;
-    
-    // Add event listeners for real-time search
-    searchInput.addEventListener('input', function(e) {
-      console.log('Input event triggered:', e);
-      const searchValue = this.value.trim();
-      console.log('Main search input:', searchValue);
-      
-      if (searchValue === '') {
-        // If search is empty, show all products
-        showAllProducts();
-      } else {
-        // Apply search filter
-        applySearchFilter(searchValue);
-      }
-    });
-    
-    // Add event listener for Enter key
-    searchInput.addEventListener('keypress', function(e) {
-      console.log('Keypress event:', e.key);
-      if (e.key === 'Enter') {
-        const searchValue = this.value.trim();
-        if (searchValue !== '') {
-          applySearchFilter(searchValue);
-        }
-      }
-    });
-    
-    // Add focus event
-    searchInput.addEventListener('focus', function() {
-      console.log('Search input focused');
-    });
-    
-    // Add blur event
-    searchInput.addEventListener('blur', function() {
-      console.log('Search input blurred');
-    });
-    
-    // Add click event to ensure it's clickable
-    searchInput.addEventListener('click', function(e) {
-      console.log('Search input clicked');
-      e.stopPropagation(); // Prevent event bubbling
-    });
-    
-    // Mark as initialized to prevent duplicates
-    window.searchInitialized = true;
-    console.log('Main search initialized successfully');
-  } else {
-    console.log('No search input found');
-  }
-}
-
-// Function to ensure search bar is always visible
-function ensureSearchBarVisibility() {
-  console.log('Ensuring search bar visibility...');
-  
-  // Find all search inputs and containers
-  const searchInputs = document.querySelectorAll('input[placeholder*="Search"], input[placeholder*="search"]');
-  const searchContainers = document.querySelectorAll('.search-input-style, .search-wrapper');
-  
-  // Ensure search inputs are visible
-  searchInputs.forEach(input => {
-    input.style.display = 'block';
-    input.style.visibility = 'visible';
-    input.style.opacity = '1';
-    input.style.pointerEvents = 'auto';
-    console.log('Ensured input visibility:', input);
-  });
-  
-  // Ensure search containers are visible
-  searchContainers.forEach(container => {
-    container.style.display = 'flex';
-    container.style.visibility = 'visible';
-    container.style.opacity = '1';
-    container.style.pointerEvents = 'auto';
-    console.log('Ensured container visibility:', container);
-  });
-}
-
-// Function to fix search bar alignment and remove duplicates
-function fixSearchBarAlignment() {
-  console.log('Fixing search bar alignment...');
-  
-  // Find the main search container
-  const searchContainer = document.querySelector('.search-input-style, .search-wrapper');
-  if (!searchContainer) {
-    console.log('No search container found');
-    return;
-  }
-  
-  // Find the main search input
-  const mainSearchInput = searchContainer.querySelector('input');
-  if (mainSearchInput) {
-    // Only apply minimal styling to ensure functionality
-    mainSearchInput.style.position = 'relative';
-    mainSearchInput.style.zIndex = '1000';
-    mainSearchInput.style.pointerEvents = 'auto';
-    mainSearchInput.style.display = 'block';
-    mainSearchInput.style.visibility = 'visible';
-    mainSearchInput.style.opacity = '1';
-    
-    console.log('Applied minimal styling to search input');
-  }
-}
-
-
-
-// Apply search filter using existing filter logic
-function applySearchFilter(searchValue) {
-  console.log('Applying search filter for:', searchValue);
-  
-  if (!searchValue || searchValue.trim() === '') {
-    showAllProducts();
-    return;
-  }
-  
-  const searchTerm = searchValue.toLowerCase().trim();
-  let foundProducts = 0;
-  
-  // Get all product cards
-  const productCards = document.querySelectorAll('.collection-item');
-  
-  productCards.forEach(card => {
-    const cmsData = getCMSDataFromCard(card);
-    const isMatch = checkProductMatchSearch(cmsData, searchTerm);
-    
-    if (isMatch) {
-      card.style.display = 'block';
-      foundProducts++;
-    } else {
-      card.style.display = 'none';
-    }
-  });
-  
-  console.log(`Search completed. Found ${foundProducts} products for "${searchValue}"`);
-  
-  // Show empty state if no products found
-  if (foundProducts === 0) {
-    showSearchEmptyState(searchValue);
-  } else {
-    hideSearchEmptyState();
-  }
-}
-
-// Check if product matches search criteria
-function checkProductMatchSearch(cmsData, searchValue) {
-  if (!cmsData || !searchValue) return false;
-  
-  const searchTerm = searchValue.toLowerCase();
-  
-  // First, check the search tags field (most comprehensive)
-  if (cmsData.searchTags) {
-    const searchTags = cmsData.searchTags.toLowerCase();
-    if (searchTags.includes(searchTerm)) {
-      console.log(`Search match found in search tags for: "${searchValue}"`);
-      return true;
-    }
-  }
-  
-  // Check all text content
-  if (cmsData.allText) {
-    const allText = cmsData.allText.toLowerCase();
-    if (allText.includes(searchTerm)) {
-      console.log(`Search match found in all text for: "${searchValue}"`);
-      return true;
-    }
-  }
-  
-  // Check specific fields
-  const fieldsToCheck = [
-    'productCode', 'productName', 'description', 'wattage', 
-    'lumen', 'cct', 'beam', 'cri', 'ip', 'ik', 'finish', 'dimensions'
-  ];
-  
-  for (const field of fieldsToCheck) {
-    if (cmsData[field]) {
-      const fieldValue = cmsData[field].toLowerCase();
-      if (fieldValue.includes(searchTerm)) {
-        console.log(`Search match found in ${field} for: "${searchValue}"`);
-        return true;
-      }
-    }
-  }
-  
-  console.log(`No search match found for: "${searchValue}"`);
-  return false;
-}
-
-// Show all products (when search is cleared)
-function showAllProducts() {
-  console.log('Showing all products (search cleared)');
-  
-  const existingProductCards = document.querySelectorAll('.collection-item');
-  existingProductCards.forEach(card => {
-    card.style.display = 'block';
-  });
-  
-  // Hide any empty state messages
-  hideSearchEmptyState();
-  hideEmptyState(); // Also hide filter empty state
-}
-
-// Show empty state for search
-function showSearchEmptyState(searchValue) {
-  const productContainer = document.querySelector('.cards-container');
-  if (productContainer) {
-    // Remove existing search empty state
-    const existingEmpty = productContainer.querySelector('.search-empty-state');
-    if (existingEmpty) {
-      existingEmpty.remove();
-    }
-    
-    // Create new empty state
-    const emptyState = document.createElement('div');
-    emptyState.className = 'search-empty-state w-dyn-empty';
-    emptyState.innerHTML = `<p>No products found for "${searchValue}". Try different keywords like product code, family name, wattage, or specifications.</p>`;
-    productContainer.querySelector('.collection-list-wrapper').appendChild(emptyState);
-  }
-}
-
-// Hide empty state for search
-function hideSearchEmptyState() {
-  const emptyState = document.querySelector('.search-empty-state');
-  if (emptyState) {
-    emptyState.remove();
-  }
-}
-
-// Function to clean up duplicate text elements
-function cleanupDuplicateText() {
-  console.log('Cleaning up duplicate text elements...');
-  
-  // Find all search containers
-  const searchContainers = document.querySelectorAll('.search-input-style, .search-wrapper');
-  
-  searchContainers.forEach(container => {
-    // Find all text elements that might be duplicates
-    const textElements = container.querySelectorAll('div, span, p, label');
-    const searchTexts = [];
-    
-    textElements.forEach(el => {
-      const text = el.textContent.trim();
-      if (text.toLowerCase().includes('search') && text.toLowerCase().includes('product')) {
-        searchTexts.push(el);
-      }
-    });
-    
-    // If we find multiple elements with "Search products" text, keep only the first one
-    if (searchTexts.length > 1) {
-      console.log('Found duplicate search text elements:', searchTexts.length);
-      for (let i = 1; i < searchTexts.length; i++) {
-        searchTexts[i].style.display = 'none';
-        searchTexts[i].style.visibility = 'hidden';
-        searchTexts[i].style.opacity = '0';
-        console.log('Hidden duplicate text element:', searchTexts[i]);
-      }
-    }
-  });
-  
-  // Also check for any input elements with duplicate placeholders
-  const searchInputs = document.querySelectorAll('input[placeholder*="Search"], input[placeholder*="search"]');
-  if (searchInputs.length > 1) {
-    console.log('Found multiple search inputs:', searchInputs.length);
-    // Keep only the first input visible, hide the rest
-    for (let i = 1; i < searchInputs.length; i++) {
-      searchInputs[i].style.display = 'none';
-      searchInputs[i].style.visibility = 'hidden';
-      searchInputs[i].style.opacity = '0';
-      console.log('Hidden duplicate search input:', searchInputs[i]);
-    }
-  }
-  
-  // Remove any duplicate text that might be outside search containers
-  const allTextElements = document.querySelectorAll('div, span, p, label');
-  const duplicateSearchTexts = [];
-  
-  allTextElements.forEach(el => {
-    const text = el.textContent.trim();
-    if (text === 'Search products...' || text === 'Search products') {
-      duplicateSearchTexts.push(el);
-    }
-  });
-  
-  if (duplicateSearchTexts.length > 1) {
-    console.log('Found duplicate "Search products" text elements:', duplicateSearchTexts.length);
-    // Keep only the first one, hide the rest
-    for (let i = 1; i < duplicateSearchTexts.length; i++) {
-      duplicateSearchTexts[i].style.display = 'none';
-      duplicateSearchTexts[i].style.visibility = 'hidden';
-      duplicateSearchTexts[i].style.opacity = '0';
-      console.log('Hidden duplicate text element outside containers:', duplicateSearchTexts[i]);
-    }
-  }
 }
