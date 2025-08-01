@@ -147,9 +147,6 @@ function initializeFilter() {
   // Initialize apply filter button
   initializeApplyFilterButton();
   
-  // Initialize product card interactions
-  initializeProductCardInteractions();
-  
   console.log('Filter functionality initialized');
 }
 
@@ -350,183 +347,109 @@ function updateFieldFilterState(specType, value) {
 function applyFilters() {
   console.log('Applying filters:', filterState);
   
-  const filteredProducts = products.filter(product => {
-    // Check application type
-    if (filterState.applicationType.length > 0) {
-      const hasMatchingApplication = filterState.applicationType.some(type => 
-        product.applicationType.includes(type)
-      );
-      if (!hasMatchingApplication) return false;
-    }
+  // Get all existing product cards from Webflow CMS
+  const existingProductCards = document.querySelectorAll('.collection-item');
+  
+  existingProductCards.forEach(card => {
+    // Get product data from the card (this will depend on your Webflow CMS structure)
+    const productName = card.querySelector('.main-code-text')?.textContent || '';
+    const productDescription = card.querySelector('.item-description')?.textContent || '';
     
-    // Check mounting type
-    if (filterState.mountingType.length > 0) {
-      const hasMatchingMounting = filterState.mountingType.some(type => 
-        product.mountingType.includes(type)
-      );
-      if (!hasMatchingMounting) return false;
-    }
+    // Check if this product matches the filter criteria
+    const shouldShow = checkProductMatch(productName, productDescription);
     
-    // Check form factor
-    if (filterState.formFactor.length > 0) {
-      const hasMatchingFormFactor = filterState.formFactor.some(type => 
-        product.formFactor.includes(type)
-      );
-      if (!hasMatchingFormFactor) return false;
+    // Show/hide the card based on filter results
+    if (shouldShow) {
+      card.style.display = 'block';
+    } else {
+      card.style.display = 'none';
     }
-    
-    // Check performance specs with more flexible matching
-    for (const [key, filterValue] of Object.entries(filterState.performanceSpecs)) {
-      if (filterValue && product.performanceSpecs[key]) {
-        const productValue = product.performanceSpecs[key];
-        
-        // For CCT, check if the product has the exact CCT value
-        if (key === 'cct') {
-          if (productValue !== filterValue) {
-            console.log(`CCT mismatch: Product has ${productValue}, filter wants ${filterValue}`);
-            return false;
-          }
-        }
-        // For other specs, do exact matching
-        else if (productValue !== filterValue) {
-          console.log(`${key} mismatch: Product has ${productValue}, filter wants ${filterValue}`);
-          return false;
-        }
-      }
-    }
-    
-    // Check technical specs
-    for (const [key, filterValue] of Object.entries(filterState.technicalSpecs)) {
-      if (filterValue && product.technicalSpecs[key]) {
-        const productValue = product.technicalSpecs[key];
-        if (productValue !== filterValue) {
-          console.log(`${key} mismatch: Product has ${productValue}, filter wants ${filterValue}`);
-          return false;
-        }
-      }
-    }
-    
-    return true;
   });
   
-  console.log('Filtered products:', filteredProducts);
-  updateProductDisplay(filteredProducts);
+  // Show empty state if no products are visible
+  const visibleProducts = document.querySelectorAll('.collection-item[style*="display: block"], .collection-item:not([style*="display: none"])');
+  
+  if (visibleProducts.length === 0) {
+    showEmptyState();
+  } else {
+    hideEmptyState();
+  }
+  
+  console.log('Filter applied to existing products');
 }
 
-// Update product display
-function updateProductDisplay(filteredProducts) {
-  const productContainer = document.querySelector('.cards-container');
+// Check if a product matches the filter criteria
+function checkProductMatch(productName, productDescription) {
+  // For now, we'll do basic text matching
+  // You can enhance this based on your actual product data structure
   
+  const searchText = (productName + ' ' + productDescription).toLowerCase();
+  
+  // Check application type filters
+  if (filterState.applicationType.length > 0) {
+    const hasMatchingApplication = filterState.applicationType.some(type => 
+      searchText.includes(type.toLowerCase())
+    );
+    if (!hasMatchingApplication) return false;
+  }
+  
+  // Check mounting type filters
+  if (filterState.mountingType.length > 0) {
+    const hasMatchingMounting = filterState.mountingType.some(type => 
+      searchText.includes(type.toLowerCase())
+    );
+    if (!hasMatchingMounting) return false;
+  }
+  
+  // Check form factor filters
+  if (filterState.formFactor.length > 0) {
+    const hasMatchingFormFactor = filterState.formFactor.some(type => 
+      searchText.includes(type.toLowerCase())
+    );
+    if (!hasMatchingFormFactor) return false;
+  }
+  
+  // Check performance specs
+  for (const [key, value] of Object.entries(filterState.performanceSpecs)) {
+    if (value && !searchText.includes(value.toLowerCase())) {
+      return false;
+    }
+  }
+  
+  // Check technical specs
+  for (const [key, value] of Object.entries(filterState.technicalSpecs)) {
+    if (value && !searchText.includes(value.toLowerCase())) {
+      return false;
+    }
+  }
+  
+  return true;
+}
+
+// Show empty state message
+function showEmptyState() {
+  const productContainer = document.querySelector('.cards-container');
   if (productContainer) {
-    // Clear existing products
-    const existingProducts = productContainer.querySelectorAll('.collection-item');
-    existingProducts.forEach(product => product.remove());
-    
-    // Add filtered products
-    filteredProducts.forEach(product => {
-      const productElement = createProductElement(product);
-      productContainer.querySelector('.collection-list').appendChild(productElement);
-    });
-    
-    // Show empty state if no products
-    if (filteredProducts.length === 0) {
-      const emptyState = document.createElement('div');
-      emptyState.className = 'w-dyn-empty';
-      emptyState.innerHTML = '<p>No products match your filter criteria.</p>';
-      productContainer.querySelector('.collection-list-wrapper').appendChild(emptyState);
+    // Remove existing empty state
+    const existingEmpty = productContainer.querySelector('.filter-empty-state');
+    if (existingEmpty) {
+      existingEmpty.remove();
     }
     
-    // Re-initialize product card interactions
-    initializeProductCardInteractions();
+    // Create new empty state
+    const emptyState = document.createElement('div');
+    emptyState.className = 'filter-empty-state w-dyn-empty';
+    emptyState.innerHTML = '<p>No products match your filter criteria.</p>';
+    productContainer.querySelector('.collection-list-wrapper').appendChild(emptyState);
   }
 }
 
-// Create product element
-function createProductElement(product) {
-  const productElement = document.createElement('div');
-  productElement.className = 'collection-item w-dyn-item';
-  productElement.setAttribute('role', 'listitem');
-  
-  // Create a proper link to the product page
-  const productLink = `/products/${product.name.toLowerCase().replace(/\s+/g, '-')}`;
-  
-  productElement.innerHTML = `
-    <a href="${productLink}" class="current-product w-inline-block">
-      <div class="flip-card-wrapper">
-        <div class="flip-card">
-          <div class="flip-card-front">
-            <div class="product-card">
-              <div class="card-overlay"></div>
-              <div class="product-image-wrapper">
-                <img src="https://d3e54v103j8qbb.cloudfront.net/plugins/Basic/assets/placeholder.60f9b1840c.svg" loading="lazy" alt="" class="image">
-                <div class="main-code-card-wrapper">
-                  <div class="main-code-text">${product.name}</div>
-                  <div class="code-under-line"></div>
-                </div>
-              </div>
-              <div class="item-description card-description">${product.name}</div>
-            </div>
-          </div>
-          <div class="flip-card-back">
-            <h1 class="back-title">${product.name}</h1>
-            <div class="back-card">
-              <div class="back-spec-item">
-                <div class="back-spec-label">Available Wattage:</div>
-                <div class="wattage">${product.performanceSpecs.wattage}</div>
-              </div>
-              <div class="back-spec-item">
-                <div class="back-spec-label">Available Beam Angle:</div>
-                <div class="wattage">${product.performanceSpecs.beam}</div>
-              </div>
-              <div class="back-spec-item">
-                <div class="back-spec-label">Available CRI:</div>
-                <div class="wattage">${product.performanceSpecs.cri}</div>
-              </div>
-              <div class="back-spec-item">
-                <div class="back-spec-label">Available IP Rating:</div>
-                <div class="wattage">${product.technicalSpecs.ip}</div>
-              </div>
-              <div class="back-spec-item">
-                <div class="back-spec-label">Available Finish:</div>
-                <div class="wattage">${product.technicalSpecs.finishColor}</div>
-              </div>
-              <div class="back-spec-item">
-                <div class="back-spec-label">Available CCT:</div>
-                <div class="wattage">${product.performanceSpecs.cct}</div>
-              </div>
-              <div class="back-spec-item">
-                <div class="back-spec-label">Available Dimension:</div>
-                <div class="wattage">Custom</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </a>
-  `;
-  
-  return productElement;
-}
-
-// Initialize product card interactions
-function initializeProductCardInteractions() {
-  const productCards = document.querySelectorAll('.current-product');
-  
-  productCards.forEach(card => {
-    card.addEventListener('click', function(e) {
-      e.preventDefault();
-      
-      // Get the product name from the card
-      const productName = this.querySelector('.main-code-text').textContent;
-      console.log('Product card clicked:', productName);
-      
-      // Navigate to the product page
-      const productLink = `/products/${productName.toLowerCase().replace(/\s+/g, '-')}`;
-      window.location.href = productLink;
-    });
-  });
-  
-  console.log('Product card interactions initialized');
+// Hide empty state message
+function hideEmptyState() {
+  const emptyState = document.querySelector('.filter-empty-state');
+  if (emptyState) {
+    emptyState.remove();
+  }
 }
 
 // Initialize apply filter button
