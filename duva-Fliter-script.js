@@ -374,20 +374,21 @@ function updateFilterState(filterText, isActive) {
 
 // Update filter state for input fields and dropdowns
 function updateFieldFilterState(specType, value) {
-  if (value) {
+  // Clear any existing value for this spec type first
+  if (specType === 'Wattage' || specType === 'Lumen' || specType === 'CCT' || 
+      specType === 'Beam' || specType === 'CRI' || specType === 'UGR' || specType === 'Efficancy') {
+    delete filterState.performanceSpecs[specType.toLowerCase()];
+  } else if (specType === 'IP' || specType === 'IK' || specType === 'Finish Color') {
+    delete filterState.technicalSpecs[specType.toLowerCase().replace(' ', '')];
+  }
+  
+  // Only add the value if it's not empty
+  if (value && value.trim() !== '') {
     if (specType === 'Wattage' || specType === 'Lumen' || specType === 'CCT' || 
         specType === 'Beam' || specType === 'CRI' || specType === 'UGR' || specType === 'Efficancy') {
-      filterState.performanceSpecs[specType.toLowerCase()] = value;
+      filterState.performanceSpecs[specType.toLowerCase()] = value.trim();
     } else if (specType === 'IP' || specType === 'IK' || specType === 'Finish Color') {
-      filterState.technicalSpecs[specType.toLowerCase().replace(' ', '')] = value;
-    }
-  } else {
-    // Remove from filter state if value is empty
-    if (specType === 'Wattage' || specType === 'Lumen' || specType === 'CCT' || 
-        specType === 'Beam' || specType === 'CRI' || specType === 'UGR' || specType === 'Efficancy') {
-      delete filterState.performanceSpecs[specType.toLowerCase()];
-    } else if (specType === 'IP' || specType === 'IK' || specType === 'Finish Color') {
-      delete filterState.technicalSpecs[specType.toLowerCase().replace(' ', '')];
+      filterState.technicalSpecs[specType.toLowerCase().replace(' ', '')] = value.trim();
     }
   }
   
@@ -684,42 +685,51 @@ function checkProductMatchWithCMSData(cmsData) {
     }
   }
   
-  // Check performance specs - now using comprehensive CMS data
+  // Check performance specs - now with more precise matching
   for (const [key, value] of Object.entries(filterState.performanceSpecs)) {
-    if (value) {
-      const searchValue = value.toLowerCase();
+    if (value && value.trim() !== '') {
+      const searchValue = value.toLowerCase().trim();
       console.log(`Searching for "${searchValue}" in CMS data`);
       
       let found = false;
       
-      // Check specific fields in CMS data
+      // Check specific fields in CMS data with exact matching
       if (key === 'cct' && cmsData.cct) {
         const cctValues = cmsData.cct.toLowerCase().split(',').map(v => v.trim());
-        found = cctValues.includes(searchValue);
+        found = cctValues.some(val => val === searchValue);
         console.log(`CCT values in CMS: ${cmsData.cct}, searching for: ${searchValue}, found: ${found}`);
       }
       
       if (key === 'lumen' && cmsData.lumen) {
         const lumenValues = cmsData.lumen.toLowerCase().split(',').map(v => v.trim());
-        found = lumenValues.includes(searchValue);
+        found = lumenValues.some(val => val === searchValue);
         console.log(`Lumen values in CMS: ${cmsData.lumen}, searching for: ${searchValue}, found: ${found}`);
       }
       
       if (key === 'beam' && cmsData.beam) {
         const beamValues = cmsData.beam.toLowerCase().split(',').map(v => v.trim());
-        found = beamValues.includes(searchValue);
+        found = beamValues.some(val => val === searchValue);
         console.log(`Beam values in CMS: ${cmsData.beam}, searching for: ${searchValue}, found: ${found}`);
       }
       
       if (key === 'cri' && cmsData.cri) {
         const criValues = cmsData.cri.toLowerCase().split(',').map(v => v.trim());
-        found = criValues.includes(searchValue);
+        found = criValues.some(val => val === searchValue);
         console.log(`CRI values in CMS: ${cmsData.cri}, searching for: ${searchValue}, found: ${found}`);
       }
       
-      // Check in all text if not found in specific fields
+      if (key === 'wattage' && cmsData.lumen) {
+        // For wattage, look for exact wattage values in lumen text
+        const wattageMatch = cmsData.lumen.toLowerCase().match(new RegExp(`\\b${searchValue.replace('w', '')}\\s*w`, 'i'));
+        found = wattageMatch !== null;
+        console.log(`Wattage search in lumen: ${cmsData.lumen}, searching for: ${searchValue}, found: ${found}`);
+      }
+      
+      // Check in all text if not found in specific fields - with more precise matching
       if (!found) {
-        found = cmsData.allText.includes(searchValue);
+        // Use word boundaries for more precise matching
+        const regex = new RegExp(`\\b${searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+        found = regex.test(cmsData.allText);
         console.log(`Searching in all text for "${searchValue}", found: ${found}`);
       }
       
@@ -732,40 +742,42 @@ function checkProductMatchWithCMSData(cmsData) {
     }
   }
   
-  // Check technical specs - now with comprehensive search
+  // Check technical specs - now with more precise matching
   for (const [key, value] of Object.entries(filterState.technicalSpecs)) {
-    if (value) {
-      const searchValue = value.toLowerCase();
+    if (value && value.trim() !== '') {
+      const searchValue = value.toLowerCase().trim();
       console.log(`Searching for "${searchValue}" in CMS data`);
       
       let found = false;
       
-      // Check specific fields in CMS data
+      // Check specific fields in CMS data with exact matching
       if (key === 'ip' && cmsData.ipRating) {
         const ipValues = cmsData.ipRating.toLowerCase().split(',').map(v => v.trim());
-        found = ipValues.includes(searchValue);
+        found = ipValues.some(val => val === searchValue);
         console.log(`IP values in CMS: ${cmsData.ipRating}, searching for: ${searchValue}, found: ${found}`);
       }
       
       if (key === 'ik' && cmsData.ikRating) {
         const ikValues = cmsData.ikRating.toLowerCase().split(',').map(v => v.trim());
-        found = ikValues.includes(searchValue);
+        found = ikValues.some(val => val === searchValue);
         console.log(`IK values in CMS: ${cmsData.ikRating}, searching for: ${searchValue}, found: ${found}`);
       }
       
       if (key === 'outdoor' && cmsData.outdoor) {
-        found = cmsData.outdoor.toLowerCase().includes(searchValue);
+        found = cmsData.outdoor.toLowerCase() === searchValue;
         console.log(`Outdoor values in CMS: ${cmsData.outdoor}, searching for: ${searchValue}, found: ${found}`);
       }
       
       if (key === 'indoor' && cmsData.indoor) {
-        found = cmsData.indoor.toLowerCase().includes(searchValue);
+        found = cmsData.indoor.toLowerCase() === searchValue;
         console.log(`Indoor values in CMS: ${cmsData.indoor}, searching for: ${searchValue}, found: ${found}`);
       }
       
-      // Check in all text if not found in specific fields
+      // Check in all text if not found in specific fields - with more precise matching
       if (!found) {
-        found = cmsData.allText.includes(searchValue);
+        // Use word boundaries for more precise matching
+        const regex = new RegExp(`\\b${searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+        found = regex.test(cmsData.allText);
         console.log(`Searching in all text for "${searchValue}", found: ${found}`);
       }
       
