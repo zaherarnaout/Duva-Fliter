@@ -193,15 +193,6 @@
   max-height: 1000px;
 }
 
-.filter-header-toggle-arrow {
-  cursor: pointer;
-  transition: transform 0.3s ease;
-}
-
-.filter-header-toggle-arrow.rotated {
-  transform: rotate(180deg);
-}
-
 /* === Filter Checkbox Styling === */
 .filter-checkmark {
   width: 20px;
@@ -467,21 +458,41 @@
   display: flex;
 }
 
-/* Ensure dropdown container has proper positioning */
+/* === Dropdown Container Positioning === */
 .selection-filter-text {
   position: relative;
+  /* Only make the dropdown container overflow visible, not the entire filter */
   overflow: visible;
 }
 
-/* Make sure filter sections don't clip the dropdown */
+/* === Specific Overflow Control === */
+/* Only make the immediate parent of dropdowns overflow visible */
+.sub-filter-wrapper {
+  overflow: visible;
+}
+
+/* Keep other filter containers with normal overflow */
 .filter-sections-wrapper,
 .filter-bg,
 .filter-left-wrapper,
-.filter-right-wrapper {
-  overflow: visible;
+.filter-right-wrapper,
+.main-filter-wrapper {
+  overflow: hidden; /* Reset to normal overflow */
 }
 
-/* Ensure the filter container itself doesn't clip */
-.filter-container {
-  overflow: visible;
+/* Ensure filter header remains clickable */
+.filter-header-wraper {
+  position: relative;
+  z-index: 10; /* Ensure it's above other elements */
+  cursor: pointer;
+}
+
+.filter-header-toggle-arrow {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  z-index: 10; /* Ensure it's clickable */
+}
+
+.filter-header-toggle-arrow.rotated {
+  transform: rotate(180deg);
 }
