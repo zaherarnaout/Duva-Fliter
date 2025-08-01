@@ -529,7 +529,8 @@ input[data-search-input="true"] {
   position: relative !important;
   z-index: 9999 !important; /* Increased z-index to be above everything */
   background: transparent !important;
-  border: none !important;
+  /* Preserve the original border from styles.css */
+  border: 1px solid #e0e0e0 !important;
   outline: none !important;
   width: 100% !important;
   height: 100% !important;
@@ -547,6 +548,9 @@ input[data-search-input="true"] {
   -moz-user-select: text !important;
   -ms-user-select: text !important;
   box-sizing: border-box !important;
+  /* Ensure text is always visible */
+  text-shadow: none !important;
+  -webkit-text-fill-color: #000 !important;
   resize: none !important;
   overflow: visible !important;
   white-space: normal !important;
@@ -584,9 +588,10 @@ input[data-search-input="true"] {
   justify-content: flex-start !important;
   padding: 0 !important;
   margin: 0 !important;
-  border: none !important;
-  border-radius: 0 !important;
-  background: transparent !important;
+  /* Preserve the original border from styles.css */
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 20px !important;
+  background: #fff !important;
 }
 
 /* Ensure no other elements block the input - ONLY for search containers */
@@ -603,7 +608,8 @@ input[data-search-input="true"]:focus {
   background: transparent !important;
   outline: none !important;
   box-shadow: none !important;
-  border: none !important;
+  /* Preserve border on focus */
+  border: 1px solid #e0e0e0 !important;
 }
 
 .search-input-style input:hover,
@@ -611,6 +617,9 @@ input[data-search-input="true"]:focus {
 input[data-search-input="true"]:hover {
   color: #000 !important;
   background: transparent !important;
+  /* Ensure text is always visible */
+  text-shadow: none !important;
+  -webkit-text-fill-color: #000 !important;
 }
 
 .search-input-style input:active,
@@ -618,6 +627,9 @@ input[data-search-input="true"]:hover {
 input[data-search-input="true"]:active {
   color: #000 !important;
   background: transparent !important;
+  /* Ensure text is always visible */
+  text-shadow: none !important;
+  -webkit-text-fill-color: #000 !important;
 }
 
 /* Ensure placeholder text behaves correctly - ONLY for search inputs */
