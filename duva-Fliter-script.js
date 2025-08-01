@@ -440,71 +440,65 @@ function getCMSDataFromCard(card) {
   // Try to get data from Webflow's CMS attributes
   const cmsData = {
     productCode: '',
+    name: '',
     family: '',
     shortDescription: '',
     fullDescription: '',
+    wattage: '',
+    lumen: '',
     cct: '',
     voltage: '',
     overviewTitle: '',
     ipRating: '',
     ikRating: '',
-    beam: '',
-    lumen: '',
+    beamAngle: '',
     cri: '',
-    outdoor: '',
-    indoor: '',
-    searchTags: '', // Add search tags field
+    location: '',
+    finishColor: '',
+    searchTags: '',
     allText: '' // Will contain all text from the card for comprehensive searching
   };
   
-  // Method 1: Try to get data from Webflow's data attributes
+  // Method 1: Try to get data from Webflow's data attributes (exact field names from CSV)
   if (card.dataset) {
     cmsData.productCode = card.dataset.productCode || card.dataset['product-code'] || '';
-    cmsData.family = card.dataset.family || '';
+    cmsData.name = card.dataset.name || card.dataset['name-en'] || '';
+    cmsData.family = card.dataset.family || card.dataset.familyname || '';
     cmsData.shortDescription = card.dataset.shortDescription || card.dataset['short-description'] || '';
     cmsData.fullDescription = card.dataset.fullDescription || card.dataset['full-description'] || '';
+    cmsData.wattage = card.dataset.wattage || '';
+    cmsData.lumen = card.dataset.lumen || '';
     cmsData.cct = card.dataset.cct || '';
     cmsData.voltage = card.dataset.voltage || '';
     cmsData.overviewTitle = card.dataset.overviewTitle || card.dataset['overview-title'] || '';
     cmsData.ipRating = card.dataset.ipRating || card.dataset['ip-rating'] || card.dataset.ip || '';
     cmsData.ikRating = card.dataset.ikRating || card.dataset['ik-rating'] || card.dataset.ik || '';
-    cmsData.beam = card.dataset.beam || '';
-    cmsData.lumen = card.dataset.lumen || '';
+    cmsData.beamAngle = card.dataset.beamAngle || card.dataset['beam-angle'] || card.dataset.beam || '';
     cmsData.cri = card.dataset.cri || '';
-    cmsData.outdoor = card.dataset.outdoor || '';
-    cmsData.indoor = card.dataset.indoor || '';
+    cmsData.location = card.dataset.location || '';
+    cmsData.finishColor = card.dataset.finishColor || card.dataset['finish-color'] || '';
     cmsData.searchTags = card.dataset.searchTags || card.dataset['search-tags'] || card.dataset.tags || '';
   }
   
-  // Method 2: Try to get data from Webflow's CMS binding elements
+  // Method 2: Try to get data from Webflow's CMS binding elements (exact field names from CSV)
   const productCodeElement = card.querySelector('[data-wf-cms-bind="product-code"], [data-wf-cms-bind="productCode"]');
   if (productCodeElement) {
     cmsData.productCode = productCodeElement.textContent || productCodeElement.innerText || '';
   }
   
-  const familyElement = card.querySelector('[data-wf-cms-bind="family"]');
+  const nameElement = card.querySelector('[data-wf-cms-bind="name-en"], [data-wf-cms-bind="name"]');
+  if (nameElement) {
+    cmsData.name = nameElement.textContent || nameElement.innerText || '';
+  }
+  
+  const familyElement = card.querySelector('[data-wf-cms-bind="family"], [data-wf-cms-bind="familyname"]');
   if (familyElement) {
     cmsData.family = familyElement.textContent || familyElement.innerText || '';
   }
   
-  const cctElement = card.querySelector('[data-wf-cms-bind="cct"]');
-  if (cctElement) {
-    cmsData.cct = cctElement.textContent || cctElement.innerText || '';
-  }
-  
-  const ipElement = card.querySelector('[data-wf-cms-bind="ip"], [data-wf-cms-bind="ip-rating"], [data-wf-cms-bind="ipRating"]');
-  if (ipElement) {
-    cmsData.ipRating = ipElement.textContent || ipElement.innerText || '';
-  }
-  
-  const ikElement = card.querySelector('[data-wf-cms-bind="ik"], [data-wf-cms-bind="ik-rating"], [data-wf-cms-bind="ikRating"]');
-  if (ikElement) {
-    cmsData.ikRating = ikElement.textContent || ikElement.innerText || '';
-  }
-  
-  const beamElement = card.querySelector('[data-wf-cms-bind="beam"]');
-  if (beamElement) {
-    cmsData.beam = beamElement.textContent || beamElement.innerText || '';
+  const wattageElement = card.querySelector('[data-wf-cms-bind="wattage"]');
+  if (wattageElement) {
+    cmsData.wattage = wattageElement.textContent || wattageElement.innerText || '';
   }
   
   const lumenElement = card.querySelector('[data-wf-cms-bind="lumen"]');
@@ -512,22 +506,42 @@ function getCMSDataFromCard(card) {
     cmsData.lumen = lumenElement.textContent || lumenElement.innerText || '';
   }
   
+  const cctElement = card.querySelector('[data-wf-cms-bind="cct"]');
+  if (cctElement) {
+    cmsData.cct = cctElement.textContent || cctElement.innerText || '';
+  }
+  
+  const ipElement = card.querySelector('[data-wf-cms-bind="ip-rating"], [data-wf-cms-bind="ip"], [data-wf-cms-bind="ipRating"]');
+  if (ipElement) {
+    cmsData.ipRating = ipElement.textContent || ipElement.innerText || '';
+  }
+  
+  const ikElement = card.querySelector('[data-wf-cms-bind="ik-rating"], [data-wf-cms-bind="ik"], [data-wf-cms-bind="ikRating"]');
+  if (ikElement) {
+    cmsData.ikRating = ikElement.textContent || ikElement.innerText || '';
+  }
+  
+  const beamElement = card.querySelector('[data-wf-cms-bind="beam-angle"], [data-wf-cms-bind="beam"], [data-wf-cms-bind="beamAngle"]');
+  if (beamElement) {
+    cmsData.beamAngle = beamElement.textContent || beamElement.innerText || '';
+  }
+  
   const criElement = card.querySelector('[data-wf-cms-bind="cri"]');
   if (criElement) {
     cmsData.cri = criElement.textContent || criElement.innerText || '';
   }
   
-  const outdoorElement = card.querySelector('[data-wf-cms-bind="outdoor"]');
-  if (outdoorElement) {
-    cmsData.outdoor = outdoorElement.textContent || outdoorElement.innerText || '';
+  const locationElement = card.querySelector('[data-wf-cms-bind="location"]');
+  if (locationElement) {
+    cmsData.location = locationElement.textContent || locationElement.innerText || '';
   }
   
-  const indoorElement = card.querySelector('[data-wf-cms-bind="indoor"]');
-  if (indoorElement) {
-    cmsData.indoor = indoorElement.textContent || indoorElement.innerText || '';
+  const finishColorElement = card.querySelector('[data-wf-cms-bind="finish-color"], [data-wf-cms-bind="finishColor"]');
+  if (finishColorElement) {
+    cmsData.finishColor = finishColorElement.textContent || finishColorElement.innerText || '';
   }
   
-  // Look for Search Tags field specifically
+  // Look for Search Tags field specifically (this is the most important field!)
   const searchTagsElement = card.querySelector('[data-wf-cms-bind="search-tags"], [data-wf-cms-bind="searchTags"], [data-wf-cms-bind="tags"]');
   if (searchTagsElement) {
     cmsData.searchTags = searchTagsElement.textContent || searchTagsElement.innerText || '';
@@ -575,10 +589,10 @@ function getCMSDataFromCard(card) {
     }
   }
   
-  if (!cmsData.beam) {
+  if (!cmsData.beamAngle) {
     const beamMatch = wattageTexts.match(/(\d+°)/g);
     if (beamMatch) {
-      cmsData.beam = beamMatch.join(', ');
+      cmsData.beamAngle = beamMatch.join(', ');
     }
   }
   
@@ -615,10 +629,10 @@ function getCMSDataFromCard(card) {
     }
   }
   
-  if (!cmsData.beam) {
+  if (!cmsData.beamAngle) {
     const beamMatch = allText.match(/(\d+°)/g);
     if (beamMatch) {
-      cmsData.beam = beamMatch.join(', ');
+      cmsData.beamAngle = beamMatch.join(', ');
     }
   }
   
@@ -636,15 +650,11 @@ function getCMSDataFromCard(card) {
     }
   }
   
-  if (!cmsData.outdoor) {
+  if (!cmsData.location) {
     if (allText.includes('outdoor') || allText.includes('exterior')) {
-      cmsData.outdoor = 'outdoor';
-    }
-  }
-  
-  if (!cmsData.indoor) {
-    if (allText.includes('indoor') || allText.includes('interior')) {
-      cmsData.indoor = 'indoor';
+      cmsData.location = 'outdoor';
+    } else if (allText.includes('indoor') || allText.includes('interior')) {
+      cmsData.location = 'indoor';
     }
   }
   
@@ -724,10 +734,10 @@ function checkProductMatchWithCMSData(cmsData) {
           console.log(`Lumen values in CMS: ${cmsData.lumen}, searching for: ${searchValue}, found: ${found}`);
         }
         
-        if (key === 'beam' && cmsData.beam) {
-          const beamValues = cmsData.beam.toLowerCase().split(',').map(v => v.trim());
+        if (key === 'beam' && cmsData.beamAngle) {
+          const beamValues = cmsData.beamAngle.toLowerCase().split(',').map(v => v.trim());
           found = beamValues.some(val => val === searchValue);
-          console.log(`Beam values in CMS: ${cmsData.beam}, searching for: ${searchValue}, found: ${found}`);
+          console.log(`Beam values in CMS: ${cmsData.beamAngle}, searching for: ${searchValue}, found: ${found}`);
         }
         
         if (key === 'cri' && cmsData.cri) {
@@ -736,11 +746,11 @@ function checkProductMatchWithCMSData(cmsData) {
           console.log(`CRI values in CMS: ${cmsData.cri}, searching for: ${searchValue}, found: ${found}`);
         }
         
-        if (key === 'wattage' && cmsData.lumen) {
-          // For wattage, look for exact wattage values in lumen text
-          const wattageMatch = cmsData.lumen.toLowerCase().match(new RegExp(`\\b${searchValue.replace('w', '')}\\s*w`, 'i'));
-          found = wattageMatch !== null;
-          console.log(`Wattage search in lumen: ${cmsData.lumen}, searching for: ${searchValue}, found: ${found}`);
+        if (key === 'wattage' && cmsData.wattage) {
+          // For wattage, look for exact wattage values in wattage field
+          const wattageValues = cmsData.wattage.toLowerCase().split(',').map(v => v.trim());
+          found = wattageValues.some(val => val === searchValue);
+          console.log(`Wattage search in wattage field: ${cmsData.wattage}, searching for: ${searchValue}, found: ${found}`);
         }
       }
       
@@ -792,14 +802,20 @@ function checkProductMatchWithCMSData(cmsData) {
           console.log(`IK values in CMS: ${cmsData.ikRating}, searching for: ${searchValue}, found: ${found}`);
         }
         
-        if (key === 'outdoor' && cmsData.outdoor) {
-          found = cmsData.outdoor.toLowerCase() === searchValue;
-          console.log(`Outdoor values in CMS: ${cmsData.outdoor}, searching for: ${searchValue}, found: ${found}`);
+        if (key === 'outdoor' && cmsData.location) {
+          found = cmsData.location.toLowerCase() === searchValue;
+          console.log(`Location values in CMS: ${cmsData.location}, searching for: ${searchValue}, found: ${found}`);
         }
         
-        if (key === 'indoor' && cmsData.indoor) {
-          found = cmsData.indoor.toLowerCase() === searchValue;
-          console.log(`Indoor values in CMS: ${cmsData.indoor}, searching for: ${searchValue}, found: ${found}`);
+        if (key === 'indoor' && cmsData.location) {
+          found = cmsData.location.toLowerCase() === searchValue;
+          console.log(`Location values in CMS: ${cmsData.location}, searching for: ${searchValue}, found: ${found}`);
+        }
+        
+        if (key === 'finishcolor' && cmsData.finishColor) {
+          const finishValues = cmsData.finishColor.toLowerCase().split(',').map(v => v.trim());
+          found = finishValues.some(val => val === searchValue);
+          console.log(`Finish Color values in CMS: ${cmsData.finishColor}, searching for: ${searchValue}, found: ${found}`);
         }
       }
       
