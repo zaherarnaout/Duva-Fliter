@@ -174,7 +174,7 @@
 
 /* === Filter Text Color States === */
 .sub-filter-wattage {
-  color: var(--duva-light-grey) !important;
+  color: #666666 !important; /* Darker grey for better readability */
   transition: color 0.2s ease;
 }
 
@@ -251,9 +251,10 @@
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   z-index: 1000;
-  max-height: 200px;
+  max-height: 150px; /* Reduced height to prevent overflow */
   overflow-y: auto;
   display: none;
+  margin-top: 2px; /* Add small gap */
 }
 
 .filter-dropdown-menu.active {
@@ -264,6 +265,8 @@
   padding: 8px 12px;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  color: #333; /* Darker text for better readability */
+  font-size: 14px;
 }
 
 .filter-dropdown-item:hover {
@@ -283,6 +286,7 @@
   font-size: 12px;
   width: 100px;
   text-align: center;
+  color: #333; /* Darker text */
 }
 
 .lumen-input-field:focus {
