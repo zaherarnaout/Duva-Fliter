@@ -135,6 +135,16 @@ let products = [
 function initializeFilter() {
   console.log('Initializing filter...');
   
+  // Debug: Check if elements exist
+  console.log('Filter elements found:', {
+    filterHeader: document.querySelector('.filter-header-wraper'),
+    filterBg: document.querySelector('.filter-bg'),
+    toggleArrow: document.querySelector('.filter-header-toggle-arrow'),
+    filterFields: document.querySelectorAll('.selection-filter-text'),
+    dropdownArrows: document.querySelectorAll('.sub-filter-dropdown'),
+    checkboxes: document.querySelectorAll('.filter-checkmark')
+  });
+  
   // Initialize filter header (expand/collapse)
   initializeFilterHeader();
   
@@ -207,9 +217,15 @@ function initializeFilterCheckboxes() {
 function initializeFilterFields() {
   const filterFields = document.querySelectorAll('.selection-filter-text');
   
-  filterFields.forEach(field => {
+  console.log('Found filter fields:', filterFields.length);
+  
+  filterFields.forEach((field, index) => {
+    console.log(`Processing field ${index + 1}:`, field);
+    
     const textField = field.querySelector('.text-filed div');
     const specType = field.closest('.sub-filter-wrapper').querySelector('.sub-filter-wattage').textContent.trim();
+    
+    console.log(`Spec type for field ${index + 1}:`, specType);
     
     // Create input field for all specs (can be used for both dropdown and manual input)
     const input = document.createElement('input');
@@ -218,24 +234,45 @@ function initializeFilterFields() {
     input.placeholder = `Enter ${specType} value`;
     
     // Replace the div with input
-    textField.parentNode.replaceChild(input, textField);
+    if (textField && textField.parentNode) {
+      textField.parentNode.replaceChild(input, textField);
+      console.log(`Replaced text field with input for ${specType}`);
+    }
     
     // Add dropdown functionality
     const dropdownMenu = createDropdownMenu(specType);
     field.appendChild(dropdownMenu);
+    console.log(`Added dropdown menu for ${specType}`);
     
     // Add click handler for dropdown toggle - now works with the dropdown arrow
     const dropdownArrow = field.querySelector('.sub-filter-dropdown');
+    console.log(`Dropdown arrow for ${specType}:`, dropdownArrow);
+    
     if (dropdownArrow) {
+      // Ensure the arrow is clickable
+      dropdownArrow.style.pointerEvents = 'auto';
+      dropdownArrow.style.cursor = 'pointer';
+      dropdownArrow.style.zIndex = '1000';
+      
       dropdownArrow.addEventListener('click', function(e) {
+        console.log(`Dropdown arrow clicked for ${specType}`);
         e.stopPropagation();
+        e.preventDefault();
         toggleDropdown(dropdownMenu);
       });
+      
+      console.log(`Added click listener to dropdown arrow for ${specType}`);
+    } else {
+      console.warn(`No dropdown arrow found for ${specType}`);
     }
     
     // Also allow clicking on the field itself to toggle dropdown
     field.addEventListener('click', function(e) {
-      if (e.target === input || e.target.closest('.sub-filter-dropdown')) return; // Don't toggle when clicking input or arrow
+      if (e.target === input || e.target.closest('.sub-filter-dropdown')) {
+        console.log('Click on input or arrow, not toggling dropdown');
+        return; // Don't toggle when clicking input or arrow
+      }
+      console.log(`Field clicked for ${specType}, toggling dropdown`);
       e.stopPropagation();
       toggleDropdown(dropdownMenu);
     });
@@ -243,12 +280,14 @@ function initializeFilterFields() {
     // Add input event listener for real-time filtering
     input.addEventListener('input', function() {
       const value = this.value.trim();
+      console.log(`Input value changed for ${specType}:`, value);
       updateFieldFilterState(specType, value);
       applyFilters();
     });
     
     // Add click handler for input to prevent dropdown toggle
     input.addEventListener('click', function(e) {
+      console.log('Input clicked, preventing dropdown toggle');
       e.stopPropagation();
     });
   });
@@ -309,28 +348,51 @@ function createDropdownMenu(specType) {
 
 // Toggle dropdown visibility with proper positioning
 function toggleDropdown(dropdownMenu) {
+  console.log('toggleDropdown called with:', dropdownMenu);
+  
   // Close all other dropdowns first
   const allDropdowns = document.querySelectorAll('.filter-dropdown-menu');
+  console.log('Found dropdowns:', allDropdowns.length);
+  
   allDropdowns.forEach(dropdown => {
     if (dropdown !== dropdownMenu) {
       dropdown.classList.remove('active');
+      console.log('Closed other dropdown');
     }
   });
   
   // Toggle current dropdown
   const isActive = dropdownMenu.classList.contains('active');
+  console.log('Current dropdown active state:', isActive);
   
   if (!isActive) {
     // Position the dropdown correctly
     const field = dropdownMenu.closest('.selection-filter-text');
     const fieldRect = field.getBoundingClientRect();
     
+    console.log('Field rect:', fieldRect);
+    
     dropdownMenu.style.top = (fieldRect.bottom + 4) + 'px';
     dropdownMenu.style.left = fieldRect.left + 'px';
     dropdownMenu.style.width = fieldRect.width + 'px';
+    
+    console.log('Positioned dropdown at:', {
+      top: dropdownMenu.style.top,
+      left: dropdownMenu.style.left,
+      width: dropdownMenu.style.width
+    });
   }
   
   dropdownMenu.classList.toggle('active');
+  console.log('Dropdown active state after toggle:', dropdownMenu.classList.contains('active'));
+  
+  // Force display block if active
+  if (dropdownMenu.classList.contains('active')) {
+    dropdownMenu.style.display = 'block';
+    dropdownMenu.style.visibility = 'visible';
+    dropdownMenu.style.opacity = '1';
+    console.log('Forced dropdown to be visible');
+  }
 }
 
 // Update filter state for checkboxes
@@ -973,6 +1035,20 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log('DOM loaded - Initializing filter');
   initializeFilter();
   initializeMainSearch(); // Add main search initialization
+  
+  // Test dropdown functionality after a short delay
+  setTimeout(() => {
+    console.log('Testing dropdown functionality...');
+    const dropdownArrows = document.querySelectorAll('.sub-filter-dropdown');
+    console.log('Found dropdown arrows:', dropdownArrows.length);
+    
+    dropdownArrows.forEach((arrow, index) => {
+      console.log(`Dropdown arrow ${index + 1}:`, arrow);
+      console.log(`Arrow clickable:`, arrow.style.pointerEvents);
+      console.log(`Arrow cursor:`, arrow.style.cursor);
+      console.log(`Arrow z-index:`, arrow.style.zIndex);
+    });
+  }, 1000);
 });
 
 // Also initialize when Webflow loads
