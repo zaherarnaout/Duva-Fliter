@@ -1,6 +1,9 @@
+/* === DUVA Filter Styles (Cleaned) === */
+
+/* === Layout Wrappers === */
 .main-filter-wrapper {
-  grid-column-gap: 12px;
-  grid-row-gap: 12px;
+  gap: 12px;
+  gap: 12px;
   border: 1px solid var(--border-divider-light);
   border-radius: var(--border-4px-cornner);
   background-color: var(--duva-white);
@@ -50,8 +53,8 @@
 }
 
 .filter-header-wraper {
-  grid-column-gap: 12px;
-  grid-row-gap: 12px;
+  gap: 12px;
+  gap: 12px;
   flex-flow: row;
   justify-content: flex-start;
   align-self: flex-start;
@@ -62,8 +65,8 @@
 }
 
 .filter-sections-wrapper {
-  grid-column-gap: 12px;
-  grid-row-gap: 12px;
+  gap: 12px;
+  gap: 12px;
   justify-content: space-between;
   align-items: center;
   width: 100%;
@@ -88,8 +91,8 @@
 }
 
 .first-filter {
-  grid-column-gap: 5px;
-  grid-row-gap: 5px;
+  gap: 5px;
+  gap: 5px;
   flex-flow: column;
   justify-content: space-between;
   align-items: flex-start;
@@ -174,7 +177,7 @@
 
 /* === Filter Text Color States === */
 .sub-filter-wattage {
-  color: #dddddd !important; /* Updated to requested grey */
+  color: var(--duva-grey) !important; /* Updated to requested grey */
   transition: color 0.2s ease;
 }
 
@@ -194,24 +197,15 @@
 }
 
 /* === Filter Checkbox Styling === */
-.filter-checkmark {
-  width: 20px;
-  height: 20px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  position: relative;
-  cursor: pointer;
-  transition: border-color 0.2s ease;
-  background-color: transparent;
-}
+
 
 .filter-checkmark:hover {
   border-color: #888;
 }
 
 .filter-checkmark.active {
-  background-color: #c0392b;
-  border-color: #c0392b;
+  background-color: var(--duva-red);
+  border-color: var(--duva-red);
 }
 
 .filter-checkmark.active::after {
@@ -294,8 +288,8 @@
 
 /* === Apply Filter Button Hover === */
 .link-block-6:hover {
-  background-color: #c0392b !important;
-  border-color: #c0392b !important;
+  background-color: var(--duva-red) !important;
+  border-color: var(--duva-red) !important;
 }
 
 /* === Filter Section Transitions === */
@@ -328,8 +322,8 @@
 }
 
 .sub-filter-wrapper {
-  grid-column-gap: 20px;
-  grid-row-gap: 20px;
+  gap: 20px;
+  gap: 20px;
   justify-content: space-between;
   align-items: center;
   width: 100%;
@@ -361,8 +355,8 @@
 }
 
 .downlight {
-  grid-column-gap: 10px;
-  grid-row-gap: 10px;
+  gap: 10px;
+  gap: 10px;
   flex-flow: row;
   justify-content: flex-end;
   align-items: center;
@@ -377,8 +371,8 @@
 }
 
 .main-sub-filter-wrapper {
-  grid-column-gap: 10px;
-  grid-row-gap: 10px;
+  gap: 10px;
+  gap: 10px;
   flex-flow: column;
   justify-content: center;
   align-items: flex-start;
