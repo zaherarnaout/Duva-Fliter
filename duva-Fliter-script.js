@@ -988,40 +988,101 @@ if (typeof Webflow !== 'undefined') {
 function initializeMainSearch() {
   console.log('Initializing main search...');
   
-  // Find the main search input - try multiple approaches
-  let searchInput = document.querySelector('.search-input-style input');
+  // First, let's check what elements we actually have
+  console.log('Available elements:', {
+    searchInputStyle: document.querySelector('.search-input-style'),
+    searchWrapper: document.querySelector('.search-wrapper'),
+    searchIcon: document.querySelector('.search-icon'),
+    allInputs: document.querySelectorAll('input'),
+    allElements: document.querySelectorAll('*')
+  });
   
-  if (!searchInput) {
-    // Try finding the input within the search wrapper
-    const searchWrapper = document.querySelector('.search-wrapper');
-    if (searchWrapper) {
-      searchInput = searchWrapper.querySelector('input');
+  // Try to find the search input with multiple strategies
+  let searchInput = null;
+  
+  // Strategy 1: Look for input inside search containers
+  const searchContainers = document.querySelectorAll('.search-input-style, .search-wrapper');
+  for (const container of searchContainers) {
+    const input = container.querySelector('input');
+    if (input) {
+      searchInput = input;
+      console.log('Found input in container:', container.className);
+      break;
     }
   }
   
+  // Strategy 2: Look for input by placeholder
   if (!searchInput) {
-    // Try finding by placeholder text
     searchInput = document.querySelector('input[placeholder*="Search"], input[placeholder*="search"]');
+    if (searchInput) {
+      console.log('Found input by placeholder');
+    }
   }
   
+  // Strategy 3: Look for any input that might be a search input
   if (!searchInput) {
-    // Try finding any input within search containers
-    const searchContainers = document.querySelectorAll('.search-input-style, .search-wrapper');
-    for (const container of searchContainers) {
-      searchInput = container.querySelector('input');
-      if (searchInput) break;
+    const allInputs = document.querySelectorAll('input');
+    for (const input of allInputs) {
+      if (input.placeholder && input.placeholder.toLowerCase().includes('search')) {
+        searchInput = input;
+        console.log('Found input by placeholder text');
+        break;
+      }
+    }
+  }
+  
+  // Strategy 4: If no input exists, create one
+  if (!searchInput) {
+    console.log('No search input found, creating one...');
+    const searchContainer = document.querySelector('.search-input-style, .search-wrapper');
+    if (searchContainer) {
+      // Create a new input element
+      searchInput = document.createElement('input');
+      searchInput.type = 'text';
+      searchInput.placeholder = 'Search products...';
+      searchInput.style.cssText = `
+        background: transparent;
+        border: none;
+        outline: none;
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        margin: 0;
+        font-family: inherit;
+        font-size: inherit;
+        color: inherit;
+        cursor: text;
+        pointer-events: auto;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 10;
+      `;
+      
+      // Make container relative positioned
+      searchContainer.style.position = 'relative';
+      
+      // Add the input to the container
+      searchContainer.appendChild(searchInput);
+      console.log('Created new search input');
     }
   }
   
   if (searchInput) {
-    console.log('Found main search input:', searchInput);
+    console.log('Search input found/created:', searchInput);
     
-    // Make sure the input is properly configured
+    // Ensure the input is properly configured
     searchInput.type = 'text';
     searchInput.setAttribute('autocomplete', 'off');
+    searchInput.setAttribute('spellcheck', 'false');
+    
+    // Make sure it's not disabled or readonly
+    searchInput.disabled = false;
+    searchInput.readOnly = false;
     
     // Add event listeners for real-time search
-    searchInput.addEventListener('input', function() {
+    searchInput.addEventListener('input', function(e) {
+      console.log('Input event triggered:', e);
       const searchValue = this.value.trim();
       console.log('Main search input:', searchValue);
       
@@ -1036,6 +1097,7 @@ function initializeMainSearch() {
     
     // Add event listener for Enter key
     searchInput.addEventListener('keypress', function(e) {
+      console.log('Keypress event:', e.key);
       if (e.key === 'Enter') {
         const searchValue = this.value.trim();
         if (searchValue !== '') {
@@ -1047,13 +1109,18 @@ function initializeMainSearch() {
     // Add focus event to handle placeholder and icon
     searchInput.addEventListener('focus', function() {
       console.log('Search input focused');
-      // The placeholder will automatically hide when user starts typing
-      // The icon will remain visible as per your design
+      this.style.color = '#000'; // Ensure text is visible when typing
     });
     
     // Add blur event
     searchInput.addEventListener('blur', function() {
       console.log('Search input blurred');
+    });
+    
+    // Add click event to ensure it's clickable
+    searchInput.addEventListener('click', function(e) {
+      console.log('Search input clicked');
+      e.stopPropagation(); // Prevent event bubbling
     });
     
     // Add event listener for search icon click (if exists)
@@ -1074,6 +1141,7 @@ function initializeMainSearch() {
     const searchContainer = searchInput.closest('.search-input-style, .search-wrapper');
     if (searchContainer) {
       searchContainer.addEventListener('click', function(e) {
+        console.log('Search container clicked');
         // Don't focus if clicking on the icon
         if (!e.target.classList.contains('search-icon')) {
           searchInput.focus();
@@ -1081,16 +1149,16 @@ function initializeMainSearch() {
       });
     }
     
+    // Test if the input is actually interactive
+    setTimeout(() => {
+      console.log('Testing input interactivity...');
+      searchInput.focus();
+      console.log('Input focused successfully');
+    }, 1000);
+    
     console.log('Main search initialized successfully');
   } else {
-    console.log('Main search input not found - check HTML structure');
-    // Log available elements for debugging
-    console.log('Available search-related elements:', {
-      searchInputStyle: document.querySelector('.search-input-style'),
-      searchWrapper: document.querySelector('.search-wrapper'),
-      searchIcon: document.querySelector('.search-icon'),
-      allInputs: document.querySelectorAll('input')
-    });
+    console.log('Failed to find or create search input');
   }
 }
 
