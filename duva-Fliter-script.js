@@ -1428,63 +1428,12 @@ function hideSearchEmptyState() {
 function hideSearchPlaceholderAndIcon() {
   console.log('Hiding placeholder and icon');
   
-  // Hide any placeholder text elements
-  const placeholderElements = document.querySelectorAll('.search-input-style .placeholder-text, .search-wrapper .placeholder-text');
-  placeholderElements.forEach(el => {
-    el.style.display = 'none';
-    el.style.opacity = '0';
-    el.style.visibility = 'hidden';
-  });
-  
-  // Hide search icon
+  // Hide search icon only
   const searchIcon = document.querySelector('.search-icon');
   if (searchIcon) {
     searchIcon.style.opacity = '0';
     searchIcon.style.visibility = 'hidden';
-    searchIcon.style.display = 'none';
   }
-  
-  // Hide any default text elements
-  const defaultTextElements = document.querySelectorAll('.search-input-style .default-text, .search-wrapper .default-text');
-  defaultTextElements.forEach(el => {
-    el.style.display = 'none';
-    el.style.opacity = '0';
-    el.style.visibility = 'hidden';
-  });
-  
-  // Hide any text elements that might be placeholders (comprehensive approach)
-  // BUT NEVER hide the actual input element
-  const searchContainers = document.querySelectorAll('.search-input-style, .search-wrapper');
-  searchContainers.forEach(container => {
-    const textElements = container.querySelectorAll('div, span, p, label');
-    textElements.forEach(el => {
-      // NEVER hide input elements
-      if (el.tagName === 'INPUT') {
-        return;
-      }
-      
-      const text = el.textContent.trim().toLowerCase();
-      // Hide elements that contain placeholder-like text
-      if (text.includes('search') || text.includes('product') || text.includes('find') || 
-          text.includes('enter') || text.includes('type') || text.includes('look')) {
-        el.style.display = 'none';
-        el.style.opacity = '0';
-        el.style.visibility = 'hidden';
-      }
-    });
-  });
-  
-  // Also hide any elements with specific classes that might be placeholders
-  const possiblePlaceholders = document.querySelectorAll('.search-placeholder, .search-text, .search-label, .search-hint');
-  possiblePlaceholders.forEach(el => {
-    // NEVER hide input elements
-    if (el.tagName === 'INPUT') {
-      return;
-    }
-    el.style.display = 'none';
-    el.style.opacity = '0';
-    el.style.visibility = 'hidden';
-  });
   
   // Ensure the search input itself is always visible
   const searchInputs = document.querySelectorAll('.search-input-style input, .search-wrapper input, input[data-search-input="true"]');
@@ -1500,63 +1449,12 @@ function hideSearchPlaceholderAndIcon() {
 function showSearchPlaceholderAndIcon() {
   console.log('Showing placeholder and icon');
   
-  // Show placeholder text elements
-  const placeholderElements = document.querySelectorAll('.search-input-style .placeholder-text, .search-wrapper .placeholder-text');
-  placeholderElements.forEach(el => {
-    el.style.display = 'block';
-    el.style.opacity = '1';
-    el.style.visibility = 'visible';
-  });
-  
-  // Show search icon
+  // Show search icon only
   const searchIcon = document.querySelector('.search-icon');
   if (searchIcon) {
     searchIcon.style.opacity = '0.3';
     searchIcon.style.visibility = 'visible';
-    searchIcon.style.display = 'block';
   }
-  
-  // Show default text elements
-  const defaultTextElements = document.querySelectorAll('.search-input-style .default-text, .search-wrapper .default-text');
-  defaultTextElements.forEach(el => {
-    el.style.display = 'block';
-    el.style.opacity = '1';
-    el.style.visibility = 'visible';
-  });
-  
-  // Show any text elements that might be placeholders (comprehensive approach)
-  // BUT NEVER hide the actual input element
-  const searchContainers = document.querySelectorAll('.search-input-style, .search-wrapper');
-  searchContainers.forEach(container => {
-    const textElements = container.querySelectorAll('div, span, p, label');
-    textElements.forEach(el => {
-      // NEVER hide input elements
-      if (el.tagName === 'INPUT') {
-        return;
-      }
-      
-      const text = el.textContent.trim().toLowerCase();
-      // Show elements that contain placeholder-like text
-      if (text.includes('search') || text.includes('product') || text.includes('find') || 
-          text.includes('enter') || text.includes('type') || text.includes('look')) {
-        el.style.display = 'block';
-        el.style.opacity = '1';
-        el.style.visibility = 'visible';
-      }
-    });
-  });
-  
-  // Also show any elements with specific classes that might be placeholders
-  const possiblePlaceholders = document.querySelectorAll('.search-placeholder, .search-text, .search-label, .search-hint');
-  possiblePlaceholders.forEach(el => {
-    // NEVER hide input elements
-    if (el.tagName === 'INPUT') {
-      return;
-    }
-    el.style.display = 'block';
-    el.style.opacity = '1';
-    el.style.visibility = 'visible';
-  });
   
   // Ensure the search input itself is always visible
   const searchInputs = document.querySelectorAll('.search-input-style input, .search-wrapper input, input[data-search-input="true"]');
