@@ -972,6 +972,7 @@ function closeAllDropdowns() {
 document.addEventListener('DOMContentLoaded', function() {
   console.log('DOM loaded - Initializing filter');
   initializeFilter();
+  initializeMainSearch(); // Add main search initialization
 });
 
 // Also initialize when Webflow loads
@@ -979,5 +980,181 @@ if (typeof Webflow !== 'undefined') {
   Webflow.push(function() {
     console.log('Webflow loaded - Initializing filter');
     initializeFilter();
+    initializeMainSearch(); // Add main search initialization
   });
+}
+
+// Initialize main header search functionality
+function initializeMainSearch() {
+  console.log('Initializing main search...');
+  
+  // Find the main search input (adjust selector based on your HTML structure)
+  const searchInput = document.querySelector('.search-input-style input, .search-wrapper input, input[placeholder*="Search"], input[placeholder*="search"]');
+  
+  if (searchInput) {
+    console.log('Found main search input:', searchInput);
+    
+    // Add event listeners for real-time search
+    searchInput.addEventListener('input', function() {
+      const searchValue = this.value.trim();
+      console.log('Main search input:', searchValue);
+      
+      if (searchValue === '') {
+        // If search is empty, show all products
+        showAllProducts();
+      } else {
+        // Apply search filter
+        applySearchFilter(searchValue);
+      }
+    });
+    
+    // Add event listener for Enter key
+    searchInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        const searchValue = this.value.trim();
+        if (searchValue !== '') {
+          applySearchFilter(searchValue);
+        }
+      }
+    });
+    
+    // Add event listener for search icon click (if exists)
+    const searchIcon = document.querySelector('.search-icon, .search-wrapper .icon');
+    if (searchIcon) {
+      searchIcon.addEventListener('click', function() {
+        const searchValue = searchInput.value.trim();
+        if (searchValue !== '') {
+          applySearchFilter(searchValue);
+        }
+      });
+    }
+    
+    console.log('Main search initialized');
+  } else {
+    console.log('Main search input not found');
+  }
+}
+
+// Apply search filter using existing filter logic
+function applySearchFilter(searchValue) {
+  console.log('Applying search filter:', searchValue);
+  
+  // Get all existing product cards from Webflow CMS
+  const existingProductCards = document.querySelectorAll('.collection-item');
+  
+  console.log('Found', existingProductCards.length, 'product cards for search');
+  
+  let foundProducts = 0;
+  
+  existingProductCards.forEach((card, index) => {
+    // Get CMS data attributes from the card (reuse existing function)
+    const cmsData = getCMSDataFromCard(card);
+    
+    // Check if this product matches the search criteria
+    const shouldShow = checkProductMatchSearch(cmsData, searchValue);
+    
+    // Show/hide the card based on search results
+    if (shouldShow) {
+      card.style.display = 'block';
+      foundProducts++;
+      console.log(`Product "${cmsData.productCode}" - SHOWING (search match)`);
+    } else {
+      card.style.display = 'none';
+      console.log(`Product "${cmsData.productCode}" - HIDDEN (no search match)`);
+    }
+  });
+  
+  // Show empty state if no products are visible
+  if (foundProducts === 0) {
+    showSearchEmptyState(searchValue);
+  } else {
+    hideSearchEmptyState();
+  }
+  
+  console.log(`Search completed. Found ${foundProducts} matching products`);
+}
+
+// Check if a product matches the search criteria
+function checkProductMatchSearch(cmsData, searchValue) {
+  const searchLower = searchValue.toLowerCase().trim();
+  
+  // Search in multiple fields with priority order
+  const searchFields = [
+    cmsData.productCode,           // Product code (highest priority)
+    cmsData.name,                  // Product name
+    cmsData.family,                // Family name
+    cmsData.searchTags,            // Search tags (comprehensive data)
+    cmsData.wattage,               // Wattage
+    cmsData.lumen,                 // Lumen
+    cmsData.cct,                   // CCT
+    cmsData.ipRating,              // IP Rating
+    cmsData.ikRating,              // IK Rating
+    cmsData.beamAngle,             // Beam Angle
+    cmsData.cri,                   // CRI
+    cmsData.location,              // Location (Indoor/Outdoor)
+    cmsData.finishColor,           // Finish Color
+    cmsData.shortDescription,      // Short description
+    cmsData.allText                // All text (fallback)
+  ];
+  
+  // Check each field for matches
+  for (const field of searchFields) {
+    if (field && field.toLowerCase().includes(searchLower)) {
+      console.log(`Search match found in field: "${field}" for search: "${searchValue}"`);
+      return true;
+    }
+  }
+  
+  // Also check for exact word boundaries in search tags (most comprehensive field)
+  if (cmsData.searchTags) {
+    const searchTags = cmsData.searchTags.toLowerCase();
+    const regex = new RegExp(`\\b${searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+    if (regex.test(searchTags)) {
+      console.log(`Exact word match found in search tags for: "${searchValue}"`);
+      return true;
+    }
+  }
+  
+  console.log(`No search match found for: "${searchValue}"`);
+  return false;
+}
+
+// Show all products (when search is cleared)
+function showAllProducts() {
+  console.log('Showing all products (search cleared)');
+  
+  const existingProductCards = document.querySelectorAll('.collection-item');
+  existingProductCards.forEach(card => {
+    card.style.display = 'block';
+  });
+  
+  // Hide any empty state messages
+  hideSearchEmptyState();
+  hideEmptyState(); // Also hide filter empty state
+}
+
+// Show empty state for search
+function showSearchEmptyState(searchValue) {
+  const productContainer = document.querySelector('.cards-container');
+  if (productContainer) {
+    // Remove existing search empty state
+    const existingEmpty = productContainer.querySelector('.search-empty-state');
+    if (existingEmpty) {
+      existingEmpty.remove();
+    }
+    
+    // Create new empty state
+    const emptyState = document.createElement('div');
+    emptyState.className = 'search-empty-state w-dyn-empty';
+    emptyState.innerHTML = `<p>No products found for "${searchValue}". Try different keywords like product code, family name, wattage, or specifications.</p>`;
+    productContainer.querySelector('.collection-list-wrapper').appendChild(emptyState);
+  }
+}
+
+// Hide empty state for search
+function hideSearchEmptyState() {
+  const emptyState = document.querySelector('.search-empty-state');
+  if (emptyState) {
+    emptyState.remove();
+  }
 }
