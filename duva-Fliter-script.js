@@ -1094,6 +1094,13 @@ function initializeMainSearch() {
       const searchValue = this.value.trim();
       console.log('Main search input:', searchValue);
       
+      // Hide placeholder and icon when user starts typing
+      if (searchValue !== '') {
+        hideSearchPlaceholderAndIcon();
+      } else {
+        showSearchPlaceholderAndIcon();
+      }
+      
       if (searchValue === '') {
         // If search is empty, show all products
         showAllProducts();
@@ -1118,11 +1125,19 @@ function initializeMainSearch() {
     searchInput.addEventListener('focus', function() {
       console.log('Search input focused');
       this.style.color = '#000'; // Ensure text is visible when typing
+      
+      // Hide placeholder text and icon when focused
+      hideSearchPlaceholderAndIcon();
     });
     
     // Add blur event
     searchInput.addEventListener('blur', function() {
       console.log('Search input blurred');
+      
+      // Show placeholder and icon if input is empty
+      if (this.value.trim() === '') {
+        showSearchPlaceholderAndIcon();
+      }
     });
     
     // Add click event to ensure it's clickable
@@ -1297,4 +1312,110 @@ function hideSearchEmptyState() {
   if (emptyState) {
     emptyState.remove();
   }
+}
+
+// Function to hide placeholder text and search icon
+function hideSearchPlaceholderAndIcon() {
+  console.log('Hiding placeholder and icon');
+  
+  // Hide any placeholder text elements
+  const placeholderElements = document.querySelectorAll('.search-input-style .placeholder-text, .search-wrapper .placeholder-text');
+  placeholderElements.forEach(el => {
+    el.style.display = 'none';
+    el.style.opacity = '0';
+    el.style.visibility = 'hidden';
+  });
+  
+  // Hide search icon
+  const searchIcon = document.querySelector('.search-icon');
+  if (searchIcon) {
+    searchIcon.style.opacity = '0';
+    searchIcon.style.visibility = 'hidden';
+    searchIcon.style.display = 'none';
+  }
+  
+  // Hide any default text elements
+  const defaultTextElements = document.querySelectorAll('.search-input-style .default-text, .search-wrapper .default-text');
+  defaultTextElements.forEach(el => {
+    el.style.display = 'none';
+    el.style.opacity = '0';
+    el.style.visibility = 'hidden';
+  });
+  
+  // Hide any text elements that might be placeholders (comprehensive approach)
+  const searchContainers = document.querySelectorAll('.search-input-style, .search-wrapper');
+  searchContainers.forEach(container => {
+    const textElements = container.querySelectorAll('div, span, p, label');
+    textElements.forEach(el => {
+      const text = el.textContent.trim().toLowerCase();
+      // Hide elements that contain placeholder-like text
+      if (text.includes('search') || text.includes('product') || text.includes('find') || 
+          text.includes('enter') || text.includes('type') || text.includes('look')) {
+        el.style.display = 'none';
+        el.style.opacity = '0';
+        el.style.visibility = 'hidden';
+      }
+    });
+  });
+  
+  // Also hide any elements with specific classes that might be placeholders
+  const possiblePlaceholders = document.querySelectorAll('.search-placeholder, .search-text, .search-label, .search-hint');
+  possiblePlaceholders.forEach(el => {
+    el.style.display = 'none';
+    el.style.opacity = '0';
+    el.style.visibility = 'hidden';
+  });
+}
+
+// Function to show placeholder text and search icon
+function showSearchPlaceholderAndIcon() {
+  console.log('Showing placeholder and icon');
+  
+  // Show placeholder text elements
+  const placeholderElements = document.querySelectorAll('.search-input-style .placeholder-text, .search-wrapper .placeholder-text');
+  placeholderElements.forEach(el => {
+    el.style.display = 'block';
+    el.style.opacity = '1';
+    el.style.visibility = 'visible';
+  });
+  
+  // Show search icon
+  const searchIcon = document.querySelector('.search-icon');
+  if (searchIcon) {
+    searchIcon.style.opacity = '0.3';
+    searchIcon.style.visibility = 'visible';
+    searchIcon.style.display = 'block';
+  }
+  
+  // Show default text elements
+  const defaultTextElements = document.querySelectorAll('.search-input-style .default-text, .search-wrapper .default-text');
+  defaultTextElements.forEach(el => {
+    el.style.display = 'block';
+    el.style.opacity = '1';
+    el.style.visibility = 'visible';
+  });
+  
+  // Show any text elements that might be placeholders (comprehensive approach)
+  const searchContainers = document.querySelectorAll('.search-input-style, .search-wrapper');
+  searchContainers.forEach(container => {
+    const textElements = container.querySelectorAll('div, span, p, label');
+    textElements.forEach(el => {
+      const text = el.textContent.trim().toLowerCase();
+      // Show elements that contain placeholder-like text
+      if (text.includes('search') || text.includes('product') || text.includes('find') || 
+          text.includes('enter') || text.includes('type') || text.includes('look')) {
+        el.style.display = 'block';
+        el.style.opacity = '1';
+        el.style.visibility = 'visible';
+      }
+    });
+  });
+  
+  // Also show any elements with specific classes that might be placeholders
+  const possiblePlaceholders = document.querySelectorAll('.search-placeholder, .search-text, .search-label, .search-hint');
+  possiblePlaceholders.forEach(el => {
+    el.style.display = 'block';
+    el.style.opacity = '1';
+    el.style.visibility = 'visible';
+  });
 }
