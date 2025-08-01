@@ -529,13 +529,13 @@ input[data-search-input="true"] {
   position: relative !important;
   z-index: 9999 !important; /* Increased z-index to be above everything */
   background: transparent !important;
-  /* Remove border from input since container has border */
+  /* Keep original border from styles.css */
   border: none !important;
   outline: none !important;
   width: 100% !important;
   height: 100% !important;
   min-height: 40px !important;
-  padding: 8px 0 !important; /* Remove horizontal padding since container has it */
+  padding: 8px 12px !important; /* Restore original padding */
   flex: 1 !important;
   margin: 0 !important;
   font-family: inherit !important;
@@ -555,6 +555,11 @@ input[data-search-input="true"] {
   font-weight: normal !important;
   letter-spacing: normal !important;
   text-indent: 0 !important;
+  /* Additional text visibility */
+  color: #000 !important;
+  -webkit-text-fill-color: #000 !important;
+  -moz-text-fill-color: #000 !important;
+  text-fill-color: #000 !important;
   resize: none !important;
   overflow: visible !important;
   white-space: normal !important;
@@ -586,17 +591,17 @@ input[data-search-input="true"] {
   min-height: 40px !important;
   box-sizing: border-box !important;
   z-index: 9999 !important; /* Increased z-index to be above everything */
-  /* Override flex properties from main styles.css */
-  flex: none !important;
+  /* Keep original styling from styles.css */
+  flex: 0 1 auto !important;
   align-items: center !important;
   justify-content: flex-start !important;
-  padding-left: 40px !important; /* Add left padding for icon */
+  padding-left: 40px !important; /* Keep original padding for icon */
   padding-right: 12px !important;
-  margin: 0 !important;
-  /* Preserve the original border from styles.css */
+  margin: 0 16px !important; /* Keep original margin */
+  /* Keep original border from styles.css */
   border: 1px solid #e0e0e0 !important;
   border-radius: 20px !important;
-  background: #fff !important;
+  background-color: #fff !important;
 }
 
 /* Ensure no other elements block the input - ONLY for search containers */
@@ -618,6 +623,8 @@ input[data-search-input="true"]:focus {
   /* Force text visibility */
   text-shadow: none !important;
   -webkit-text-fill-color: #000 !important;
+  -moz-text-fill-color: #000 !important;
+  text-fill-color: #000 !important;
   font-weight: normal !important;
   letter-spacing: normal !important;
   text-indent: 0 !important;
@@ -718,21 +725,22 @@ input[data-search-input="true"]:focus::placeholder {
   z-index: 1000 !important;
 }
 
-/* === Search Icon Positioning === */
-/* Ensure search icon is positioned correctly inside the search bar */
+/* === Search Icon Protection === */
+/* Ensure search icon uses original positioning from styles.css */
 .search-icon {
-  position: absolute !important;
-  left: 12px !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  z-index: 10000 !important;
+  position: relative !important;
+  left: -35px !important; /* Keep original positioning */
+  z-index: 2 !important; /* Keep original z-index */
   width: 20px !important;
   height: 20px !important;
+  margin-top: 0% !important;
   background-image: url("https://cdn.prod.website-files.com/684a5d9b82bae84c8dbeb42f/685049eae98ebb639d4c0921_magnifying%20glass%20icon.png") !important;
   background-position: 50% 50% !important;
   background-size: contain !important;
   background-repeat: no-repeat !important;
   pointer-events: none !important;
+  background-clip: border-box !important;
+  -webkit-text-fill-color: inherit !important;
   opacity: 0.3 !important;
 }
 
