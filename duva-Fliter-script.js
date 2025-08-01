@@ -988,14 +988,24 @@ if (typeof Webflow !== 'undefined') {
 function initializeMainSearch() {
   console.log('Initializing main search...');
   
-  // Find the main search input (adjust selector based on your HTML structure)
-  const searchInput = document.querySelector('.search-input-style input, .search-wrapper input, input[placeholder*="Search"], input[placeholder*="search"]');
+  // Find the main search input (multiple selectors to catch different structures)
+  const searchInput = document.querySelector('.search-input-style input, .search-wrapper input, input[placeholder*="Search"], input[placeholder*="search"], .search-input-style, input[type="search"]');
   
   if (searchInput) {
     console.log('Found main search input:', searchInput);
     
+    // If we found the container instead of the input, find the actual input
+    let actualInput = searchInput;
+    if (searchInput.classList.contains('search-input-style') || searchInput.classList.contains('search-wrapper')) {
+      actualInput = searchInput.querySelector('input');
+      if (!actualInput) {
+        console.log('No input found inside search container');
+        return;
+      }
+    }
+    
     // Add event listeners for real-time search
-    searchInput.addEventListener('input', function() {
+    actualInput.addEventListener('input', function() {
       const searchValue = this.value.trim();
       console.log('Main search input:', searchValue);
       
@@ -1009,7 +1019,7 @@ function initializeMainSearch() {
     });
     
     // Add event listener for Enter key
-    searchInput.addEventListener('keypress', function(e) {
+    actualInput.addEventListener('keypress', function(e) {
       if (e.key === 'Enter') {
         const searchValue = this.value.trim();
         if (searchValue !== '') {
@@ -1019,19 +1029,19 @@ function initializeMainSearch() {
     });
     
     // Add event listener for search icon click (if exists)
-    const searchIcon = document.querySelector('.search-icon, .search-wrapper .icon');
+    const searchIcon = document.querySelector('.search-icon');
     if (searchIcon) {
       searchIcon.addEventListener('click', function() {
-        const searchValue = searchInput.value.trim();
+        const searchValue = actualInput.value.trim();
         if (searchValue !== '') {
           applySearchFilter(searchValue);
         }
       });
     }
     
-    console.log('Main search initialized');
+    console.log('Main search initialized successfully');
   } else {
-    console.log('Main search input not found');
+    console.log('Main search input not found - check HTML structure');
   }
 }
 
