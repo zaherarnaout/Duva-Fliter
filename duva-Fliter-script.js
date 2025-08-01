@@ -1074,6 +1074,12 @@ if (typeof Webflow !== 'undefined') {
 function initializeMainSearch() {
   console.log('Initializing main search...');
   
+  // Check if we've already initialized to prevent duplicates
+  if (window.searchInitialized) {
+    console.log('Search already initialized, skipping...');
+    return;
+  }
+  
   // First, let's check what elements we actually have
   console.log('Available elements:', {
     searchInputStyle: document.querySelector('.search-input-style'),
@@ -1088,10 +1094,12 @@ function initializeMainSearch() {
   
   // Strategy 1: Look for input inside search containers
   const searchContainers = document.querySelectorAll('.search-input-style, .search-wrapper');
+  console.log('Found search containers:', searchContainers.length);
   for (const container of searchContainers) {
-    const input = container.querySelector('input');
-    if (input) {
-      searchInput = input;
+    const inputs = container.querySelectorAll('input');
+    console.log('Inputs in container:', inputs.length);
+    if (inputs.length > 0) {
+      searchInput = inputs[0]; // Use the first input
       console.log('Found input in container:', container.className);
       break;
     }
@@ -1122,43 +1130,50 @@ function initializeMainSearch() {
     console.log('No search input found, creating one...');
     const searchContainer = document.querySelector('.search-input-style, .search-wrapper');
     if (searchContainer) {
-      // Create a new input element
-      searchInput = document.createElement('input');
-      searchInput.type = 'text';
-      searchInput.placeholder = 'Search products...';
-      searchInput.setAttribute('data-search-input', 'true');
-      searchInput.style.cssText = `
-        background: transparent !important;
-        border: none !important;
-        outline: none !important;
-        width: 100% !important;
-        height: 100% !important;
-        padding: 0 40px 0 40px !important;
-        margin: 0 !important;
-        font-family: inherit !important;
-        font-size: inherit !important;
-        color: #000 !important;
-        cursor: text !important;
-        pointer-events: auto !important;
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        z-index: 1000 !important;
-        display: block !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-        user-select: text !important;
-        -webkit-user-select: text !important;
-        -moz-user-select: text !important;
-        -ms-user-select: text !important;
-      `;
-      
-      // Make container relative positioned
-      searchContainer.style.position = 'relative';
-      
-      // Add the input to the container
-      searchContainer.appendChild(searchInput);
-      console.log('Created new search input');
+      // Check if there's already an input in the container
+      const existingInput = searchContainer.querySelector('input');
+      if (existingInput) {
+        searchInput = existingInput;
+        console.log('Found existing input in container');
+      } else {
+        // Create a new input element only if none exists
+        searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.placeholder = 'Search products...';
+        searchInput.setAttribute('data-search-input', 'true');
+        searchInput.style.cssText = `
+          background: transparent !important;
+          border: none !important;
+          outline: none !important;
+          width: 100% !important;
+          height: 100% !important;
+          padding: 0 40px 0 40px !important;
+          margin: 0 !important;
+          font-family: inherit !important;
+          font-size: inherit !important;
+          color: #000 !important;
+          cursor: text !important;
+          pointer-events: auto !important;
+          position: absolute !important;
+          top: 0 !important;
+          left: 0 !important;
+          z-index: 1000 !important;
+          display: block !important;
+          opacity: 1 !important;
+          visibility: visible !important;
+          user-select: text !important;
+          -webkit-user-select: text !important;
+          -moz-user-select: text !important;
+          -ms-user-select: text !important;
+        `;
+        
+        // Make container relative positioned
+        searchContainer.style.position = 'relative';
+        
+        // Add the input to the container
+        searchContainer.appendChild(searchInput);
+        console.log('Created new search input');
+      }
     }
   }
   
@@ -1263,6 +1278,8 @@ function initializeMainSearch() {
       ensureSearchBarVisibility();
     }, 1000);
     
+    // Mark as initialized to prevent duplicates
+    window.searchInitialized = true;
     console.log('Main search initialized successfully');
   } else {
     console.log('Failed to find or create search input');
