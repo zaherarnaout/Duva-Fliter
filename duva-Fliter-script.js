@@ -353,34 +353,21 @@ function applyFilters() {
   console.log('Found', existingProductCards.length, 'product cards');
   
   existingProductCards.forEach((card, index) => {
-    // Get all possible product data from the card
-    const productName = card.querySelector('.main-code-text')?.textContent || '';
-    const productDescription = card.querySelector('.item-description')?.textContent || '';
-    const backTitle = card.querySelector('.back-title')?.textContent || '';
-    const wattageElements = card.querySelectorAll('.wattage');
-    const wattageTexts = Array.from(wattageElements).map(el => el.textContent).join(' ');
+    // Get CMS data attributes from the card
+    const cmsData = getCMSDataFromCard(card);
     
-    // Combine all text for searching
-    const allProductText = (productName + ' ' + productDescription + ' ' + backTitle + ' ' + wattageTexts).toLowerCase();
-    
-    console.log(`Product ${index + 1}:`, {
-      name: productName,
-      description: productDescription,
-      backTitle: backTitle,
-      wattageTexts: wattageTexts,
-      allText: allProductText
-    });
+    console.log(`Product ${index + 1}:`, cmsData);
     
     // Check if this product matches the filter criteria
-    const shouldShow = checkProductMatch(productName, productDescription, backTitle, wattageTexts, allProductText);
+    const shouldShow = checkProductMatchWithCMSData(cmsData);
     
     // Show/hide the card based on filter results
     if (shouldShow) {
       card.style.display = 'block';
-      console.log(`Product "${productName}" - SHOWING`);
+      console.log(`Product "${cmsData.productCode}" - SHOWING`);
     } else {
       card.style.display = 'none';
-      console.log(`Product "${productName}" - HIDDEN`);
+      console.log(`Product "${cmsData.productCode}" - HIDDEN`);
     }
   });
   
@@ -396,15 +383,87 @@ function applyFilters() {
   console.log('Filter applied to existing products');
 }
 
-// Check if a product matches the filter criteria
-function checkProductMatch(productName, productDescription, backTitle, wattageTexts, allProductText) {
-  console.log('Checking product match for:', productName);
+// Get CMS data from Webflow collection item
+function getCMSDataFromCard(card) {
+  // Try to get data from Webflow's CMS attributes
+  const cmsData = {
+    productCode: '',
+    family: '',
+    shortDescription: '',
+    fullDescription: '',
+    cct: '',
+    voltage: '',
+    overviewTitle: ''
+  };
+  
+  // Method 1: Try to get data from Webflow's data attributes
+  if (card.dataset) {
+    cmsData.productCode = card.dataset.productCode || card.dataset['product-code'] || '';
+    cmsData.family = card.dataset.family || '';
+    cmsData.shortDescription = card.dataset.shortDescription || card.dataset['short-description'] || '';
+    cmsData.fullDescription = card.dataset.fullDescription || card.dataset['full-description'] || '';
+    cmsData.cct = card.dataset.cct || '';
+    cmsData.voltage = card.dataset.voltage || '';
+    cmsData.overviewTitle = card.dataset.overviewTitle || card.dataset['overview-title'] || '';
+  }
+  
+  // Method 2: Try to get data from Webflow's CMS binding elements
+  const productCodeElement = card.querySelector('[data-wf-cms-bind="product-code"], [data-wf-cms-bind="productCode"]');
+  if (productCodeElement) {
+    cmsData.productCode = productCodeElement.textContent || productCodeElement.innerText || '';
+  }
+  
+  const familyElement = card.querySelector('[data-wf-cms-bind="family"]');
+  if (familyElement) {
+    cmsData.family = familyElement.textContent || familyElement.innerText || '';
+  }
+  
+  const cctElement = card.querySelector('[data-wf-cms-bind="cct"]');
+  if (cctElement) {
+    cmsData.cct = cctElement.textContent || cctElement.innerText || '';
+  }
+  
+  // Method 3: Fallback to visible text content
+  if (!cmsData.productCode) {
+    const mainCodeText = card.querySelector('.main-code-text');
+    cmsData.productCode = mainCodeText ? mainCodeText.textContent : '';
+  }
+  
+  if (!cmsData.shortDescription) {
+    const itemDescription = card.querySelector('.item-description');
+    cmsData.shortDescription = itemDescription ? itemDescription.textContent : '';
+  }
+  
+  if (!cmsData.fullDescription) {
+    const backTitle = card.querySelector('.back-title');
+    cmsData.fullDescription = backTitle ? backTitle.textContent : '';
+  }
+  
+  // Method 4: Try to get CCT from wattage elements (back of card)
+  if (!cmsData.cct) {
+    const wattageElements = card.querySelectorAll('.wattage');
+    const wattageTexts = Array.from(wattageElements).map(el => el.textContent).join(' ');
+    // Look for CCT pattern in the text
+    const cctMatch = wattageTexts.match(/(\d{4}K)/g);
+    if (cctMatch) {
+      cmsData.cct = cctMatch.join(', ');
+    }
+  }
+  
+  return cmsData;
+}
+
+// Check if a product matches the filter criteria using CMS data
+function checkProductMatchWithCMSData(cmsData) {
+  console.log('Checking product match for:', cmsData.productCode);
+  console.log('CMS Data:', cmsData);
   console.log('Filter state:', filterState);
   
   // Check application type filters
   if (filterState.applicationType.length > 0) {
+    const searchText = (cmsData.shortDescription + ' ' + cmsData.fullDescription).toLowerCase();
     const hasMatchingApplication = filterState.applicationType.some(type => 
-      allProductText.includes(type.toLowerCase())
+      searchText.includes(type.toLowerCase())
     );
     if (!hasMatchingApplication) {
       console.log('No matching application type found');
@@ -414,8 +473,9 @@ function checkProductMatch(productName, productDescription, backTitle, wattageTe
   
   // Check mounting type filters
   if (filterState.mountingType.length > 0) {
+    const searchText = (cmsData.shortDescription + ' ' + cmsData.fullDescription).toLowerCase();
     const hasMatchingMounting = filterState.mountingType.some(type => 
-      allProductText.includes(type.toLowerCase())
+      searchText.includes(type.toLowerCase())
     );
     if (!hasMatchingMounting) {
       console.log('No matching mounting type found');
@@ -425,8 +485,9 @@ function checkProductMatch(productName, productDescription, backTitle, wattageTe
   
   // Check form factor filters
   if (filterState.formFactor.length > 0) {
+    const searchText = (cmsData.shortDescription + ' ' + cmsData.fullDescription).toLowerCase();
     const hasMatchingFormFactor = filterState.formFactor.some(type => 
-      allProductText.includes(type.toLowerCase())
+      searchText.includes(type.toLowerCase())
     );
     if (!hasMatchingFormFactor) {
       console.log('No matching form factor found');
@@ -434,17 +495,33 @@ function checkProductMatch(productName, productDescription, backTitle, wattageTe
     }
   }
   
-  // Check performance specs
+  // Check performance specs - now using CMS data
   for (const [key, value] of Object.entries(filterState.performanceSpecs)) {
     if (value) {
       const searchValue = value.toLowerCase();
-      console.log(`Searching for "${searchValue}" in product text`);
+      console.log(`Searching for "${searchValue}" in CMS data`);
       
-      if (!allProductText.includes(searchValue)) {
-        console.log(`"${searchValue}" not found in product text`);
+      let found = false;
+      
+      // Check CCT specifically in CMS CCT field
+      if (key === 'cct' && cmsData.cct) {
+        const cctValues = cmsData.cct.toLowerCase().split(',').map(v => v.trim());
+        found = cctValues.includes(searchValue);
+        console.log(`CCT values in CMS: ${cmsData.cct}, searching for: ${searchValue}, found: ${found}`);
+      }
+      
+      // Check other specs in descriptions
+      if (!found) {
+        const searchText = (cmsData.shortDescription + ' ' + cmsData.fullDescription).toLowerCase();
+        found = searchText.includes(searchValue);
+        console.log(`Searching in descriptions for "${searchValue}", found: ${found}`);
+      }
+      
+      if (!found) {
+        console.log(`"${searchValue}" not found in CMS data`);
         return false;
       } else {
-        console.log(`"${searchValue}" found in product text`);
+        console.log(`"${searchValue}" found in CMS data`);
       }
     }
   }
@@ -453,13 +530,16 @@ function checkProductMatch(productName, productDescription, backTitle, wattageTe
   for (const [key, value] of Object.entries(filterState.technicalSpecs)) {
     if (value) {
       const searchValue = value.toLowerCase();
-      console.log(`Searching for "${searchValue}" in product text`);
+      console.log(`Searching for "${searchValue}" in CMS data`);
       
-      if (!allProductText.includes(searchValue)) {
-        console.log(`"${searchValue}" not found in product text`);
+      const searchText = (cmsData.shortDescription + ' ' + cmsData.fullDescription).toLowerCase();
+      const found = searchText.includes(searchValue);
+      
+      if (!found) {
+        console.log(`"${searchValue}" not found in CMS data`);
         return false;
       } else {
-        console.log(`"${searchValue}" found in product text`);
+        console.log(`"${searchValue}" found in CMS data`);
       }
     }
   }
