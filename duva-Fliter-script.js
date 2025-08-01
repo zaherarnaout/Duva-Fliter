@@ -1054,15 +1054,6 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log(`Arrow z-index:`, arrow.style.zIndex);
     });
   }, 1000);
-  
-  // Run delayed cleanup for Webflow elements
-  setTimeout(() => {
-    console.log('Running delayed cleanup for Webflow elements...');
-    cleanupDuplicateText();
-    fixSearchBarAlignment();
-    aggressiveSearchBarCleanup();
-    ensureSearchBarBorder();
-  }, 3000);
 });
 
 // Also initialize when Webflow loads
@@ -1076,15 +1067,6 @@ if (typeof Webflow !== 'undefined') {
     setTimeout(() => {
       ensureSearchBarVisibility();
     }, 100);
-    
-    // Run delayed cleanup for Webflow elements
-    setTimeout(() => {
-      console.log('Running delayed cleanup for Webflow elements...');
-      cleanupDuplicateText();
-      fixSearchBarAlignment();
-      aggressiveSearchBarCleanup();
-      ensureSearchBarBorder();
-    }, 3000);
   });
 }
 
@@ -1098,105 +1080,11 @@ function initializeMainSearch() {
     return;
   }
   
-  // First, let's check what elements we actually have
-  console.log('Available elements:', {
-    searchInputStyle: document.querySelector('.search-input-style'),
-    searchWrapper: document.querySelector('.search-wrapper'),
-    searchIcon: document.querySelector('.search-icon'),
-    allInputs: document.querySelectorAll('input'),
-    allElements: document.querySelectorAll('*')
-  });
-  
-  // Try to find the search input with multiple strategies
-  let searchInput = null;
-  
-  // Strategy 1: Look for input inside search containers
-  const searchContainers = document.querySelectorAll('.search-input-style, .search-wrapper');
-  console.log('Found search containers:', searchContainers.length);
-  for (const container of searchContainers) {
-    const inputs = container.querySelectorAll('input');
-    console.log('Inputs in container:', inputs.length);
-    if (inputs.length > 0) {
-      searchInput = inputs[0]; // Use the first input
-      console.log('Found input in container:', container.className);
-      break;
-    }
-  }
-  
-  // Strategy 2: Look for input by placeholder
-  if (!searchInput) {
-    searchInput = document.querySelector('input[placeholder*="Search"], input[placeholder*="search"]');
-    if (searchInput) {
-      console.log('Found input by placeholder');
-    }
-  }
-  
-  // Strategy 3: Look for any input that might be a search input
-  if (!searchInput) {
-    const allInputs = document.querySelectorAll('input');
-    for (const input of allInputs) {
-      if (input.placeholder && input.placeholder.toLowerCase().includes('search')) {
-        searchInput = input;
-        console.log('Found input by placeholder text');
-        break;
-      }
-    }
-  }
-  
-  // Strategy 4: If no input exists, create one
-  if (!searchInput) {
-    console.log('No search input found, creating one...');
-    const searchContainer = document.querySelector('.search-input-style, .search-wrapper');
-    if (searchContainer) {
-      // Check if there's already an input in the container
-      const existingInput = searchContainer.querySelector('input');
-      if (existingInput) {
-        searchInput = existingInput;
-        console.log('Found existing input in container');
-      } else {
-        // Create a new input element only if none exists
-        searchInput = document.createElement('input');
-        searchInput.type = 'text';
-        searchInput.placeholder = 'Search products...';
-        searchInput.setAttribute('data-search-input', 'true');
-        searchInput.style.cssText = `
-          background: transparent !important;
-          border: none !important;
-          outline: none !important;
-          width: 100% !important;
-          height: 100% !important;
-          padding: 0 40px 0 40px !important;
-          margin: 0 !important;
-          font-family: inherit !important;
-          font-size: inherit !important;
-          color: #000 !important;
-          cursor: text !important;
-          pointer-events: auto !important;
-          position: absolute !important;
-          top: 0 !important;
-          left: 0 !important;
-          z-index: 1000 !important;
-          display: block !important;
-          opacity: 1 !important;
-          visibility: visible !important;
-          user-select: text !important;
-          -webkit-user-select: text !important;
-          -moz-user-select: text !important;
-          -ms-user-select: text !important;
-        `;
-        
-        // Make container relative positioned
-        searchContainer.style.position = 'relative';
-        
-        // Add the input to the container
-        searchContainer.appendChild(searchInput);
-        console.log('Created new search input');
-      }
-    }
-  }
+  // Find the existing search input
+  let searchInput = document.querySelector('input[placeholder*="Search"], input[placeholder*="search"]');
   
   if (searchInput) {
-    console.log('Search input found/created:', searchInput);
+    console.log('Found existing search input:', searchInput);
     
     // Ensure the input is properly configured
     searchInput.type = 'text';
@@ -1212,13 +1100,6 @@ function initializeMainSearch() {
       console.log('Input event triggered:', e);
       const searchValue = this.value.trim();
       console.log('Main search input:', searchValue);
-      
-      // Hide placeholder and icon when user starts typing
-      if (searchValue !== '') {
-        hideSearchPlaceholderAndIcon();
-      } else {
-        showSearchPlaceholderAndIcon();
-      }
       
       if (searchValue === '') {
         // If search is empty, show all products
@@ -1240,23 +1121,14 @@ function initializeMainSearch() {
       }
     });
     
-    // Add focus event to handle placeholder and icon
+    // Add focus event
     searchInput.addEventListener('focus', function() {
       console.log('Search input focused');
-      this.style.color = '#000'; // Ensure text is visible when typing
-      
-      // Hide placeholder text and icon when focused
-      hideSearchPlaceholderAndIcon();
     });
     
     // Add blur event
     searchInput.addEventListener('blur', function() {
       console.log('Search input blurred');
-      
-      // Show placeholder and icon if input is empty
-      if (this.value.trim() === '') {
-        showSearchPlaceholderAndIcon();
-      }
     });
     
     // Add click event to ensure it's clickable
@@ -1265,71 +1137,11 @@ function initializeMainSearch() {
       e.stopPropagation(); // Prevent event bubbling
     });
     
-    // Add event listener for search icon click (if exists)
-    const searchIcon = document.querySelector('.search-icon');
-    if (searchIcon) {
-      searchIcon.addEventListener('click', function() {
-        console.log('Search icon clicked');
-        // Focus the input when icon is clicked
-        searchInput.focus();
-        const searchValue = searchInput.value.trim();
-        if (searchValue !== '') {
-          applySearchFilter(searchValue);
-        }
-      });
-    }
-    
-    // Also make the entire search container clickable to focus the input
-    const searchContainer = searchInput.closest('.search-input-style, .search-wrapper');
-    if (searchContainer) {
-      searchContainer.addEventListener('click', function(e) {
-        console.log('Search container clicked');
-        // Don't focus if clicking on the icon
-        if (!e.target.classList.contains('search-icon')) {
-          searchInput.focus();
-        }
-      });
-    }
-    
-    // Show search bar immediately
-    showSearchBarImmediately();
-    
-    // Clean up any duplicate text elements
-    cleanupDuplicateText();
-    
-    // Fix search bar alignment
-    fixSearchBarAlignment();
-    
-    // Perform aggressive cleanup
-    aggressiveSearchBarCleanup();
-    
-    // Ensure search bar border is visible
-    ensureSearchBarBorder();
-    
-    // Ensure search bar is always visible
-    setTimeout(() => {
-      showSearchBarImmediately();
-      ensureSearchBarVisibility();
-      // Also clean up duplicates after a delay to catch any late-rendering elements
-      cleanupDuplicateText();
-      fixSearchBarAlignment();
-      aggressiveSearchBarCleanup();
-      ensureSearchBarBorder();
-    }, 1000);
-    
     // Mark as initialized to prevent duplicates
     window.searchInitialized = true;
     console.log('Main search initialized successfully');
-    
-    // Set up periodic cleanup to catch any late-rendering duplicate elements
-    setInterval(() => {
-      cleanupDuplicateText();
-      fixSearchBarAlignment();
-      aggressiveSearchBarCleanup();
-      ensureSearchBarBorder();
-    }, 2000); // Check every 2 seconds
   } else {
-    console.log('Failed to find or create search input');
+    console.log('No search input found');
   }
 }
 
@@ -1338,51 +1150,25 @@ function ensureSearchBarVisibility() {
   console.log('Ensuring search bar visibility...');
   
   // Find all search inputs and containers
-  const searchInputs = document.querySelectorAll('.search-input-style input, .search-wrapper input, input[data-search-input="true"]');
+  const searchInputs = document.querySelectorAll('input[placeholder*="Search"], input[placeholder*="search"]');
   const searchContainers = document.querySelectorAll('.search-input-style, .search-wrapper');
   
-  // Ensure search inputs are visible with original styling
+  // Ensure search inputs are visible
   searchInputs.forEach(input => {
-    // Apply the original styling from styles.css
-    input.style.border = '1px solid #e0e0e0';
-    input.style.borderRadius = '20px';
-    input.style.backgroundColor = '#fff';
-    input.style.height = '28px';
-    input.style.minWidth = '300px';
-    input.style.maxWidth = '400px';
-    input.style.width = '300px';
-    input.style.paddingLeft = '40px';
-    input.style.paddingRight = '12px';
-    input.style.fontSize = 'inherit';
-    input.style.fontFamily = 'inherit';
-    input.style.color = '#000';
-    input.style.outline = 'none';
-    
-    // Ensure basic visibility
     input.style.display = 'block';
     input.style.visibility = 'visible';
     input.style.opacity = '1';
     input.style.pointerEvents = 'auto';
-    input.style.position = 'relative';
-    input.style.zIndex = '1000';
-    
-    console.log('Applied original styling to search input:', input);
+    console.log('Ensured input visibility:', input);
   });
   
-  // Ensure search containers are visible with minimal overrides
+  // Ensure search containers are visible
   searchContainers.forEach(container => {
-    container.style.display = 'block';
+    container.style.display = 'flex';
     container.style.visibility = 'visible';
     container.style.opacity = '1';
     container.style.pointerEvents = 'auto';
-    container.style.position = 'relative';
-    
-    // Remove any style overrides that might interfere with original appearance
-    container.style.removeProperty('border');
-    container.style.removeProperty('background');
-    container.style.removeProperty('color');
-    
-    console.log('Ensured container visibility with minimal overrides:', container);
+    console.log('Ensured container visibility:', container);
   });
 }
 
@@ -1390,23 +1176,17 @@ function ensureSearchBarVisibility() {
 function fixSearchBarAlignment() {
   console.log('Fixing search bar alignment...');
   
-  // Try multiple selectors to find the search container
-  const searchContainer = document.querySelector('.search-input-style, .search-wrapper, [class*="search"], [class*="Search"]');
+  // Find the main search container
+  const searchContainer = document.querySelector('.search-input-style, .search-wrapper');
   if (!searchContainer) {
     console.log('No search container found');
     return;
   }
   
-  // Ensure proper positioning
-  searchContainer.style.position = 'relative';
-  searchContainer.style.display = 'flex';
-  searchContainer.style.alignItems = 'center';
-  searchContainer.style.justifyContent = 'center';
-  
   // Find the main search input
   const mainSearchInput = searchContainer.querySelector('input');
   if (mainSearchInput) {
-    // Only apply minimal styling to ensure functionality, let original CSS handle appearance
+    // Only apply minimal styling to ensure functionality
     mainSearchInput.style.position = 'relative';
     mainSearchInput.style.zIndex = '1000';
     mainSearchInput.style.pointerEvents = 'auto';
@@ -1414,355 +1194,86 @@ function fixSearchBarAlignment() {
     mainSearchInput.style.visibility = 'visible';
     mainSearchInput.style.opacity = '1';
     
-    // Apply the original styling from styles.css
-    mainSearchInput.style.border = '1px solid #e0e0e0';
-    mainSearchInput.style.borderRadius = '20px';
-    mainSearchInput.style.backgroundColor = '#fff';
-    mainSearchInput.style.height = '28px';
-    mainSearchInput.style.minWidth = '300px';
-    mainSearchInput.style.maxWidth = '400px';
-    mainSearchInput.style.width = '300px';
-    mainSearchInput.style.paddingLeft = '40px';
-    mainSearchInput.style.paddingRight = '12px';
-    mainSearchInput.style.fontSize = 'inherit';
-    mainSearchInput.style.fontFamily = 'inherit';
-    mainSearchInput.style.color = '#000';
-    mainSearchInput.style.outline = 'none';
-    
-    console.log('Applied original styling to search input from styles.css');
-  }
-  
-  // Hide any duplicate elements within the search container
-  const allElements = searchContainer.querySelectorAll('*');
-  const searchTextElements = [];
-  
-  allElements.forEach(el => {
-    if (el.tagName !== 'INPUT' && el.tagName !== 'IMG') {
-      const text = el.textContent.trim();
-      if (text === 'Search products...' || text === 'Search products') {
-        searchTextElements.push(el);
-      }
-    }
-  });
-  
-  // Keep only the first text element, hide the rest
-  if (searchTextElements.length > 1) {
-    console.log('Found duplicate text elements in search container:', searchTextElements.length);
-    for (let i = 1; i < searchTextElements.length; i++) {
-      searchTextElements[i].style.display = 'none';
-      searchTextElements[i].style.visibility = 'hidden';
-      searchTextElements[i].style.opacity = '0';
-    }
+    console.log('Applied minimal styling to search input');
   }
 }
 
-// Function to aggressively clean up search bar issues
-function aggressiveSearchBarCleanup() {
-  console.log('Performing aggressive search bar cleanup...');
-  
-  // First, make sure the main search bar is visible
-  const searchContainers = document.querySelectorAll('.search-input-style, .search-wrapper');
-  searchContainers.forEach(container => {
-    // Make sure the main container is visible
-    container.style.display = 'flex';
-    container.style.visibility = 'visible';
-    container.style.opacity = '1';
-    container.style.position = 'relative';
-    container.style.left = 'auto';
-    container.style.top = 'auto';
-    
-    // Apply original styling
-    container.style.backgroundColor = '#fff';
-    container.style.border = '1px solid #e0e0e0';
-    container.style.borderRadius = '20px';
-    container.style.height = '28px';
-    container.style.minWidth = '300px';
-    container.style.maxWidth = '400px';
-    container.style.width = '300px';
-    container.style.paddingLeft = '40px';
-    container.style.paddingRight = '12px';
-    container.style.alignItems = 'center';
-    container.style.justifyContent = 'flex-start';
-    container.style.overflow = 'hidden';
-    container.style.whiteSpace = 'nowrap';
-    container.style.flex = '0 1 auto';
-    container.style.margin = '0 16px';
-    
-    console.log('Made search container visible:', container);
-  });
-  
-  // Find and make the main search input visible
-  const searchInputs = document.querySelectorAll('input[placeholder*="Search"], input[placeholder*="search"]');
-  if (searchInputs.length > 0) {
-    // Make the first input visible and properly styled
-    const mainInput = searchInputs[0];
-    mainInput.style.display = 'block';
-    mainInput.style.visibility = 'visible';
-    mainInput.style.opacity = '1';
-    mainInput.style.position = 'relative';
-    mainInput.style.left = 'auto';
-    mainInput.style.top = 'auto';
-    mainInput.style.zIndex = '1000';
-    mainInput.style.pointerEvents = 'auto';
-    
-    // Apply original styling
-    mainInput.style.border = '1px solid #e0e0e0';
-    mainInput.style.borderRadius = '20px';
-    mainInput.style.backgroundColor = '#fff';
-    mainInput.style.height = '28px';
-    mainInput.style.minWidth = '300px';
-    mainInput.style.maxWidth = '400px';
-    mainInput.style.width = '300px';
-    mainInput.style.paddingLeft = '40px';
-    mainInput.style.paddingRight = '12px';
-    mainInput.style.fontSize = 'inherit';
-    mainInput.style.fontFamily = 'inherit';
-    mainInput.style.color = '#000';
-    mainInput.style.outline = 'none';
-    
-    console.log('Made main search input visible:', mainInput);
-    
-    // Hide any additional inputs (duplicates)
-    for (let i = 1; i < searchInputs.length; i++) {
-      searchInputs[i].style.display = 'none';
-      searchInputs[i].style.visibility = 'hidden';
-      searchInputs[i].style.opacity = '0';
-      console.log('Hidden duplicate search input:', searchInputs[i]);
-    }
-  }
-  
-  // Only hide text elements that are actual duplicates, not the main search bar
-  const allElements = document.querySelectorAll('*');
-  const searchTextElements = [];
-  
-  allElements.forEach(el => {
-    const text = el.textContent.trim();
-    if (text === 'Search products...' || text === 'Search products') {
-      // Only hide if it's not the main search input or its container
-      const isMainSearchElement = el.closest('.search-input-style, .search-wrapper') && 
-                                 (el.tagName === 'INPUT' || el.classList.contains('search-input-style') || el.classList.contains('search-wrapper'));
-      
-      if (!isMainSearchElement) {
-        searchTextElements.push(el);
-      }
-    }
-  });
-  
-  // Hide only the duplicate text elements, not the main search bar
-  searchTextElements.forEach(element => {
-    element.style.display = 'none';
-    element.style.visibility = 'hidden';
-    element.style.opacity = '0';
-    element.style.position = 'absolute';
-    element.style.left = '-9999px';
-    console.log('Hidden duplicate text element:', element);
-  });
-}
 
-// Function to ensure search bar border is visible
-function ensureSearchBarBorder() {
-  console.log('Ensuring search bar border is visible...');
-  
-  // Find search inputs and ensure they have proper border styling
-  const searchInputs = document.querySelectorAll('input[placeholder*="Search"], input[placeholder*="search"]');
-  searchInputs.forEach(input => {
-    // Apply the original styling from styles.css
-    input.style.border = '1px solid #e0e0e0';
-    input.style.borderRadius = '20px';
-    input.style.backgroundColor = '#fff';
-    input.style.height = '28px';
-    input.style.minWidth = '300px';
-    input.style.maxWidth = '400px';
-    input.style.width = '300px';
-    input.style.paddingLeft = '40px';
-    input.style.paddingRight = '12px';
-    input.style.fontSize = 'inherit';
-    input.style.fontFamily = 'inherit';
-    input.style.color = '#000';
-    input.style.outline = 'none';
-    
-    // Ensure basic visibility
-    input.style.display = 'block';
-    input.style.visibility = 'visible';
-    input.style.opacity = '1';
-    input.style.pointerEvents = 'auto';
-    input.style.position = 'relative';
-    input.style.zIndex = '1000';
-    
-    console.log('Applied original styling to search input:', input);
-  });
-  
-  // Also check search containers for border styling
-  const searchContainers = document.querySelectorAll('.search-input-style, .search-wrapper, [class*="search"], [class*="Search"]');
-  searchContainers.forEach(container => {
-    // Apply original container styling
-    container.style.backgroundColor = '#fff';
-    container.style.border = '1px solid #e0e0e0';
-    container.style.borderRadius = '20px';
-    container.style.height = '28px';
-    container.style.minWidth = '300px';
-    container.style.maxWidth = '400px';
-    container.style.width = '300px';
-    container.style.paddingLeft = '40px';
-    container.style.paddingRight = '12px';
-    container.style.display = 'flex';
-    container.style.alignItems = 'center';
-    container.style.justifyContent = 'flex-start';
-    container.style.position = 'relative';
-    container.style.overflow = 'hidden';
-    container.style.whiteSpace = 'nowrap';
-    container.style.flex = '0 1 auto';
-    container.style.margin = '0 16px';
-    
-    console.log('Applied original styling to search container:', container);
-  });
-}
-
-// Function to immediately show the search bar
-function showSearchBarImmediately() {
-  console.log('Showing search bar immediately...');
-  
-  // Find and show the main search container
-  const searchContainers = document.querySelectorAll('.search-input-style, .search-wrapper');
-  searchContainers.forEach(container => {
-    // Force the container to be visible
-    container.style.display = 'flex';
-    container.style.visibility = 'visible';
-    container.style.opacity = '1';
-    container.style.position = 'relative';
-    container.style.left = 'auto';
-    container.style.top = 'auto';
-    container.style.zIndex = '1000';
-    
-    // Apply original styling
-    container.style.backgroundColor = '#fff';
-    container.style.border = '1px solid #e0e0e0';
-    container.style.borderRadius = '20px';
-    container.style.height = '28px';
-    container.style.minWidth = '300px';
-    container.style.maxWidth = '400px';
-    container.style.width = '300px';
-    container.style.paddingLeft = '40px';
-    container.style.paddingRight = '12px';
-    container.style.alignItems = 'center';
-    container.style.justifyContent = 'flex-start';
-    container.style.overflow = 'hidden';
-    container.style.whiteSpace = 'nowrap';
-    container.style.flex = '0 1 auto';
-    container.style.margin = '0 16px';
-    
-    console.log('Made search container immediately visible:', container);
-  });
-  
-  // Find and show the search input
-  const searchInputs = document.querySelectorAll('input[placeholder*="Search"], input[placeholder*="search"]');
-  if (searchInputs.length > 0) {
-    const mainInput = searchInputs[0];
-    mainInput.style.display = 'block';
-    mainInput.style.visibility = 'visible';
-    mainInput.style.opacity = '1';
-    mainInput.style.position = 'relative';
-    mainInput.style.left = 'auto';
-    mainInput.style.top = 'auto';
-    mainInput.style.zIndex = '1000';
-    mainInput.style.pointerEvents = 'auto';
-    
-    // Apply original styling
-    mainInput.style.border = '1px solid #e0e0e0';
-    mainInput.style.borderRadius = '20px';
-    mainInput.style.backgroundColor = '#fff';
-    mainInput.style.height = '28px';
-    mainInput.style.minWidth = '300px';
-    mainInput.style.maxWidth = '400px';
-    mainInput.style.width = '300px';
-    mainInput.style.paddingLeft = '40px';
-    mainInput.style.paddingRight = '12px';
-    mainInput.style.fontSize = 'inherit';
-    mainInput.style.fontFamily = 'inherit';
-    mainInput.style.color = '#000';
-    mainInput.style.outline = 'none';
-    
-    console.log('Made search input immediately visible:', mainInput);
-  }
-}
 
 // Apply search filter using existing filter logic
 function applySearchFilter(searchValue) {
-  console.log('Applying search filter:', searchValue);
+  console.log('Applying search filter for:', searchValue);
   
-  // Get all existing product cards from Webflow CMS
-  const existingProductCards = document.querySelectorAll('.collection-item');
+  if (!searchValue || searchValue.trim() === '') {
+    showAllProducts();
+    return;
+  }
   
-  console.log('Found', existingProductCards.length, 'product cards for search');
-  
+  const searchTerm = searchValue.toLowerCase().trim();
   let foundProducts = 0;
   
-  existingProductCards.forEach((card, index) => {
-    // Get CMS data attributes from the card (reuse existing function)
+  // Get all product cards
+  const productCards = document.querySelectorAll('.collection-item');
+  
+  productCards.forEach(card => {
     const cmsData = getCMSDataFromCard(card);
+    const isMatch = checkProductMatchSearch(cmsData, searchTerm);
     
-    // Check if this product matches the search criteria
-    const shouldShow = checkProductMatchSearch(cmsData, searchValue);
-    
-    // Show/hide the card based on search results
-    if (shouldShow) {
+    if (isMatch) {
       card.style.display = 'block';
       foundProducts++;
-      console.log(`Product "${cmsData.productCode}" - SHOWING (search match)`);
     } else {
       card.style.display = 'none';
-      console.log(`Product "${cmsData.productCode}" - HIDDEN (no search match)`);
     }
   });
   
-  // Show empty state if no products are visible
+  console.log(`Search completed. Found ${foundProducts} products for "${searchValue}"`);
+  
+  // Show empty state if no products found
   if (foundProducts === 0) {
     showSearchEmptyState(searchValue);
   } else {
     hideSearchEmptyState();
   }
-  
-  console.log(`Search completed. Found ${foundProducts} matching products`);
 }
 
-// Check if a product matches the search criteria
+// Check if product matches search criteria
 function checkProductMatchSearch(cmsData, searchValue) {
-  const searchLower = searchValue.toLowerCase().trim();
+  if (!cmsData || !searchValue) return false;
   
-  // Search in multiple fields with priority order
-  const searchFields = [
-    cmsData.productCode,           // Product code (highest priority)
-    cmsData.name,                  // Product name
-    cmsData.family,                // Family name
-    cmsData.searchTags,            // Search tags (comprehensive data)
-    cmsData.wattage,               // Wattage
-    cmsData.lumen,                 // Lumen
-    cmsData.cct,                   // CCT
-    cmsData.ipRating,              // IP Rating
-    cmsData.ikRating,              // IK Rating
-    cmsData.beamAngle,             // Beam Angle
-    cmsData.cri,                   // CRI
-    cmsData.location,              // Location (Indoor/Outdoor)
-    cmsData.finishColor,           // Finish Color
-    cmsData.shortDescription,      // Short description
-    cmsData.allText                // All text (fallback)
-  ];
+  const searchTerm = searchValue.toLowerCase();
   
-  // Check each field for matches
-  for (const field of searchFields) {
-    if (field && field.toLowerCase().includes(searchLower)) {
-      console.log(`Search match found in field: "${field}" for search: "${searchValue}"`);
+  // First, check the search tags field (most comprehensive)
+  if (cmsData.searchTags) {
+    const searchTags = cmsData.searchTags.toLowerCase();
+    if (searchTags.includes(searchTerm)) {
+      console.log(`Search match found in search tags for: "${searchValue}"`);
       return true;
     }
   }
   
-  // Also check for exact word boundaries in search tags (most comprehensive field)
-  if (cmsData.searchTags) {
-    const searchTags = cmsData.searchTags.toLowerCase();
-    const regex = new RegExp(`\\b${searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-    if (regex.test(searchTags)) {
-      console.log(`Exact word match found in search tags for: "${searchValue}"`);
+  // Check all text content
+  if (cmsData.allText) {
+    const allText = cmsData.allText.toLowerCase();
+    if (allText.includes(searchTerm)) {
+      console.log(`Search match found in all text for: "${searchValue}"`);
       return true;
+    }
+  }
+  
+  // Check specific fields
+  const fieldsToCheck = [
+    'productCode', 'productName', 'description', 'wattage', 
+    'lumen', 'cct', 'beam', 'cri', 'ip', 'ik', 'finish', 'dimensions'
+  ];
+  
+  for (const field of fieldsToCheck) {
+    if (cmsData[field]) {
+      const fieldValue = cmsData[field].toLowerCase();
+      if (fieldValue.includes(searchTerm)) {
+        console.log(`Search match found in ${field} for: "${searchValue}"`);
+        return true;
+      }
     }
   }
   
@@ -1808,48 +1319,6 @@ function hideSearchEmptyState() {
   if (emptyState) {
     emptyState.remove();
   }
-}
-
-// Function to hide placeholder text and search icon
-function hideSearchPlaceholderAndIcon() {
-  console.log('Hiding placeholder and icon');
-  
-  // Hide search icon only
-  const searchIcon = document.querySelector('.search-icon');
-  if (searchIcon) {
-    searchIcon.style.opacity = '0';
-    searchIcon.style.visibility = 'hidden';
-  }
-  
-  // Ensure the search input itself is always visible
-  const searchInputs = document.querySelectorAll('.search-input-style input, .search-wrapper input, input[data-search-input="true"]');
-  searchInputs.forEach(input => {
-    input.style.display = 'block';
-    input.style.visibility = 'visible';
-    input.style.opacity = '1';
-    input.style.pointerEvents = 'auto';
-  });
-}
-
-// Function to show placeholder text and search icon
-function showSearchPlaceholderAndIcon() {
-  console.log('Showing placeholder and icon');
-  
-  // Show search icon only
-  const searchIcon = document.querySelector('.search-icon');
-  if (searchIcon) {
-    searchIcon.style.opacity = '0.3';
-    searchIcon.style.visibility = 'visible';
-  }
-  
-  // Ensure the search input itself is always visible
-  const searchInputs = document.querySelectorAll('.search-input-style input, .search-wrapper input, input[data-search-input="true"]');
-  searchInputs.forEach(input => {
-    input.style.display = 'block';
-    input.style.visibility = 'visible';
-    input.style.opacity = '1';
-    input.style.pointerEvents = 'auto';
-  });
 }
 
 // Function to clean up duplicate text elements
