@@ -512,6 +512,28 @@
   color: inherit !important;
   cursor: text !important;
   pointer-events: auto !important;
+  position: relative !important;
+  z-index: 1000 !important;
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+}
+
+/* Override any potential blocking styles */
+.search-input-style,
+.search-wrapper {
+  position: relative !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure no other elements block the input */
+.search-input-style *,
+.search-wrapper * {
+  pointer-events: auto !important;
 }
 
 /* Ensure placeholder text behaves correctly */
@@ -525,6 +547,15 @@
 .search-input-style input:focus::placeholder,
 .search-wrapper input:focus::placeholder {
   opacity: 0 !important;
+}
+
+/* Force input to be interactive */
+.search-input-style input:focus,
+.search-wrapper input:focus {
+  color: #000 !important;
+  background: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 /* Search empty state styling */
