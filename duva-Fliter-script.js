@@ -1337,7 +1337,7 @@ function ensureSearchBarVisibility() {
   const searchInputs = document.querySelectorAll('.search-input-style input, .search-wrapper input, input[data-search-input="true"]');
   const searchContainers = document.querySelectorAll('.search-input-style, .search-wrapper');
   
-  // Ensure search inputs are visible
+  // Ensure search inputs are visible with minimal overrides
   searchInputs.forEach(input => {
     input.style.display = 'block';
     input.style.visibility = 'visible';
@@ -1345,18 +1345,33 @@ function ensureSearchBarVisibility() {
     input.style.pointerEvents = 'auto';
     input.style.position = 'relative';
     input.style.zIndex = '1000';
-    console.log('Ensured input visibility:', input);
+    
+    // Remove any style overrides that might interfere with original appearance
+    input.style.removeProperty('border');
+    input.style.removeProperty('background');
+    input.style.removeProperty('color');
+    input.style.removeProperty('font-size');
+    input.style.removeProperty('font-family');
+    input.style.removeProperty('width');
+    input.style.removeProperty('height');
+    
+    console.log('Ensured input visibility with minimal overrides:', input);
   });
   
-  // Ensure search containers are visible
+  // Ensure search containers are visible with minimal overrides
   searchContainers.forEach(container => {
     container.style.display = 'block';
     container.style.visibility = 'visible';
     container.style.opacity = '1';
     container.style.pointerEvents = 'auto';
     container.style.position = 'relative';
-    container.style.overflow = 'visible';
-    console.log('Ensured container visibility:', container);
+    
+    // Remove any style overrides that might interfere with original appearance
+    container.style.removeProperty('border');
+    container.style.removeProperty('background');
+    container.style.removeProperty('color');
+    
+    console.log('Ensured container visibility with minimal overrides:', container);
   });
 }
 
@@ -1380,20 +1395,24 @@ function fixSearchBarAlignment() {
   // Find the main search input
   const mainSearchInput = searchContainer.querySelector('input');
   if (mainSearchInput) {
-    // Ensure the input is properly positioned but preserve original styling
+    // Only apply minimal styling to ensure functionality, let original CSS handle appearance
     mainSearchInput.style.position = 'relative';
     mainSearchInput.style.zIndex = '1000';
-    mainSearchInput.style.width = '100%';
-    mainSearchInput.style.height = '100%';
-    // Remove the border override to let original CSS handle it
-    // mainSearchInput.style.border = 'none';
-    mainSearchInput.style.outline = 'none';
-    mainSearchInput.style.background = 'transparent';
-    mainSearchInput.style.color = '#000';
-    mainSearchInput.style.fontSize = 'inherit';
-    mainSearchInput.style.fontFamily = 'inherit';
+    mainSearchInput.style.pointerEvents = 'auto';
+    mainSearchInput.style.display = 'block';
+    mainSearchInput.style.visibility = 'visible';
+    mainSearchInput.style.opacity = '1';
     
-    console.log('Fixed main search input positioning');
+    // Remove any overrides that might interfere with original styling
+    mainSearchInput.style.removeProperty('border');
+    mainSearchInput.style.removeProperty('background');
+    mainSearchInput.style.removeProperty('color');
+    mainSearchInput.style.removeProperty('font-size');
+    mainSearchInput.style.removeProperty('font-family');
+    mainSearchInput.style.removeProperty('width');
+    mainSearchInput.style.removeProperty('height');
+    
+    console.log('Applied minimal styling to search input, preserving original appearance');
   }
   
   // Hide any duplicate elements within the search container
@@ -1472,30 +1491,40 @@ function ensureSearchBarBorder() {
   searchInputs.forEach(input => {
     // Remove any border overrides that might hide the border
     if (input.style.border === 'none' || input.style.border === '0px') {
-      input.style.border = '';
+      input.style.removeProperty('border');
       console.log('Removed border override from search input');
     }
     
-    // Ensure the input is visible and properly styled
+    // Only ensure basic visibility, let original CSS handle styling
     input.style.display = 'block';
     input.style.visibility = 'visible';
     input.style.opacity = '1';
-    input.style.color = '#000';
-    input.style.background = 'transparent';
+    input.style.pointerEvents = 'auto';
     
-    console.log('Ensured search input border visibility:', input);
+    // Remove any other style overrides that might interfere
+    input.style.removeProperty('color');
+    input.style.removeProperty('background');
+    input.style.removeProperty('font-size');
+    input.style.removeProperty('font-family');
+    
+    console.log('Ensured search input visibility while preserving original styling:', input);
   });
   
   // Also check search containers for border styling
   const searchContainers = document.querySelectorAll('.search-input-style, .search-wrapper, [class*="search"], [class*="Search"]');
   searchContainers.forEach(container => {
-    // Ensure container has proper border styling
+    // Remove any border overrides from containers
     if (container.style.border === 'none' || container.style.border === '0px') {
-      container.style.border = '';
+      container.style.removeProperty('border');
       console.log('Removed border override from search container');
     }
     
-    console.log('Ensured search container border visibility:', container);
+    // Ensure container is visible but preserve original styling
+    container.style.display = 'block';
+    container.style.visibility = 'visible';
+    container.style.opacity = '1';
+    
+    console.log('Ensured search container visibility while preserving original styling:', container);
   });
 }
 
