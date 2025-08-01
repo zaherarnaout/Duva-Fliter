@@ -1054,6 +1054,14 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log(`Arrow z-index:`, arrow.style.zIndex);
     });
   }, 1000);
+  
+  // Run delayed cleanup for Webflow elements
+  setTimeout(() => {
+    console.log('Running delayed cleanup for Webflow elements...');
+    cleanupDuplicateText();
+    fixSearchBarAlignment();
+    aggressiveSearchBarCleanup();
+  }, 3000);
 });
 
 // Also initialize when Webflow loads
@@ -1067,6 +1075,14 @@ if (typeof Webflow !== 'undefined') {
     setTimeout(() => {
       ensureSearchBarVisibility();
     }, 100);
+    
+    // Run delayed cleanup for Webflow elements
+    setTimeout(() => {
+      console.log('Running delayed cleanup for Webflow elements...');
+      cleanupDuplicateText();
+      fixSearchBarAlignment();
+      aggressiveSearchBarCleanup();
+    }, 3000);
   });
 }
 
@@ -1279,12 +1295,16 @@ function initializeMainSearch() {
     // Fix search bar alignment
     fixSearchBarAlignment();
     
+    // Perform aggressive cleanup
+    aggressiveSearchBarCleanup();
+    
     // Ensure search bar is always visible
     setTimeout(() => {
       ensureSearchBarVisibility();
       // Also clean up duplicates after a delay to catch any late-rendering elements
       cleanupDuplicateText();
       fixSearchBarAlignment();
+      aggressiveSearchBarCleanup();
     }, 1000);
     
     // Mark as initialized to prevent duplicates
@@ -1294,6 +1314,8 @@ function initializeMainSearch() {
     // Set up periodic cleanup to catch any late-rendering duplicate elements
     setInterval(() => {
       cleanupDuplicateText();
+      fixSearchBarAlignment();
+      aggressiveSearchBarCleanup();
     }, 2000); // Check every 2 seconds
   } else {
     console.log('Failed to find or create search input');
@@ -1335,8 +1357,8 @@ function ensureSearchBarVisibility() {
 function fixSearchBarAlignment() {
   console.log('Fixing search bar alignment...');
   
-  // Find the main search container
-  const searchContainer = document.querySelector('.search-input-style, .search-wrapper');
+  // Try multiple selectors to find the search container
+  const searchContainer = document.querySelector('.search-input-style, .search-wrapper, [class*="search"], [class*="Search"]');
   if (!searchContainer) {
     console.log('No search container found');
     return;
@@ -1386,6 +1408,49 @@ function fixSearchBarAlignment() {
       searchTextElements[i].style.display = 'none';
       searchTextElements[i].style.visibility = 'hidden';
       searchTextElements[i].style.opacity = '0';
+    }
+  }
+}
+
+// Function to aggressively clean up search bar issues
+function aggressiveSearchBarCleanup() {
+  console.log('Performing aggressive search bar cleanup...');
+  
+  // Find all elements that might contain search text
+  const allElements = document.querySelectorAll('*');
+  const searchTextElements = [];
+  
+  allElements.forEach(el => {
+    const text = el.textContent.trim();
+    if (text === 'Search products...' || text === 'Search products') {
+      searchTextElements.push(el);
+    }
+  });
+  
+  console.log('Found search text elements:', searchTextElements.length);
+  
+  // If we have multiple elements with the same text, keep only the first one
+  if (searchTextElements.length > 1) {
+    console.log('Multiple search text elements found, hiding duplicates...');
+    for (let i = 1; i < searchTextElements.length; i++) {
+      const element = searchTextElements[i];
+      element.style.display = 'none';
+      element.style.visibility = 'hidden';
+      element.style.opacity = '0';
+      element.style.position = 'absolute';
+      element.style.left = '-9999px';
+      console.log('Hidden duplicate element:', element);
+    }
+  }
+  
+  // Also check for any input elements that might be duplicates
+  const searchInputs = document.querySelectorAll('input[placeholder*="Search"], input[placeholder*="search"]');
+  if (searchInputs.length > 1) {
+    console.log('Multiple search inputs found, keeping only the first one');
+    for (let i = 1; i < searchInputs.length; i++) {
+      searchInputs[i].style.display = 'none';
+      searchInputs[i].style.visibility = 'hidden';
+      searchInputs[i].style.opacity = '0';
     }
   }
 }
