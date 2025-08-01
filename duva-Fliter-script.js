@@ -1036,6 +1036,11 @@ document.addEventListener('DOMContentLoaded', function() {
   initializeFilter();
   initializeMainSearch(); // Add main search initialization
   
+  // Ensure search bar is visible immediately
+  setTimeout(() => {
+    ensureSearchBarVisibility();
+  }, 100);
+  
   // Test dropdown functionality after a short delay
   setTimeout(() => {
     console.log('Testing dropdown functionality...');
@@ -1057,6 +1062,11 @@ if (typeof Webflow !== 'undefined') {
     console.log('Webflow loaded - Initializing filter');
     initializeFilter();
     initializeMainSearch(); // Add main search initialization
+    
+    // Ensure search bar is visible after Webflow loads
+    setTimeout(() => {
+      ensureSearchBarVisibility();
+    }, 100);
   });
 }
 
@@ -1258,12 +1268,46 @@ function initializeMainSearch() {
       searchInput.value = 'test';
       searchInput.dispatchEvent(new Event('input', { bubbles: true }));
       console.log('Test typing completed');
+      
+      // Ensure search bar is always visible
+      ensureSearchBarVisibility();
     }, 1000);
     
     console.log('Main search initialized successfully');
   } else {
     console.log('Failed to find or create search input');
   }
+}
+
+// Function to ensure search bar is always visible
+function ensureSearchBarVisibility() {
+  console.log('Ensuring search bar visibility...');
+  
+  // Find all search inputs and containers
+  const searchInputs = document.querySelectorAll('.search-input-style input, .search-wrapper input, input[data-search-input="true"]');
+  const searchContainers = document.querySelectorAll('.search-input-style, .search-wrapper');
+  
+  // Ensure search inputs are visible
+  searchInputs.forEach(input => {
+    input.style.display = 'block';
+    input.style.visibility = 'visible';
+    input.style.opacity = '1';
+    input.style.pointerEvents = 'auto';
+    input.style.position = 'relative';
+    input.style.zIndex = '1000';
+    console.log('Ensured input visibility:', input);
+  });
+  
+  // Ensure search containers are visible
+  searchContainers.forEach(container => {
+    container.style.display = 'block';
+    container.style.visibility = 'visible';
+    container.style.opacity = '1';
+    container.style.pointerEvents = 'auto';
+    container.style.position = 'relative';
+    container.style.overflow = 'visible';
+    console.log('Ensured container visibility:', container);
+  });
 }
 
 // Apply search filter using existing filter logic
@@ -1419,10 +1463,16 @@ function hideSearchPlaceholderAndIcon() {
   });
   
   // Hide any text elements that might be placeholders (comprehensive approach)
+  // BUT NEVER hide the actual input element
   const searchContainers = document.querySelectorAll('.search-input-style, .search-wrapper');
   searchContainers.forEach(container => {
     const textElements = container.querySelectorAll('div, span, p, label');
     textElements.forEach(el => {
+      // NEVER hide input elements
+      if (el.tagName === 'INPUT') {
+        return;
+      }
+      
       const text = el.textContent.trim().toLowerCase();
       // Hide elements that contain placeholder-like text
       if (text.includes('search') || text.includes('product') || text.includes('find') || 
@@ -1437,9 +1487,22 @@ function hideSearchPlaceholderAndIcon() {
   // Also hide any elements with specific classes that might be placeholders
   const possiblePlaceholders = document.querySelectorAll('.search-placeholder, .search-text, .search-label, .search-hint');
   possiblePlaceholders.forEach(el => {
+    // NEVER hide input elements
+    if (el.tagName === 'INPUT') {
+      return;
+    }
     el.style.display = 'none';
     el.style.opacity = '0';
     el.style.visibility = 'hidden';
+  });
+  
+  // Ensure the search input itself is always visible
+  const searchInputs = document.querySelectorAll('.search-input-style input, .search-wrapper input, input[data-search-input="true"]');
+  searchInputs.forEach(input => {
+    input.style.display = 'block';
+    input.style.visibility = 'visible';
+    input.style.opacity = '1';
+    input.style.pointerEvents = 'auto';
   });
 }
 
@@ -1472,10 +1535,16 @@ function showSearchPlaceholderAndIcon() {
   });
   
   // Show any text elements that might be placeholders (comprehensive approach)
+  // BUT NEVER hide the actual input element
   const searchContainers = document.querySelectorAll('.search-input-style, .search-wrapper');
   searchContainers.forEach(container => {
     const textElements = container.querySelectorAll('div, span, p, label');
     textElements.forEach(el => {
+      // NEVER hide input elements
+      if (el.tagName === 'INPUT') {
+        return;
+      }
+      
       const text = el.textContent.trim().toLowerCase();
       // Show elements that contain placeholder-like text
       if (text.includes('search') || text.includes('product') || text.includes('find') || 
@@ -1490,8 +1559,21 @@ function showSearchPlaceholderAndIcon() {
   // Also show any elements with specific classes that might be placeholders
   const possiblePlaceholders = document.querySelectorAll('.search-placeholder, .search-text, .search-label, .search-hint');
   possiblePlaceholders.forEach(el => {
+    // NEVER hide input elements
+    if (el.tagName === 'INPUT') {
+      return;
+    }
     el.style.display = 'block';
     el.style.opacity = '1';
     el.style.visibility = 'visible';
+  });
+  
+  // Ensure the search input itself is always visible
+  const searchInputs = document.querySelectorAll('.search-input-style input, .search-wrapper input, input[data-search-input="true"]');
+  searchInputs.forEach(input => {
+    input.style.display = 'block';
+    input.style.visibility = 'visible';
+    input.style.opacity = '1';
+    input.style.pointerEvents = 'auto';
   });
 }
