@@ -224,9 +224,18 @@ function initializeFilterFields() {
     const dropdownMenu = createDropdownMenu(specType);
     field.appendChild(dropdownMenu);
     
-    // Add click handler for dropdown toggle
+    // Add click handler for dropdown toggle - now works with the dropdown arrow
+    const dropdownArrow = field.querySelector('.sub-filter-dropdown');
+    if (dropdownArrow) {
+      dropdownArrow.addEventListener('click', function(e) {
+        e.stopPropagation();
+        toggleDropdown(dropdownMenu);
+      });
+    }
+    
+    // Also allow clicking on the field itself to toggle dropdown
     field.addEventListener('click', function(e) {
-      if (e.target === input) return; // Don't toggle dropdown when clicking input
+      if (e.target === input || e.target.closest('.sub-filter-dropdown')) return; // Don't toggle when clicking input or arrow
       e.stopPropagation();
       toggleDropdown(dropdownMenu);
     });
