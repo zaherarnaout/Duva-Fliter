@@ -86,6 +86,48 @@ let products = [
       ik: "IK08",
       finishColor: "White"
     }
+  },
+  {
+    id: 4,
+    name: "Product 4708",
+    applicationType: ["Indoor", "Retail"],
+    mountingType: ["Recessed Mounted"],
+    formFactor: ["Circular", "Downlight"],
+    performanceSpecs: {
+      wattage: "7W",
+      lumen: "700lm",
+      cct: "3000K",
+      beam: "15°",
+      cri: "80",
+      ugr: "16",
+      efficiency: "100lm/W"
+    },
+    technicalSpecs: {
+      ip: "IP20",
+      ik: "IK08",
+      finishColor: "White"
+    }
+  },
+  {
+    id: 5,
+    name: "Product 4708 (10W)",
+    applicationType: ["Indoor", "Retail"],
+    mountingType: ["Recessed Mounted"],
+    formFactor: ["Circular", "Downlight"],
+    performanceSpecs: {
+      wattage: "10W",
+      lumen: "1000lm",
+      cct: "3000K",
+      beam: "24°",
+      cri: "90",
+      ugr: "16",
+      efficiency: "100lm/W"
+    },
+    technicalSpecs: {
+      ip: "IP44",
+      ik: "IK08",
+      finishColor: "Black"
+    }
   }
 ];
 
@@ -330,17 +372,34 @@ function applyFilters() {
       if (!hasMatchingFormFactor) return false;
     }
     
-    // Check performance specs
-    for (const [key, value] of Object.entries(filterState.performanceSpecs)) {
-      if (value && product.performanceSpecs[key] !== value) {
-        return false;
+    // Check performance specs with more flexible matching
+    for (const [key, filterValue] of Object.entries(filterState.performanceSpecs)) {
+      if (filterValue && product.performanceSpecs[key]) {
+        const productValue = product.performanceSpecs[key];
+        
+        // For CCT, check if the product has the exact CCT value
+        if (key === 'cct') {
+          if (productValue !== filterValue) {
+            console.log(`CCT mismatch: Product has ${productValue}, filter wants ${filterValue}`);
+            return false;
+          }
+        }
+        // For other specs, do exact matching
+        else if (productValue !== filterValue) {
+          console.log(`${key} mismatch: Product has ${productValue}, filter wants ${filterValue}`);
+          return false;
+        }
       }
     }
     
     // Check technical specs
-    for (const [key, value] of Object.entries(filterState.technicalSpecs)) {
-      if (value && product.technicalSpecs[key] !== value) {
-        return false;
+    for (const [key, filterValue] of Object.entries(filterState.technicalSpecs)) {
+      if (filterValue && product.technicalSpecs[key]) {
+        const productValue = product.technicalSpecs[key];
+        if (productValue !== filterValue) {
+          console.log(`${key} mismatch: Product has ${productValue}, filter wants ${filterValue}`);
+          return false;
+        }
       }
     }
     
