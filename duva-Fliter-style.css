@@ -497,6 +497,36 @@
 
 /* === Search Functionality Styles === */
 
+/* Ensure search input is properly interactive */
+.search-input-style input,
+.search-wrapper input {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
+  color: inherit !important;
+  cursor: text !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure placeholder text behaves correctly */
+.search-input-style input::placeholder,
+.search-wrapper input::placeholder {
+  color: #999 !important;
+  opacity: 1 !important;
+}
+
+/* Hide placeholder when input is focused and has content */
+.search-input-style input:focus::placeholder,
+.search-wrapper input:focus::placeholder {
+  opacity: 0 !important;
+}
+
 /* Search empty state styling */
 .search-empty-state {
   text-align: center;
