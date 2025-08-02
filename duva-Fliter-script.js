@@ -37,8 +37,6 @@ const DROPDOWN_OPTIONS = {
 
 // Initialize filter functionality
 function initializeFilter() {
-  console.log('Initializing filter...');
-  
   // Wait for DOM to be fully loaded
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeFilterComponents);
@@ -48,14 +46,12 @@ function initializeFilter() {
   
   // Retry initialization after a delay to catch late-loading CMS items
   setTimeout(() => {
-    console.log('Retrying filter initialization for late-loading CMS items...');
     initializeFilterComponents();
   }, 3000);
   
   // Listen for Webflow's CMS load events
   if (window.Webflow) {
     window.Webflow.push(() => {
-      console.log('Webflow CMS loaded, initializing filter...');
       initializeFilterComponents();
     });
   }
@@ -63,15 +59,12 @@ function initializeFilter() {
 
 // Initialize all filter components
 function initializeFilterComponents() {
-  console.log('Initializing filter components...');
-  
   // Wait a bit for Webflow to render CMS items
   setTimeout(() => {
     initializeFilterToggle();
     initializeFilterFields();
     initializeApplyFilterButton();
     initializeResetFilterButton();
-    console.log('Filter components initialized');
   }, 1000);
 }
 
@@ -94,12 +87,6 @@ function initializeFilterToggle() {
     // Add the event listener
     filterHeader.addEventListener('click', handleFilterToggle);
     
-    console.log('Filter toggle initialized - starting in collapsed state');
-  } else {
-    console.log('Filter toggle elements not found');
-    console.log('Filter BG found:', !!filterBg);
-    console.log('Filter Header found:', !!filterHeader);
-    console.log('Filter Arrow found:', !!filterArrow);
   }
 }
 
@@ -128,7 +115,6 @@ function handleFilterToggle(e) {
       }
     }
     
-    console.log('Filter toggled:', isExpanded ? 'collapsed' : 'expanded');
   }
 }
 
@@ -250,29 +236,20 @@ function getFieldType(field) {
 // Initialize filter checkboxes
 function initializeFilterCheckboxes() {
   const checkboxes = document.querySelectorAll('.sub-filter-wrapper');
-  console.log('Found', checkboxes.length, 'filter checkboxes');
   
   checkboxes.forEach((wrapper, index) => {
     const text = wrapper.querySelector('.sub-filter-wattage');
     const checkmark = wrapper.querySelector('.filter-checkmark');
     
-    console.log(`Checkbox ${index}:`, {
-      text: text ? text.textContent : 'No text',
-      checkmark: !!checkmark,
-      wrapperClasses: wrapper.className
-    });
-    
     if (text && checkmark) {
       // Add click handler to the entire wrapper
       wrapper.addEventListener('click', () => {
         const isActive = wrapper.classList.contains('active');
-        console.log('Click detected on:', text.textContent, 'Current active:', isActive);
         
         if (isActive) {
           // Uncheck
           wrapper.classList.remove('active');
-          checkmark.classList.remove('active'); // Add this line
-          console.log('Checkbox unchecked:', text.textContent);
+          checkmark.classList.remove('active');
           const filterType = getCheckboxFilterType(text.textContent);
           const filterValue = text.textContent.trim().toLowerCase();
           
@@ -286,8 +263,7 @@ function initializeFilterCheckboxes() {
         } else {
           // Check
           wrapper.classList.add('active');
-          checkmark.classList.add('active'); // Add this line
-          console.log('Checkbox checked:', text.textContent);
+          checkmark.classList.add('active');
           const filterType = getCheckboxFilterType(text.textContent);
           const filterValue = text.textContent.trim().toLowerCase();
           
@@ -305,13 +281,6 @@ function initializeFilterCheckboxes() {
             }
           }
         }
-        
-        console.log('Wrapper classes after toggle:', wrapper.className);
-        console.log('Checkmark classes after toggle:', checkmark.className);
-        console.log('Checkmark element:', checkmark);
-        
-        // Force a repaint to ensure CSS is applied
-        checkmark.offsetHeight;
         
         applyFilters();
       });
@@ -500,7 +469,6 @@ function getCMSDataFromCard(card) {
 
 // Check if a product matches the filter criteria using CMS data
 function checkProductMatchWithCMSData(cmsData) {
-  console.log('Checking product match for:', cmsData.productCode);
   
   // Check application type filters
   if (filterState.applicationType.length > 0) {
@@ -644,17 +612,13 @@ function checkProductMatchWithCMSData(cmsData) {
 
 // Apply filters to show/hide products
 function applyFilters() {
-  console.log('Applying filters...');
-  console.log('Filter state:', filterState);
   
   const cardsContainer = document.querySelector('.cards-container');
   if (!cardsContainer) {
-    console.log('Cards container not found');
     return;
   }
   
   const productCards = cardsContainer.querySelectorAll('.collection-item, .w-dyn-item');
-  console.log(`Found ${productCards.length} product cards`);
   
   let visibleCount = 0;
   
@@ -670,7 +634,6 @@ function applyFilters() {
     }
   });
   
-  console.log(`Filter applied: ${visibleCount} products visible`);
 }
 
 // Show all products
@@ -683,7 +646,6 @@ function showAllProducts() {
     card.style.display = 'block';
   });
   
-  console.log('All products shown');
 }
 
 // Start the filter when the page loads
