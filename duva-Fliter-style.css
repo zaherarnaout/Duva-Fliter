@@ -220,6 +220,7 @@
   position: relative;
   cursor: pointer;
   transition: border-color 0.2s ease;
+  background-color: white;
 }
 
 .filter-checkmark:hover {
@@ -229,20 +230,6 @@
 .filter-checkmark.active {
   background-color: #c0392b;
   border-color: #c0392b;
-}
-
-.filter-checkmark.active::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 10px;
-  height: 5px;
-  border-left: 2px solid white;
-  border-bottom: 2px solid white;
-  transform: translate(-50%, -60%) rotate(-45deg) scale(1);
-  opacity: 1;
-  transition: all 0.2s ease;
 }
 
 /* Default state - checkmark hidden */
@@ -258,6 +245,13 @@
   transform: translate(-50%, -60%) rotate(-45deg) scale(0);
   opacity: 0;
   transition: all 0.2s ease;
+  pointer-events: none;
+}
+
+/* Active state - checkmark visible */
+.filter-checkmark.active::after {
+  transform: translate(-50%, -60%) rotate(-45deg) scale(1);
+  opacity: 1;
 }
 
 /* Make the entire filter wrapper clickable */
