@@ -382,6 +382,12 @@
   color: #212121 !important;
 }
 
+/* Force input field active state with maximum specificity */
+.main-filter-wrapper .sub-filter-wrapper.has-input .sub-filter-wattage,
+.main-filter-wrapper .main-sub-filter-wrapper .sub-filter-wrapper.has-input .sub-filter-wattage {
+  color: #212121 !important;
+}
+
 /* === Filter Section Expand/Collapse === */
 .filter-bg {
   max-height: 0;
