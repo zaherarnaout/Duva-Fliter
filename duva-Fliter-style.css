@@ -26,11 +26,11 @@
 }
 
 .application-type {
+  display: flex;
   flex-flow: column;
   justify-content: space-between;
-  align-self: flex-start;
   align-items: flex-end;
-  display: flex;
+  align-self: flex-start;
 }
 
 .fliter-right-wrapper {
@@ -87,13 +87,12 @@
 }
 
 .first-filter {
-  grid-column-gap: 5px;
-  grid-row-gap: 5px;
+  display: flex;
+  width: 100%;
   flex-flow: column;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
-  display: flex;
+  gap: 0px;
 }
 
 .heading {
@@ -206,13 +205,12 @@
 }
 
 .downlight {
-  grid-column-gap: 10px;
-  grid-row-gap: 10px;
+  display: flex;
+  width: 100%;
   flex-flow: row;
   justify-content: flex-end;
   align-items: center;
-  width: 100%;
-  display: flex;
+  gap: 10px;
 }
 
 .mounting-type {
@@ -222,13 +220,12 @@
 }
 
 .main-sub-filter-wrapper {
-  grid-column-gap: 10px;
-  grid-row-gap: 10px;
+  display: flex;
+  margin-bottom: 10px;
   flex-flow: column;
   justify-content: center;
   align-items: flex-start;
-  margin-bottom: 10px;
-  display: flex;
+  gap: 5px;
 }
 
 .filter-div {
@@ -420,6 +417,13 @@
   cursor: pointer;
   transition: all 0.2s ease;
   background-color: white;
+  width: 15px;
+  height: 15px;
+}
+
+.filter-checkmark.active {
+  background-color: #c0392b;
+  border-color: #c0392b;
   width: 15px;
   height: 15px;
 }
