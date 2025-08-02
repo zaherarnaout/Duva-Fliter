@@ -250,15 +250,23 @@ function getFieldType(field) {
 // Initialize filter checkboxes
 function initializeFilterCheckboxes() {
   const checkboxes = document.querySelectorAll('.sub-filter-wrapper');
+  console.log('Found', checkboxes.length, 'filter checkboxes');
   
-  checkboxes.forEach(wrapper => {
+  checkboxes.forEach((wrapper, index) => {
     const text = wrapper.querySelector('.sub-filter-wattage');
     const checkmark = wrapper.querySelector('.filter-checkmark');
+    
+    console.log(`Checkbox ${index}:`, {
+      text: text ? text.textContent : 'No text',
+      checkmark: !!checkmark,
+      wrapperClasses: wrapper.className
+    });
     
     if (text && checkmark) {
       // Add click handler to the entire wrapper
       wrapper.addEventListener('click', () => {
         const isActive = wrapper.classList.contains('active');
+        console.log('Click detected on:', text.textContent, 'Current active:', isActive);
         
         if (isActive) {
           // Uncheck
@@ -298,6 +306,10 @@ function initializeFilterCheckboxes() {
         
         console.log('Wrapper classes after toggle:', wrapper.className);
         console.log('Checkmark classes after toggle:', checkmark.className);
+        console.log('Checkmark element:', checkmark);
+        
+        // Force a repaint to ensure CSS is applied
+        checkmark.offsetHeight;
         
         applyFilters();
       });
