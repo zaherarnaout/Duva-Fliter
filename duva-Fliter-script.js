@@ -146,6 +146,16 @@ function initializeFilterFields() {
     input.addEventListener('input', () => {
       updateFieldFilterState(fieldType, input.value);
       applyFilters();
+      
+      // Update text label color based on input value
+      const textLabel = field.querySelector('.sub-filter-wattage');
+      if (textLabel) {
+        if (input.value.trim() !== '') {
+          textLabel.style.color = '#212121';
+        } else {
+          textLabel.style.color = '#dddddd';
+        }
+      }
     });
   });
   
@@ -327,6 +337,12 @@ function resetAllFilters() {
   // Reset input fields
   document.querySelectorAll('.filter-input-field').forEach(input => {
     input.value = '';
+    
+    // Reset text label color for input fields
+    const textLabel = input.closest('.selection-filter-text')?.querySelector('.sub-filter-wattage');
+    if (textLabel) {
+      textLabel.style.color = '#dddddd';
+    }
   });
   
   // Close all dropdowns
