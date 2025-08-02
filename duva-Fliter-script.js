@@ -78,7 +78,7 @@ function initializeFilterComponents() {
 // Initialize filter toggle functionality
 function initializeFilterToggle() {
   const filterBg = document.querySelector('.filter-bg');
-  const filterHeader = document.querySelector('.filter-header-wrapper');
+  const filterHeader = document.querySelector('.filter-header-wrapper'); // Corrected class name
   const filterArrow = document.querySelector('.filter-header-toggle-arrow');
   
   if (filterBg && filterHeader) {
