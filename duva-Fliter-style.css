@@ -460,14 +460,15 @@
 
 /* === Filter Input Field === */
 .filter-input-field {
-  border: none;
+  border: 1px solid var(--border-divider-light);
+  border-radius: var(--section-title-size);
   background: transparent;
   padding: 4px 8px;
   font-size: 12px;
   width: 100px;
   text-align: center;
-  color: #333;
-  font-weight: 500;
+  color: var(--border-divider-light);
+  font-weight: 100;
   font-family: Gotham, Georgia, sans-serif;
 }
 
