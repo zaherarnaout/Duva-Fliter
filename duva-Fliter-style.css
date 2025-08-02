@@ -219,7 +219,7 @@
   border-radius: 4px;
   position: relative;
   cursor: pointer;
-  transition: border-color 0.2s ease;
+  transition: all 0.2s ease;
   background-color: white;
 }
 
@@ -228,8 +228,8 @@
 }
 
 .filter-checkmark.active {
-  background-color: #c0392b;
-  border-color: #c0392b;
+  background-color: #c0392b !important;
+  border-color: #c0392b !important;
 }
 
 /* Default state - checkmark hidden */
