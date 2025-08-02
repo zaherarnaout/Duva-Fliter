@@ -35,7 +35,7 @@
   display: flex;
 }
 
-.filter-right-wrapper {
+.fliter-right-wrapper {
   border-radius: var(--border-8px);
   background-color: var(--duva-d-grey);
   flex-flow: column;
@@ -325,7 +325,7 @@
     display: none;
   }
   
-  .filter-right-wrapper {
+  .fliter-right-wrapper {
     width: 100%;
     margin-top: 20px;
   }
@@ -477,7 +477,7 @@
 .filter-sections-wrapper,
 .filter-bg,
 .filter-left-wrapper,
-.filter-right-wrapper,
+.fliter-right-wrapper,
 .main-filter-wrapper {
   overflow: hidden; /* Reset to normal overflow */
 }
