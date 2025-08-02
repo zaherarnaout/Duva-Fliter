@@ -263,6 +263,7 @@ function initializeFilterCheckboxes() {
         if (isActive) {
           // Uncheck
           wrapper.classList.remove('active');
+          console.log('Checkbox unchecked:', text.textContent);
           const filterType = getCheckboxFilterType(text.textContent);
           const filterValue = text.textContent.trim().toLowerCase();
           
@@ -276,6 +277,7 @@ function initializeFilterCheckboxes() {
         } else {
           // Check
           wrapper.classList.add('active');
+          console.log('Checkbox checked:', text.textContent);
           const filterType = getCheckboxFilterType(text.textContent);
           const filterValue = text.textContent.trim().toLowerCase();
           
@@ -293,6 +295,9 @@ function initializeFilterCheckboxes() {
             }
           }
         }
+        
+        console.log('Wrapper classes after toggle:', wrapper.className);
+        console.log('Checkmark classes after toggle:', checkmark.className);
         
         applyFilters();
       });
