@@ -122,10 +122,17 @@ function handleFilterToggle(e) {
 function initializeFilterFields() {
   // Initialize dropdowns
   const dropdownFields = document.querySelectorAll('.selection-filter-text');
+  console.log('Found', dropdownFields.length, 'dropdown fields');
   
-  dropdownFields.forEach(field => {
+  dropdownFields.forEach((field, index) => {
     const fieldType = getFieldType(field);
     const options = DROPDOWN_OPTIONS[fieldType] || [];
+    
+    console.log(`Dropdown ${index}:`, {
+      fieldType: fieldType,
+      optionsCount: options.length,
+      fieldElement: field
+    });
     
     if (options.length > 0) {
       // Replace the div with an input field that can also trigger dropdowns
@@ -148,6 +155,7 @@ function initializeFilterFields() {
       const existingContent = field.querySelector('.text-filed');
       if (existingContent) {
         existingContent.replaceWith(input);
+        console.log('Replaced existing content with input');
       }
       
       // Create dropdown menu
@@ -193,9 +201,11 @@ function initializeFilterFields() {
       
       // Add dropdown to field
       field.appendChild(dropdownMenu);
+      console.log('Added dropdown menu with', options.length, 'options');
       
       // Add click handler to input
       input.addEventListener('click', () => {
+        console.log('Input clicked, toggling dropdown');
         toggleDropdown(dropdownMenu);
       });
       
@@ -210,8 +220,11 @@ function initializeFilterFields() {
       if (dropdownArrow) {
         dropdownArrow.addEventListener('click', (e) => {
           e.stopPropagation();
+          console.log('Dropdown arrow clicked');
           toggleDropdown(dropdownMenu);
         });
+      } else {
+        console.log('No dropdown arrow found for field', index);
       }
     }
   });
@@ -386,6 +399,8 @@ function closeAllDropdowns() {
 
 // Toggle dropdown visibility
 function toggleDropdown(dropdownMenu) {
+  console.log('toggleDropdown called for:', dropdownMenu);
+  
   // Close all other dropdowns first
   const allDropdowns = document.querySelectorAll('.filter-dropdown-menu');
   allDropdowns.forEach(dropdown => {
@@ -396,6 +411,7 @@ function toggleDropdown(dropdownMenu) {
 
   // Toggle current dropdown
   const isActive = dropdownMenu.classList.contains('active');
+  console.log('Dropdown is currently active:', isActive);
 
   if (!isActive) {
     // Position the dropdown correctly
@@ -405,9 +421,16 @@ function toggleDropdown(dropdownMenu) {
     dropdownMenu.style.top = (fieldRect.bottom + 4) + 'px';
     dropdownMenu.style.left = fieldRect.left + 'px';
     dropdownMenu.style.width = fieldRect.width + 'px';
+    
+    console.log('Positioned dropdown at:', {
+      top: dropdownMenu.style.top,
+      left: dropdownMenu.style.left,
+      width: dropdownMenu.style.width
+    });
   }
 
   dropdownMenu.classList.toggle('active');
+  console.log('Dropdown active after toggle:', dropdownMenu.classList.contains('active'));
 }
 
 // Get CMS data from Webflow collection item
