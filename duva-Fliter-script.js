@@ -155,15 +155,19 @@ function initializeFilterFields() {
 
 // Get field type from the field element
 function getFieldType(field) {
-  // First try to get from data-type attribute
-  const dataType = field.getAttribute('data-type');
-  if (dataType) {
-    return dataType;
+  // First try to get from data-type attribute of the parent wrapper
+  const parentWrapper = field.closest('[data-type]');
+  if (parentWrapper) {
+    const dataType = parentWrapper.getAttribute('data-type');
+    if (dataType) {
+      return dataType;
+    }
   }
   
   // Fallback to text content
   const text = field.textContent || '';
   if (text.includes('Wattage')) return 'Wattage';
+  if (text.includes('Lumen')) return 'Lumen';
   if (text.includes('CCT')) return 'CCT';
   if (text.includes('Beam')) return 'Beam';
   if (text.includes('CRI')) return 'CRI';
