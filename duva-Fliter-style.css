@@ -439,14 +439,20 @@
   opacity: 1;
 }
 
-/* Make the entire filter wrapper clickable */
+/* Only make specific elements clickable, not the entire wrapper */
 .sub-filter-wrapper {
+  /* Remove cursor pointer and hover effects from the wrapper */
+}
+
+/* Keep checkbox clickable */
+.filter-checkmark {
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.sub-filter-wrapper:hover {
-  background-color: rgba(0, 0, 0, 0.02);
+/* Keep input field clickable */
+.filter-input-field {
+  cursor: text;
 }
 
 /* === Filter Input Fields === */
