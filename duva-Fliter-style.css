@@ -178,7 +178,10 @@
   display: flex;
 }
 
-.sub-filter-wattage {
+/* Force text color with maximum specificity */
+.main-filter-wrapper .sub-filter-wrapper .sub-filter-wattage,
+.main-filter-wrapper .main-sub-filter-wrapper .sub-filter-wrapper .sub-filter-wattage,
+.sub-filter-wrapper .sub-filter-wattage {
   color: #dddddd !important;
   margin-right: 20px;
   font-family: Gothamnarrow Book, Georgia, sans-serif;
