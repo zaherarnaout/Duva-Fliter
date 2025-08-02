@@ -177,12 +177,12 @@
 
 /* === Filter Text Color States === */
 .sub-filter-wattage {
-  color: var(--duva-grey) !important; /* Updated to requested grey */
+  color: #dddddd !important; /* Default grey color */
   transition: color 0.2s ease;
 }
 
 .sub-filter-wrapper.active .sub-filter-wattage {
-  color: #212121 !important;
+  color: #212121 !important; /* Dark color when checked */
 }
 
 /* === Filter Section Expand/Collapse === */
@@ -198,15 +198,13 @@
 
 /* === Filter Checkbox Styling === */
 .filter-checkmark {
-  position: relative;
-  display: inline-block;
   width: 20px;
   height: 20px;
-  border: 1px solid var(--border-divider-light);
-  border-radius: var(--border-4px-cornner);
-  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  position: relative;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease;
 }
 
 .filter-checkmark:hover {
@@ -214,8 +212,8 @@
 }
 
 .filter-checkmark.active {
-  background-color: var(--duva-red);
-  border-color: var(--duva-red);
+  background-color: #c0392b;
+  border-color: #c0392b;
 }
 
 .filter-checkmark.active::after {
@@ -227,7 +225,34 @@
   height: 5px;
   border-left: 2px solid white;
   border-bottom: 2px solid white;
-  transform: translate(-50%, -60%) rotate(-45deg);
+  transform: translate(-50%, -60%) rotate(-45deg) scale(1);
+  opacity: 1;
+  transition: all 0.2s ease;
+}
+
+/* Default state - checkmark hidden */
+.filter-checkmark::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 5px;
+  border-left: 2px solid white;
+  border-bottom: 2px solid white;
+  transform: translate(-50%, -60%) rotate(-45deg) scale(0);
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+/* Make the entire filter wrapper clickable */
+.sub-filter-wrapper {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sub-filter-wrapper:hover {
+  background-color: rgba(0, 0, 0, 0.02);
 }
 
 /* === Filter Dropdown Menu === */
