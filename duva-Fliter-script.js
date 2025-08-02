@@ -161,32 +161,14 @@ function initializeFilterFields() {
       // Create dropdown menu
       const dropdownMenu = document.createElement('div');
       dropdownMenu.className = 'filter-dropdown-menu';
-      dropdownMenu.style.cssText = `
-        position: fixed;
-        background-color: white;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        z-index: 1000;
-        max-height: 200px;
-        overflow-y: auto;
-        margin-top: 4px;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-      `;
+      // Don't set inline styles that conflict with CSS - let CSS control display
       
       // Add options to dropdown
       options.forEach(option => {
         const item = document.createElement('div');
         item.className = 'filter-dropdown-item';
         item.textContent = option;
-        item.style.cssText = `
-          padding: 12px 16px;
-          cursor: pointer;
-          color: #666666;
-          font-size: 14px;
-          transition: all 0.2s ease;
-        `;
+        // CSS already handles the styling for .filter-dropdown-item
         
         item.addEventListener('click', () => {
           input.value = option;
