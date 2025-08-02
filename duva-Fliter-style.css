@@ -376,6 +376,12 @@
   color: #212121 !important; /* Dark color when checked */
 }
 
+/* Force active state with maximum specificity */
+.main-filter-wrapper .sub-filter-wrapper.active .sub-filter-wattage,
+.main-filter-wrapper .main-sub-filter-wrapper .sub-filter-wrapper.active .sub-filter-wattage {
+  color: #212121 !important;
+}
+
 /* === Filter Section Expand/Collapse === */
 .filter-bg {
   max-height: 0;
@@ -472,6 +478,12 @@
   box-sizing: border-box !important;
   margin: 0 !important;
   outline: none !important;
+}
+
+/* === Filter Input Field Placeholder === */
+.filter-input-field::placeholder {
+  color: var(--border-divider-light) !important;
+  font-weight: 100 !important;
 }
 
 .filter-input-field:focus {
