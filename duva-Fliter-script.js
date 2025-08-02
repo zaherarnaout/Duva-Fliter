@@ -217,12 +217,29 @@ function initializeFilterCheckboxes() {
   const checkboxes = document.querySelectorAll('.sub-filter-wrapper');
   
   checkboxes.forEach(wrapper => {
-    const checkbox = wrapper.querySelector('input[type="checkbox"]');
     const text = wrapper.querySelector('.sub-filter-wattage');
+    const checkmark = wrapper.querySelector('.filter-checkmark');
     
-    if (checkbox && text) {
-      checkbox.addEventListener('change', () => {
-        if (checkbox.checked) {
+    if (text && checkmark) {
+      // Add click handler to the entire wrapper
+      wrapper.addEventListener('click', () => {
+        const isActive = wrapper.classList.contains('active');
+        
+        if (isActive) {
+          // Uncheck
+          wrapper.classList.remove('active');
+          const filterType = getCheckboxFilterType(text.textContent);
+          const filterValue = text.textContent.trim().toLowerCase();
+          
+          if (filterType === 'applicationType') {
+            filterState.applicationType = filterState.applicationType.filter(v => v !== filterValue);
+          } else if (filterType === 'mountingType') {
+            filterState.mountingType = filterState.mountingType.filter(v => v !== filterValue);
+          } else if (filterType === 'formFactor') {
+            filterState.formFactor = filterState.formFactor.filter(v => v !== filterValue);
+          }
+        } else {
+          // Check
           wrapper.classList.add('active');
           const filterType = getCheckboxFilterType(text.textContent);
           const filterValue = text.textContent.trim().toLowerCase();
@@ -240,21 +257,15 @@ function initializeFilterCheckboxes() {
               filterState.formFactor.push(filterValue);
             }
           }
-        } else {
-          wrapper.classList.remove('active');
-          const filterType = getCheckboxFilterType(text.textContent);
-          const filterValue = text.textContent.trim().toLowerCase();
-          
-          if (filterType === 'applicationType') {
-            filterState.applicationType = filterState.applicationType.filter(v => v !== filterValue);
-          } else if (filterType === 'mountingType') {
-            filterState.mountingType = filterState.mountingType.filter(v => v !== filterValue);
-          } else if (filterType === 'formFactor') {
-            filterState.formFactor = filterState.formFactor.filter(v => v !== filterValue);
-          }
         }
         
         applyFilters();
+      });
+      
+      // Add specific click handler to checkmark for better UX
+      checkmark.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent double triggering
+        wrapper.click(); // Trigger the wrapper click
       });
     }
   });
@@ -322,11 +333,9 @@ function resetAllFilters() {
   filterState.performanceSpecs = { wattage: '', cct: '', beam: '', lumen: '', cri: '' };
   filterState.technicalSpecs = { ip: '', ik: '', outdoor: '', indoor: '', finishcolor: '' };
   
-  // Reset checkboxes
+  // Reset checkboxes - remove active class to reset text color
   document.querySelectorAll('.sub-filter-wrapper').forEach(wrapper => {
     wrapper.classList.remove('active');
-    const checkbox = wrapper.querySelector('input[type="checkbox"]');
-    if (checkbox) checkbox.checked = false;
   });
   
   // Reset input fields
