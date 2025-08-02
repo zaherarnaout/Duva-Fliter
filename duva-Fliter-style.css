@@ -35,7 +35,7 @@
   display: flex;
 }
 
-.fliter-right-wrapper {
+.filter-right-wrapper {
   border-radius: var(--border-8px);
   background-color: var(--duva-d-grey);
   flex-flow: column;
@@ -52,7 +52,7 @@
   padding: 10px;
 }
 
-.filter-header-wraper {
+.filter-header-wrapper {
   gap: 12px;
   gap: 12px;
   flex-flow: row;
@@ -197,7 +197,17 @@
 }
 
 /* === Filter Checkbox Styling === */
-
+.filter-checkmark {
+  position: relative;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border-divider-light);
+  border-radius: var(--border-4px-cornner);
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
 
 .filter-checkmark:hover {
   border-color: #888;
@@ -315,7 +325,7 @@
     display: none;
   }
   
-  .fliter-right-wrapper {
+  .filter-right-wrapper {
     width: 100%;
     margin-top: 20px;
   }
@@ -473,7 +483,7 @@
 }
 
 /* Ensure filter header remains clickable */
-.filter-header-wraper {
+.filter-header-wrapper {
   position: relative;
   z-index: 10; /* Ensure it's above other elements */
   cursor: pointer;
@@ -487,4 +497,86 @@
 
 .filter-header-toggle-arrow.rotated {
   transform: rotate(180deg);
+}
+
+/* === Apply Filter Button === */
+.filter-apply-button {
+  border-style: solid;
+  border-width: 1px;
+  border-top-color: var(--border-divider-light);
+  border-right-color: var(--border-divider-light);
+  border-bottom-color: var(--border-divider-light);
+  border-left-color: var(--border-divider-light);
+  border-top-left-radius: var(--border-8px);
+  border-top-right-radius: var(--border-8px);
+  border-bottom-left-radius: var(--border-8px);
+  border-bottom-right-radius: var(--border-8px);
+  background-color: var(--duva-d-grey);
+  font-family: var(--btn-font);
+  color: var(--duva-light-grey);
+  font-size: 20px;
+  line-height: var(--btn-height);
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-apply-button:hover {
+  background-color: var(--duva-red);
+}
+
+/* === Reset Filter Button === */
+.filter-reset-button {
+  border-style: solid;
+  border-width: 1px;
+  border-top-color: var(--border-divider-light);
+  border-right-color: var(--border-divider-light);
+  border-bottom-color: var(--border-divider-light);
+  border-left-color: var(--border-divider-light);
+  border-top-left-radius: var(--border-8px);
+  border-top-right-radius: var(--border-8px);
+  border-bottom-left-radius: var(--border-8px);
+  border-bottom-right-radius: var(--border-8px);
+  background-color: var(--duva-d-grey);
+  font-family: var(--btn-font);
+  color: var(--duva-light-grey);
+  font-size: 20px;
+  line-height: var(--btn-height);
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-reset-button:hover {
+  background-color: var(--duva-red);
+}
+
+/* === Filter Input Field === */
+.filter-input-field {
+  border: none;
+  background: transparent;
+  padding: 4px 8px;
+  font-size: 12px;
+  width: 100px;
+  text-align: center;
+  color: #333;
+  font-weight: 500;
+  font-family: Gotham, Georgia, sans-serif;
+}
+
+.filter-input-field:focus {
+  outline: none;
+}
+
+.filter-input-field::placeholder {
+  font-weight: 500;
+  color: #666;
+}
+
+/* === Cards Container === */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 20px;
 }
