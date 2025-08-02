@@ -450,49 +450,8 @@
   background-color: rgba(0, 0, 0, 0.02);
 }
 
-/* === Filter Dropdown Menu === */
-.filter-dropdown-menu {
-  position: fixed; /* Changed from absolute to fixed to escape container boundaries */
-  background-color: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-  max-height: 200px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  display: none;
-  margin-top: 4px;
-  /* Remove scrollbar but keep scrolling functionality */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
-}
-
-.filter-dropdown-menu::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
-}
-
-.filter-dropdown-menu.active {
-  display: block;
-}
-
-.filter-dropdown-item {
-  padding: 12px 16px;
-  cursor: pointer;
-  color: #666666;
-  font-size: 14px;
-  transition: all 0.2s ease;
-}
-
-.filter-dropdown-item:hover {
-  background-color: #f8f9fa;
-  color: #212121;
-}
-
-.filter-dropdown-item.selected {
-  background-color: #C0392B;
-  color: white;
-}
+/* === Filter Input Fields === */
+/* Input fields are styled by the original Webflow CSS */
 
 /* === Filter Input Field === */
 .filter-input-field {
@@ -516,26 +475,11 @@
   color: #666;
 }
 
-/* === Dropdown Container Positioning === */
+/* === Input Field Container === */
 .selection-filter-text {
-  position: relative;
-  /* Only make the dropdown container overflow visible, not the entire filter */
-  overflow: visible;
-}
-
-/* === Specific Overflow Control === */
-/* Only make the immediate parent of dropdowns overflow visible */
-.sub-filter-wrapper {
-  overflow: visible;
-}
-
-/* Keep other filter containers with normal overflow */
-.filter-sections-wrapper,
-.filter-bg,
-.filter-left-wrapper,
-.fliter-right-wrapper,
-.main-filter-wrapper {
-  overflow: hidden; /* Reset to normal overflow */
+  justify-content: center;
+  align-items: center;
+  display: flex;
 }
 
 /* Ensure filter header remains clickable */
