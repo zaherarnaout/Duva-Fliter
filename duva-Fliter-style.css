@@ -458,16 +458,20 @@
 
 /* === Filter Input Field === */
 .filter-input-field {
-  border: 1px solid var(--border-divider-light);
-  border-radius: var(--section-title-size);
-  background: transparent;
-  padding: 4px 8px;
-  font-size: 12px;
-  width: 100px;
-  text-align: center;
-  color: var(--border-divider-light);
-  font-weight: 100;
-  font-family: Gotham, Georgia, sans-serif;
+  border: 1px solid var(--border-divider-light) !important;
+  border-radius: var(--section-title-size) !important;
+  background: white !important;
+  padding: 4px 8px !important;
+  font-size: 12px !important;
+  width: 100px !important;
+  text-align: center !important;
+  color: #333 !important;
+  font-weight: 400 !important;
+  font-family: Gotham, Georgia, sans-serif !important;
+  display: block !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  outline: none !important;
 }
 
 .filter-input-field:focus {
