@@ -190,10 +190,25 @@
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.3s ease-in-out;
+  /* Ensure it starts collapsed */
+  display: block;
 }
 
 .filter-bg.expanded {
   max-height: 1000px;
+}
+
+/* Ensure the arrow starts in the correct position */
+.filter-header-toggle-arrow {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  z-index: 10;
+  /* Start in collapsed position */
+  transform: rotate(0deg);
+}
+
+.filter-header-toggle-arrow.rotated {
+  transform: rotate(180deg);
 }
 
 /* === Filter Checkbox Styling === */
@@ -512,16 +527,6 @@
   position: relative;
   z-index: 10; /* Ensure it's above other elements */
   cursor: pointer;
-}
-
-.filter-header-toggle-arrow {
-  cursor: pointer;
-  transition: transform 0.3s ease;
-  z-index: 10; /* Ensure it's clickable */
-}
-
-.filter-header-toggle-arrow.rotated {
-  transform: rotate(180deg);
 }
 
 /* === Apply Filter Button === */
