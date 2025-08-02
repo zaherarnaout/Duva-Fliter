@@ -148,7 +148,7 @@ function initializeFilterFields() {
       applyFilters();
       
       // Update text label color based on input value
-      const textLabel = field.querySelector('.sub-filter-wattage');
+      const textLabel = field.closest('.sub-filter-wrapper')?.querySelector('.sub-filter-wattage');
       if (textLabel) {
         if (input.value.trim() !== '') {
           textLabel.style.color = '#212121';
@@ -339,7 +339,7 @@ function resetAllFilters() {
     input.value = '';
     
     // Reset text label color for input fields
-    const textLabel = input.closest('.selection-filter-text')?.querySelector('.sub-filter-wattage');
+    const textLabel = input.closest('.sub-filter-wrapper')?.querySelector('.sub-filter-wattage');
     if (textLabel) {
       textLabel.style.color = '#dddddd';
     }
