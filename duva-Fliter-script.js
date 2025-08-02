@@ -184,8 +184,8 @@ function initializeFilterCheckboxes() {
     const checkmark = wrapper.querySelector('.filter-checkmark');
     
     if (text && checkmark) {
-      // Add click handler to the entire wrapper
-      wrapper.addEventListener('click', () => {
+      // Add click handler only to the checkmark
+      checkmark.addEventListener('click', () => {
         const isActive = wrapper.classList.contains('active');
         
         if (isActive) {
@@ -225,12 +225,6 @@ function initializeFilterCheckboxes() {
         }
         
         applyFilters();
-      });
-      
-      // Add specific click handler to checkmark for better UX
-      checkmark.addEventListener('click', (e) => {
-        e.stopPropagation(); // Prevent double triggering
-        wrapper.click(); // Trigger the wrapper click
       });
     }
   });
