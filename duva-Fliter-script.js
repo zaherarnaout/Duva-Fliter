@@ -271,6 +271,7 @@ function initializeFilterCheckboxes() {
         if (isActive) {
           // Uncheck
           wrapper.classList.remove('active');
+          checkmark.classList.remove('active'); // Add this line
           console.log('Checkbox unchecked:', text.textContent);
           const filterType = getCheckboxFilterType(text.textContent);
           const filterValue = text.textContent.trim().toLowerCase();
@@ -285,6 +286,7 @@ function initializeFilterCheckboxes() {
         } else {
           // Check
           wrapper.classList.add('active');
+          checkmark.classList.add('active'); // Add this line
           console.log('Checkbox checked:', text.textContent);
           const filterType = getCheckboxFilterType(text.textContent);
           const filterValue = text.textContent.trim().toLowerCase();
@@ -385,9 +387,13 @@ function resetAllFilters() {
   filterState.performanceSpecs = { wattage: '', cct: '', beam: '', lumen: '', cri: '' };
   filterState.technicalSpecs = { ip: '', ik: '', outdoor: '', indoor: '', finishcolor: '' };
   
-  // Reset checkboxes - remove active class to reset text color
+  // Reset checkboxes - remove active class from both wrapper and checkbox
   document.querySelectorAll('.sub-filter-wrapper').forEach(wrapper => {
     wrapper.classList.remove('active');
+    const checkmark = wrapper.querySelector('.filter-checkmark');
+    if (checkmark) {
+      checkmark.classList.remove('active');
+    }
   });
   
   // Reset input fields
