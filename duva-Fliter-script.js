@@ -78,22 +78,57 @@ function initializeFilterComponents() {
 // Initialize filter toggle functionality
 function initializeFilterToggle() {
   const filterBg = document.querySelector('.filter-bg');
-  const filterHeader = document.querySelector('.filter-header-wrapper'); // Corrected class name
+  const filterHeader = document.querySelector('.filter-header-wrapper');
   const filterArrow = document.querySelector('.filter-header-toggle-arrow');
   
   if (filterBg && filterHeader) {
-    filterHeader.addEventListener('click', () => {
-      filterBg.classList.toggle('expanded');
-      if (filterArrow) {
-        filterArrow.style.transform = filterBg.classList.contains('expanded') ? 'rotate(180deg)' : 'rotate(0deg)';
-      }
-    });
-    console.log('Filter toggle initialized');
+    // Ensure filter starts in collapsed state
+    filterBg.classList.remove('expanded');
+    if (filterArrow) {
+      filterArrow.style.transform = 'rotate(0deg)';
+    }
+    
+    // Remove any existing event listeners to prevent conflicts
+    filterHeader.removeEventListener('click', handleFilterToggle);
+    
+    // Add the event listener
+    filterHeader.addEventListener('click', handleFilterToggle);
+    
+    console.log('Filter toggle initialized - starting in collapsed state');
   } else {
     console.log('Filter toggle elements not found');
     console.log('Filter BG found:', !!filterBg);
     console.log('Filter Header found:', !!filterHeader);
     console.log('Filter Arrow found:', !!filterArrow);
+  }
+}
+
+// Separate function for handling the toggle
+function handleFilterToggle(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  const filterBg = document.querySelector('.filter-bg');
+  const filterArrow = document.querySelector('.filter-header-toggle-arrow');
+  
+  if (filterBg) {
+    const isExpanded = filterBg.classList.contains('expanded');
+    
+    if (isExpanded) {
+      // Collapse
+      filterBg.classList.remove('expanded');
+      if (filterArrow) {
+        filterArrow.style.transform = 'rotate(0deg)';
+      }
+    } else {
+      // Expand
+      filterBg.classList.add('expanded');
+      if (filterArrow) {
+        filterArrow.style.transform = 'rotate(180deg)';
+      }
+    }
+    
+    console.log('Filter toggled:', isExpanded ? 'collapsed' : 'expanded');
   }
 }
 
