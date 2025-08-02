@@ -179,7 +179,7 @@
 }
 
 .sub-filter-wattage {
-  color: #dddddd;
+  color: #dddddd !important;
   margin-right: 20px;
   font-family: Gothamnarrow Book, Georgia, sans-serif;
   font-size: 16px;
@@ -369,11 +369,6 @@
 /* === FILTER-SPECIFIC ADDITIONS ONLY === */
 
 /* === Filter Text Color States === */
-.sub-filter-wattage {
-  color: #dddddd !important; /* Default grey color */
-  transition: color 0.2s ease;
-}
-
 .sub-filter-wrapper.active .sub-filter-wattage {
   color: #212121 !important; /* Dark color when checked */
 }
