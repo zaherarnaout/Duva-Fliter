@@ -271,7 +271,7 @@
 
 .text-filed {
   border: 1px solid var(--border-divider-light);
-  border-radius: var(--title-bold-height) var(--border-8px) var(--border-main-8) var(--title-bold-height);
+  border-radius: var(--section-title-size);
   color: var(--border-divider-light);
   text-align: center;
   justify-content: flex-end;
@@ -282,7 +282,6 @@
   font-family: Gotham, Georgia, sans-serif;
   font-size: 12px;
   font-weight: 100;
-  display: flex;
 }
 
 .image-20 {
