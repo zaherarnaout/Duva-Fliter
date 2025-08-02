@@ -11,7 +11,9 @@ const filterState = {
     cct: '',
     beam: '',
     lumen: '',
-    cri: ''
+    cri: '',
+    ugr: '',
+    efficancy: ''
   },
   technicalSpecs: {
     ip: '',
@@ -216,11 +218,20 @@ function initializeFilterFields() {
 
 // Get field type from the field element
 function getFieldType(field) {
+  // First try to get from data-type attribute
+  const dataType = field.getAttribute('data-type');
+  if (dataType) {
+    return dataType;
+  }
+  
+  // Fallback to text content
   const text = field.textContent || '';
   if (text.includes('Wattage')) return 'Wattage';
   if (text.includes('CCT')) return 'CCT';
   if (text.includes('Beam')) return 'Beam';
   if (text.includes('CRI')) return 'CRI';
+  if (text.includes('UGR')) return 'UGR';
+  if (text.includes('Efficancy')) return 'Efficancy';
   if (text.includes('IP')) return 'IP';
   if (text.includes('IK')) return 'IK';
   if (text.includes('Finish')) return 'Finish Color';
@@ -244,7 +255,7 @@ function initializeFilterCheckboxes() {
           // Uncheck
           wrapper.classList.remove('active');
           checkmark.classList.remove('active');
-          const filterType = getCheckboxFilterType(text.textContent);
+          const filterType = getCheckboxFilterType(wrapper);
           const filterValue = text.textContent.trim().toLowerCase();
           
           if (filterType === 'applicationType') {
@@ -258,7 +269,7 @@ function initializeFilterCheckboxes() {
           // Check
           wrapper.classList.add('active');
           checkmark.classList.add('active');
-          const filterType = getCheckboxFilterType(text.textContent);
+          const filterType = getCheckboxFilterType(wrapper);
           const filterValue = text.textContent.trim().toLowerCase();
           
           if (filterType === 'applicationType') {
@@ -289,13 +300,28 @@ function initializeFilterCheckboxes() {
 }
 
 // Get checkbox filter type
-function getCheckboxFilterType(text) {
+function getCheckboxFilterType(wrapper) {
+  // First try to get from data-filter attribute of parent
+  const parentFilter = wrapper.closest('[data-filter]');
+  if (parentFilter) {
+    const filterType = parentFilter.getAttribute('data-filter');
+    if (filterType === 'Application Type') return 'applicationType';
+    if (filterType === 'Mounting Type') return 'mountingType';
+    if (filterType === 'Form Factor') return 'formFactor';
+  }
+  
+  // Fallback to text content
+  const text = wrapper.querySelector('.sub-filter-wattage')?.textContent || '';
   const lowerText = text.toLowerCase();
-  if (lowerText.includes('downlight') || lowerText.includes('bulkhead') || lowerText.includes('surface')) {
+  if (lowerText.includes('outdoor') || lowerText.includes('indoor') || lowerText.includes('facade') || 
+      lowerText.includes('retail') || lowerText.includes('landscape') || lowerText.includes('architectural')) {
     return 'applicationType';
-  } else if (lowerText.includes('ceiling') || lowerText.includes('wall') || lowerText.includes('surface')) {
+  } else if (lowerText.includes('surface') || lowerText.includes('recessed') || lowerText.includes('flex') || 
+             lowerText.includes('pendant') || lowerText.includes('track') || lowerText.includes('bollard')) {
     return 'mountingType';
-  } else if (lowerText.includes('round') || lowerText.includes('square') || lowerText.includes('rectangular')) {
+  } else if (lowerText.includes('linear') || lowerText.includes('circular') || lowerText.includes('square') || 
+             lowerText.includes('spotlight') || lowerText.includes('downlight') || lowerText.includes('floodlight') ||
+             lowerText.includes('strip') || lowerText.includes('tube') || lowerText.includes('trimless')) {
     return 'formFactor';
   }
   return 'applicationType'; // Default
@@ -311,6 +337,10 @@ function updateFieldFilterState(fieldType, value) {
     filterState.performanceSpecs.beam = value;
   } else if (fieldType === 'CRI') {
     filterState.performanceSpecs.cri = value;
+  } else if (fieldType === 'UGR') {
+    filterState.performanceSpecs.ugr = value;
+  } else if (fieldType === 'Efficancy') {
+    filterState.performanceSpecs.efficancy = value;
   } else if (fieldType === 'IP') {
     filterState.technicalSpecs.ip = value;
   } else if (fieldType === 'IK') {
@@ -347,7 +377,7 @@ function resetAllFilters() {
   filterState.applicationType = [];
   filterState.mountingType = [];
   filterState.formFactor = [];
-  filterState.performanceSpecs = { wattage: '', cct: '', beam: '', lumen: '', cri: '' };
+  filterState.performanceSpecs = { wattage: '', cct: '', beam: '', lumen: '', cri: '', ugr: '', efficancy: '' };
   filterState.technicalSpecs = { ip: '', ik: '', outdoor: '', indoor: '', finishcolor: '' };
   
   // Reset checkboxes - remove active class from both wrapper and checkbox
