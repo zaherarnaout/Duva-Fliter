@@ -148,12 +148,12 @@ function initializeFilterFields() {
       applyFilters();
       
       // Update text label color based on input value
-      const textLabel = field.closest('.sub-filter-wrapper')?.querySelector('.sub-filter-wattage');
-      if (textLabel) {
+      const wrapper = field.closest('.sub-filter-wrapper');
+      if (wrapper) {
         if (input.value.trim() !== '') {
-          textLabel.style.color = '#212121';
+          wrapper.classList.add('has-input');
         } else {
-          textLabel.style.color = '#dddddd';
+          wrapper.classList.remove('has-input');
         }
       }
     });
@@ -339,9 +339,9 @@ function resetAllFilters() {
     input.value = '';
     
     // Reset text label color for input fields
-    const textLabel = input.closest('.sub-filter-wrapper')?.querySelector('.sub-filter-wattage');
-    if (textLabel) {
-      textLabel.style.color = '#dddddd';
+    const wrapper = input.closest('.sub-filter-wrapper');
+    if (wrapper) {
+      wrapper.classList.remove('has-input');
     }
   });
   
