@@ -317,19 +317,21 @@
 }
 
 .button-2 {
-  border-radius: var(--border-8px);
+  justify-content: flex-end;
+  align-items: center;
+  border-top-left-radius: var(--border-8px);
+  border-top-right-radius: var(--border-8px);
+  border-bottom-left-radius: var(--border-8px);
+  border-bottom-right-radius: var(--border-8px);
   background-color: var(--duva-d-grey);
   font-family: var(--btn-font);
   color: var(--duva-light-grey);
   font-size: var(--btn-size);
   line-height: var(--btn-height);
   font-weight: var(--btn-weight);
-  justify-content: flex-end;
-  align-items: center;
-  width: 30%;
-  display: block;
 }
 
+.button-2.-wfp-hover,
 .button-2:hover {
   background-color: var(--duva-red);
 }
