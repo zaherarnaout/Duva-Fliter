@@ -227,9 +227,13 @@
   border-color: #888;
 }
 
+/* Make this more specific to override any conflicts */
+.sub-filter-wrapper .filter-checkmark.active,
 .filter-checkmark.active {
   background-color: #c0392b !important;
   border-color: #c0392b !important;
+  /* Temporary debugging - make it very obvious */
+  box-shadow: 0 0 10px #c0392b !important;
 }
 
 /* Default state - checkmark hidden */
@@ -249,6 +253,7 @@
 }
 
 /* Active state - checkmark visible */
+.sub-filter-wrapper .filter-checkmark.active::after,
 .filter-checkmark.active::after {
   transform: translate(-50%, -60%) rotate(-45deg) scale(1);
   opacity: 1;
