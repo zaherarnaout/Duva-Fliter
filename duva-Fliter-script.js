@@ -24,17 +24,17 @@ const filterState = {
   }
 };
 
-// Dropdown options configuration - Easy to add more options
-const DROPDOWN_OPTIONS = {
-  'Wattage': ['12W', '24W', '36W', '48W', '60W', '72W', '96W'],
-  'CCT': ['2700K', '3000K', '4000K', '5000K', '6500K'],
-  'Beam': ['15°', '30°', '60°', '90°', '120°', '180°'],
-  'CRI': ['80', '85', '90', '95', '98'],
-  'UGR': ['16', '17', '18', '19', '20'],
-  'Efficancy': ['80lm/W', '90lm/W', '100lm/W', '110lm/W', '120lm/W'],
-  'IP': ['IP20', 'IP44', 'IP54', 'IP65', 'IP67', 'IP68'],
-  'IK': ['IK06', 'IK08', 'IK10'],
-  'Finish Color': ['White', 'Black', 'Silver', 'Bronze', 'Custom', 'Gold', 'Copper']
+// Input field configuration - Users can enter any value
+const INPUT_FIELDS = {
+  'Wattage': 'Enter wattage (e.g., 12W, 24W)',
+  'CCT': 'Enter CCT (e.g., 2700K, 3000K)',
+  'Beam': 'Enter beam angle (e.g., 15°, 30°)',
+  'CRI': 'Enter CRI value (e.g., 80, 90)',
+  'UGR': 'Enter UGR value (e.g., 16, 19)',
+  'Efficancy': 'Enter efficiency (e.g., 80lm/W)',
+  'IP': 'Enter IP rating (e.g., IP20, IP65)',
+  'IK': 'Enter IK rating (e.g., IK06, IK10)',
+  'Finish Color': 'Enter finish color (e.g., White, Black)'
 };
 
 // Initialize filter functionality
@@ -120,96 +120,32 @@ function handleFilterToggle(e) {
   }
 }
 
-// Initialize filter fields (dropdowns and inputs)
+// Initialize filter fields (input fields only)
 function initializeFilterFields() {
-  // Initialize dropdowns
-  const dropdownFields = document.querySelectorAll('.selection-filter-text');
-  console.log('Found', dropdownFields.length, 'dropdown fields');
+  // Initialize input fields
+  const inputFields = document.querySelectorAll('.selection-filter-text');
   
-  dropdownFields.forEach((field, index) => {
+  inputFields.forEach((field, index) => {
     const fieldType = getFieldType(field);
-    const options = DROPDOWN_OPTIONS[fieldType] || [];
     
-    console.log(`Dropdown ${index}:`, {
-      fieldType: fieldType,
-      optionsCount: options.length,
-      fieldElement: field
-    });
+    // Replace the div with an input field
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'filter-input-field';
+    input.placeholder = INPUT_FIELDS[fieldType] || 'Enter value';
+    // CSS handles all styling for .filter-input-field
     
-    if (options.length > 0) {
-      // Replace the div with an input field that can also trigger dropdowns
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.className = 'filter-input-field';
-      input.placeholder = 'Enter value';
-      input.style.cssText = `
-        border: none;
-        background: transparent;
-        padding: 4px 8px;
-        font-size: 12px;
-        width: 100px;
-        text-align: center;
-        color: #333;
-        font-weight: 500;
-      `;
-      
-      // Replace the existing content
-      const existingContent = field.querySelector('.text-filed');
-      if (existingContent) {
-        existingContent.replaceWith(input);
-        console.log('Replaced existing content with input');
-      }
-      
-      // Create dropdown menu
-      const dropdownMenu = document.createElement('div');
-      dropdownMenu.className = 'filter-dropdown-menu';
-      // Don't set inline styles that conflict with CSS - let CSS control display
-      
-      // Add options to dropdown
-      options.forEach(option => {
-        const item = document.createElement('div');
-        item.className = 'filter-dropdown-item';
-        item.textContent = option;
-        // CSS already handles the styling for .filter-dropdown-item
-        
-        item.addEventListener('click', () => {
-          input.value = option;
-          updateFieldFilterState(fieldType, option);
-          dropdownMenu.classList.remove('active');
-          applyFilters();
-        });
-        
-        dropdownMenu.appendChild(item);
-      });
-      
-      // Add dropdown to field
-      field.appendChild(dropdownMenu);
-      console.log('Added dropdown menu with', options.length, 'options');
-      
-      // Add click handler to input
-      input.addEventListener('click', () => {
-        console.log('Input clicked, toggling dropdown');
-        toggleDropdown(dropdownMenu);
-      });
-      
-      // Add input handler for manual entry
-      input.addEventListener('input', () => {
-        updateFieldFilterState(fieldType, input.value);
-        applyFilters();
-      });
-      
-      // Add dropdown arrow click handler
-      const dropdownArrow = field.querySelector('.sub-filter-dropdown');
-      if (dropdownArrow) {
-        dropdownArrow.addEventListener('click', (e) => {
-          e.stopPropagation();
-          console.log('Dropdown arrow clicked');
-          toggleDropdown(dropdownMenu);
-        });
-      } else {
-        console.log('No dropdown arrow found for field', index);
-      }
+    // Replace the existing content
+    const existingContent = field.querySelector('.text-filed');
+    if (existingContent) {
+      existingContent.replaceWith(input);
     }
+    
+    // Add input handler for manual entry
+    input.addEventListener('input', () => {
+      updateFieldFilterState(fieldType, input.value);
+      applyFilters();
+    });
   });
   
   // Initialize checkboxes
@@ -401,47 +337,9 @@ function resetAllFilters() {
   showAllProducts();
 }
 
-// Close all dropdowns
+// Close all dropdowns (no longer needed but kept for compatibility)
 function closeAllDropdowns() {
-  document.querySelectorAll('.filter-dropdown-menu').forEach(dropdown => {
-    dropdown.classList.remove('active');
-  });
-}
-
-// Toggle dropdown visibility
-function toggleDropdown(dropdownMenu) {
-  console.log('toggleDropdown called for:', dropdownMenu);
-  
-  // Close all other dropdowns first
-  const allDropdowns = document.querySelectorAll('.filter-dropdown-menu');
-  allDropdowns.forEach(dropdown => {
-    if (dropdown !== dropdownMenu) {
-      dropdown.classList.remove('active');
-    }
-  });
-
-  // Toggle current dropdown
-  const isActive = dropdownMenu.classList.contains('active');
-  console.log('Dropdown is currently active:', isActive);
-
-  if (!isActive) {
-    // Position the dropdown correctly
-    const field = dropdownMenu.closest('.selection-filter-text');
-    const fieldRect = field.getBoundingClientRect();
-
-    dropdownMenu.style.top = (fieldRect.bottom + 4) + 'px';
-    dropdownMenu.style.left = fieldRect.left + 'px';
-    dropdownMenu.style.width = fieldRect.width + 'px';
-    
-    console.log('Positioned dropdown at:', {
-      top: dropdownMenu.style.top,
-      left: dropdownMenu.style.left,
-      width: dropdownMenu.style.width
-    });
-  }
-
-  dropdownMenu.classList.toggle('active');
-  console.log('Dropdown active after toggle:', dropdownMenu.classList.contains('active'));
+  // No dropdowns to close in input-only version
 }
 
 // Get CMS data from Webflow collection item
