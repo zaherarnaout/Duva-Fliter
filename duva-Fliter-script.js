@@ -170,7 +170,6 @@ function initializeFilterFields() {
         z-index: 1000;
         max-height: 200px;
         overflow-y: auto;
-        display: none;
         margin-top: 4px;
         scrollbar-width: none;
         -ms-overflow-style: none;
