@@ -26,15 +26,16 @@ const filterState = {
 
 // Input field configuration - Users can enter any value
 const INPUT_FIELDS = {
-  'Wattage': 'Enter wattage (e.g., 12W, 24W)',
-  'CCT': 'Enter CCT (e.g., 2700K, 3000K)',
-  'Beam': 'Enter beam angle (e.g., 15°, 30°)',
-  'CRI': 'Enter CRI value (e.g., 80, 90)',
-  'UGR': 'Enter UGR value (e.g., 16, 19)',
-  'Efficancy': 'Enter efficiency (e.g., 80lm/W)',
-  'IP': 'Enter IP rating (e.g., IP20, IP65)',
-  'IK': 'Enter IK rating (e.g., IK06, IK10)',
-  'Finish Color': 'Enter finish color (e.g., White, Black)'
+  'Wattage': 'Wattage',
+  'Lumen': 'Lumen',
+  'CCT': 'CCT',
+  'Beam': 'Beam',
+  'CRI': 'CRI',
+  'UGR': 'UGR',
+  'Efficancy': 'Efficancy',
+  'IP': 'IP',
+  'IK': 'IK',
+  'Finish Color': 'Finish Color'
 };
 
 // Initialize filter functionality
