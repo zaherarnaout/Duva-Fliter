@@ -184,8 +184,8 @@
   margin-right: 20px;
   font-family: "Gothamnarrow Book";
   color: var(--highlighted-duva-grey);
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 300;
 }
 
 .filter-checkmark {
@@ -373,18 +373,21 @@
 /* === Filter Text Color States === */
 .sub-filter-wrapper.active .sub-filter-wattage {
   color: #212121 !important; /* Dark color when checked */
+  font-weight: 400 !important;
 }
 
 /* Force active state with maximum specificity */
 .main-filter-wrapper .sub-filter-wrapper.active .sub-filter-wattage,
 .main-filter-wrapper .main-sub-filter-wrapper .sub-filter-wrapper.active .sub-filter-wattage {
   color: #212121 !important;
+  font-weight: 400 !important;
 }
 
 /* Force input field active state with maximum specificity */
 .main-filter-wrapper .sub-filter-wrapper.has-input .sub-filter-wattage,
 .main-filter-wrapper .main-sub-filter-wrapper .sub-filter-wrapper.has-input .sub-filter-wattage {
   color: #212121 !important;
+  font-weight: 400 !important;
 }
 
 /* === Filter Section Expand/Collapse === */
