@@ -566,6 +566,7 @@ function applyFilters() {
   }
   
   const productCards = cardsContainer.querySelectorAll('.collection-item, .w-dyn-item');
+  const noResultsMessage = document.querySelector('.no-results-message');
   
   let visibleCount = 0;
   
@@ -574,12 +575,24 @@ function applyFilters() {
     const matches = checkProductMatchWithCMSData(cmsData);
     
     if (matches) {
-      card.style.display = 'block';
+      // Remove any inline display style to let CSS handle the layout
+      card.style.removeProperty('display');
       visibleCount++;
     } else {
       card.style.display = 'none';
     }
   });
+  
+  // Show/hide no results message
+  if (noResultsMessage) {
+    if (visibleCount === 0) {
+      // No cards match the filter
+      noResultsMessage.style.display = 'block';
+    } else {
+      // Cards are visible
+      noResultsMessage.style.display = 'none';
+    }
+  }
   
 }
 
@@ -589,9 +602,17 @@ function showAllProducts() {
   if (!cardsContainer) return;
   
   const productCards = cardsContainer.querySelectorAll('.collection-item, .w-dyn-item');
+  const noResultsMessage = document.querySelector('.no-results-message');
+  
   productCards.forEach(card => {
-    card.style.display = 'block';
+    // Remove any inline display style to let CSS handle the layout
+    card.style.removeProperty('display');
   });
+  
+  // Hide no results message when showing all products
+  if (noResultsMessage) {
+    noResultsMessage.style.display = 'none';
+  }
   
 }
 
