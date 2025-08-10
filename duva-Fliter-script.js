@@ -667,3 +667,32 @@ function showAllProducts() {
 
 // Start the filter when the page loads
 initializeFilter();
+
+// Apply category filter on page load if URL has category parameter
+function applyCategoryFilterOnLoad() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const categoryParam = urlParams.get('category');
+  
+  if (categoryParam) {
+    console.log(`🎯 Applying category filter on load: ${categoryParam}`);
+    
+    // Wait for the filter system to be ready, then apply filters
+    setTimeout(() => {
+      applyFilters();
+      console.log(`✅ Category filter applied for: ${categoryParam}`);
+    }, 2000);
+  }
+}
+
+// Initialize category filter on page load
+document.addEventListener('DOMContentLoaded', applyCategoryFilterOnLoad);
+
+// Also try when Webflow loads
+if (window.Webflow) {
+  window.Webflow.push(() => {
+    applyCategoryFilterOnLoad();
+  });
+}
+
+// Retry after a delay
+setTimeout(applyCategoryFilterOnLoad, 3000);
