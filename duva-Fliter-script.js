@@ -437,7 +437,7 @@ function checkProductMatchWithCMSData(cmsData) {
     const searchText = cmsData.allText;
     let categoryMatch = false;
     
-    // Map category parameters to search terms
+    // Map category parameters to search terms - More specific matching
     switch (category) {
       case 'outdoor':
         categoryMatch = searchText.includes('outdoor') || searchText.includes('exterior') || searchText.includes('external');
@@ -449,10 +449,16 @@ function checkProductMatchWithCMSData(cmsData) {
         categoryMatch = searchText.includes('flex') || searchText.includes('strip') || searchText.includes('flexible') || searchText.includes('linear');
         break;
       case 'custom-light':
-        categoryMatch = searchText.includes('custom') || searchText.includes('bespoke') || searchText.includes('tailored');
+        // More specific matching for custom light - avoid false positives
+        categoryMatch = (searchText.includes('custom') && (searchText.includes('light') || searchText.includes('lamp') || searchText.includes('fixture'))) ||
+                       searchText.includes('bespoke lighting') ||
+                       searchText.includes('tailored lighting');
         break;
       case 'decorative-light':
-        categoryMatch = searchText.includes('decorative') || searchText.includes('ornamental') || searchText.includes('aesthetic');
+        // More specific matching for decorative light - avoid false positives
+        categoryMatch = (searchText.includes('decorative') && (searchText.includes('light') || searchText.includes('lamp') || searchText.includes('fixture'))) ||
+                       searchText.includes('ornamental lighting') ||
+                       searchText.includes('aesthetic lighting');
         break;
       case 'weather-proof':
         categoryMatch = searchText.includes('weather') || searchText.includes('waterproof') || searchText.includes('ip') || searchText.includes('outdoor');
