@@ -428,6 +428,42 @@ function checkProductMatchWithCMSData(cmsData) {
     }
   }
   
+  // Check main page category filters (URL parameters)
+  const urlParams = new URLSearchParams(window.location.search);
+  const categoryParam = urlParams.get('category');
+  
+  if (categoryParam) {
+    const category = categoryParam.toLowerCase().trim();
+    const searchText = cmsData.allText;
+    let categoryMatch = false;
+    
+    // Map category parameters to search terms
+    switch (category) {
+      case 'outdoor':
+        categoryMatch = searchText.includes('outdoor') || searchText.includes('exterior') || searchText.includes('external');
+        break;
+      case 'indoor':
+        categoryMatch = searchText.includes('indoor') || searchText.includes('interior') || searchText.includes('internal');
+        break;
+      case 'flex-strip':
+        categoryMatch = searchText.includes('flex') || searchText.includes('strip') || searchText.includes('flexible') || searchText.includes('linear');
+        break;
+      case 'custom-light':
+        categoryMatch = searchText.includes('custom') || searchText.includes('bespoke') || searchText.includes('tailored');
+        break;
+      case 'decorative-light':
+        categoryMatch = searchText.includes('decorative') || searchText.includes('ornamental') || searchText.includes('aesthetic');
+        break;
+      case 'weather-proof':
+        categoryMatch = searchText.includes('weather') || searchText.includes('waterproof') || searchText.includes('ip') || searchText.includes('outdoor');
+        break;
+    }
+    
+    if (!categoryMatch) {
+      return false;
+    }
+  }
+  
   // Check mounting type filters
   if (filterState.mountingType.length > 0) {
     const searchText = cmsData.allText;
