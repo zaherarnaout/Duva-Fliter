@@ -345,6 +345,13 @@ function resetAllFilters() {
     }
   });
   
+  // Clear main page category filter from URL
+  const url = new URL(window.location);
+  url.searchParams.delete('category');
+  
+  // Update URL without page reload
+  window.history.replaceState({}, '', url);
+  
   // Close all dropdowns
   closeAllDropdowns();
   
