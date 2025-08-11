@@ -668,31 +668,172 @@ function showAllProducts() {
 // Start the filter when the page loads
 initializeFilter();
 
-// Apply category filter on page load if URL has category parameter
+// Apply category filter on page load if URL has category parameter (DEPRECATED)
+// This functionality is now handled by the DUVA Filter Bridge in script.js
 function applyCategoryFilterOnLoad() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const categoryParam = urlParams.get('category');
-  
-  if (categoryParam) {
-    console.log(`🎯 Applying category filter on load: ${categoryParam}`);
-    
-    // Wait for the filter system to be ready, then apply filters
-    setTimeout(() => {
-      applyFilters();
-      console.log(`✅ Category filter applied for: ${categoryParam}`);
-    }, 2000);
-  }
+  // This function is deprecated - category filtering is now handled by the bridge
+  console.log('ℹ️ Category filter on load is now handled by DUVA Filter Bridge');
 }
 
-// Initialize category filter on page load
-document.addEventListener('DOMContentLoaded', applyCategoryFilterOnLoad);
+// Note: Category filtering is now handled by the DUVA Filter Bridge in script.js
+// which provides better integration and performance
 
-// Also try when Webflow loads
+/* ============================
+   DUVA FILTER PUBLIC API
+   - Exposes functions for external scripts to interact with the filter system
+   ============================ */
+
+// Expose DUVA Filter API globally
+window.DUVA_FILTER = {
+  // Activate a checkbox by its label text
+  activateCheckboxByLabel: function(labelText) {
+    console.log(`🎯 DUVA API: Activating checkbox for label: "${labelText}"`);
+    
+    // Find the checkbox wrapper by label text
+    const checkboxes = document.querySelectorAll('.sub-filter-wrapper');
+    let targetWrapper = null;
+    
+    for (const wrapper of checkboxes) {
+      const textElement = wrapper.querySelector('.sub-filter-wattage');
+      if (textElement && textElement.textContent.trim().toLowerCase() === labelText.toLowerCase()) {
+        targetWrapper = wrapper;
+        break;
+      }
+    }
+    
+    if (targetWrapper) {
+      const checkmark = targetWrapper.querySelector('.filter-checkmark');
+      if (checkmark && !targetWrapper.classList.contains('active')) {
+        // Simulate the same click logic as the original handler
+        targetWrapper.classList.add('active');
+        checkmark.classList.add('active');
+        
+        const filterType = getCheckboxFilterType(targetWrapper);
+        const filterValue = targetWrapper.querySelector('.sub-filter-wattage').textContent.trim().toLowerCase();
+        
+        // Update filter state
+        if (filterType === 'applicationType') {
+          if (!filterState.applicationType.includes(filterValue)) {
+            filterState.applicationType.push(filterValue);
+          }
+        } else if (filterType === 'mountingType') {
+          if (!filterState.mountingType.includes(filterValue)) {
+            filterState.mountingType.push(filterValue);
+          }
+        } else if (filterType === 'formFactor') {
+          if (!filterState.formFactor.includes(filterValue)) {
+            filterState.formFactor.push(filterValue);
+          }
+        }
+        
+        // Apply filters
+        applyFilters();
+        
+        console.log(`✅ DUVA API: Successfully activated checkbox for "${labelText}"`);
+        return true;
+      } else {
+        console.log(`ℹ️ DUVA API: Checkbox for "${labelText}" is already active`);
+        return true;
+      }
+    } else {
+      console.warn(`❌ DUVA API: Could not find checkbox for label "${labelText}"`);
+      return false;
+    }
+  },
+  
+  // Deactivate a checkbox by its label text
+  deactivateCheckboxByLabel: function(labelText) {
+    console.log(`🎯 DUVA API: Deactivating checkbox for label: "${labelText}"`);
+    
+    const checkboxes = document.querySelectorAll('.sub-filter-wrapper');
+    let targetWrapper = null;
+    
+    for (const wrapper of checkboxes) {
+      const textElement = wrapper.querySelector('.sub-filter-wattage');
+      if (textElement && textElement.textContent.trim().toLowerCase() === labelText.toLowerCase()) {
+        targetWrapper = wrapper;
+        break;
+      }
+    }
+    
+    if (targetWrapper) {
+      const checkmark = targetWrapper.querySelector('.filter-checkmark');
+      if (checkmark && targetWrapper.classList.contains('active')) {
+        // Simulate the same click logic as the original handler
+        targetWrapper.classList.remove('active');
+        checkmark.classList.remove('active');
+        
+        const filterType = getCheckboxFilterType(targetWrapper);
+        const filterValue = targetWrapper.querySelector('.sub-filter-wattage').textContent.trim().toLowerCase();
+        
+        // Update filter state
+        if (filterType === 'applicationType') {
+          filterState.applicationType = filterState.applicationType.filter(v => v !== filterValue);
+        } else if (filterType === 'mountingType') {
+          filterState.mountingType = filterState.mountingType.filter(v => v !== filterValue);
+        } else if (filterType === 'formFactor') {
+          filterState.formFactor = filterState.formFactor.filter(v => v !== filterValue);
+        }
+        
+        // Apply filters
+        applyFilters();
+        
+        console.log(`✅ DUVA API: Successfully deactivated checkbox for "${labelText}"`);
+        return true;
+      } else {
+        console.log(`ℹ️ DUVA API: Checkbox for "${labelText}" is already inactive`);
+        return true;
+      }
+    } else {
+      console.warn(`❌ DUVA API: Could not find checkbox for label "${labelText}"`);
+      return false;
+    }
+  },
+  
+  // Get current filter state
+  getFilterState: function() {
+    return JSON.parse(JSON.stringify(filterState)); // Return a copy to prevent external modification
+  },
+  
+  // Reset all filters
+  resetAllFilters: function() {
+    console.log('🎯 DUVA API: Resetting all filters');
+    resetAllFilters();
+    return true;
+  },
+  
+  // Apply filters manually
+  applyFilters: function() {
+    console.log('🎯 DUVA API: Applying filters');
+    applyFilters();
+    return true;
+  },
+  
+  // Check if filter system is ready
+  isReady: function() {
+    const hasCheckboxes = document.querySelectorAll('.sub-filter-wrapper').length > 0;
+    const hasCardsContainer = !!document.querySelector('.cards-container');
+    return hasCheckboxes && hasCardsContainer;
+  }
+};
+
+// Dispatch ready event when DUVA Filter is fully initialized
+function dispatchDuvaReadyEvent() {
+  console.log('🚀 DUVA Filter ready - dispatching duva:ready event');
+  window.dispatchEvent(new CustomEvent('duva:ready', {
+    detail: { 
+      timestamp: Date.now(),
+      filterState: window.DUVA_FILTER.getFilterState()
+    }
+  }));
+}
+
+// Dispatch ready event after initialization
+setTimeout(dispatchDuvaReadyEvent, 2000);
+
+// Also dispatch when Webflow loads
 if (window.Webflow) {
   window.Webflow.push(() => {
-    applyCategoryFilterOnLoad();
+    setTimeout(dispatchDuvaReadyEvent, 1000);
   });
 }
-
-// Retry after a delay
-setTimeout(applyCategoryFilterOnLoad, 3000);
