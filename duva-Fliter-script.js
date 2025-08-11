@@ -1,698 +1,533 @@
+/* === DUVA Filter Styles (Based on Original Webflow) === */
 
-/* === DUVA Filter Script (Complete Version) === */
-
-// Filter state management
-const filterState = {
-  applicationType: [],
-  mountingType: [],
-  formFactor: [],
-  performanceSpecs: {
-    wattage: '',
-    cct: '',
-    beam: '',
-    lumen: '',
-    cri: '',
-    ugr: '',
-    efficancy: ''
-  },
-  technicalSpecs: {
-    ip: '',
-    ik: '',
-    outdoor: '',
-    indoor: '',
-    finishcolor: ''
-  }
-};
-
-// Input field configuration - Users can enter any value
-const INPUT_FIELDS = {
-  'Wattage': 'Wattage',
-  'Lumen': 'Lumen',
-  'CCT': 'CCT',
-  'Beam': 'Beam',
-  'CRI': 'CRI',
-  'UGR': 'UGR',
-  'Efficancy': 'Efficancy',
-  'IP': 'IP',
-  'IK': 'IK',
-  'Finish Color': 'Finish Color'
-};
-
-// Initialize filter functionality
-function initializeFilter() {
-  // Wait for DOM to be fully loaded
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeFilterComponents);
-  } else {
-    initializeFilterComponents();
-  }
-  
-  // Retry initialization after a delay to catch late-loading CMS items
-  setTimeout(() => {
-    initializeFilterComponents();
-  }, 3000);
-  
-  // Listen for Webflow's CMS load events
-  if (window.Webflow) {
-    window.Webflow.push(() => {
-      initializeFilterComponents();
-    });
-  }
+/* === Original Webflow Styles === */
+.main-filter-wrapper {
+  grid-column-gap: 12px;
+  grid-row-gap: 12px;
+  border: 1px solid var(--border-divider-light);
+  border-radius: var(--border-4px-cornner);
+  background-color: var(--duva-white);
+  flex-flow: column;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 2000px;
+  margin: 20px auto;
+  display: flex;
+  box-shadow: 0 2px 5px #0003;
 }
 
-// Initialize all filter components
-function initializeFilterComponents() {
-  // Wait a bit for Webflow to render CMS items
-  setTimeout(() => {
-    initializeFilterToggle();
-    initializeFilterFields();
-    initializeApplyFilterButton();
-    initializeResetFilterButton();
-  }, 1000);
+.filter-divider {
+  background-color: var(--border-divider-light);
+  width: 1px;
+  height: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
-// Initialize filter toggle functionality
-function initializeFilterToggle() {
-  const filterBg = document.querySelector('.filter-bg');
-  const filterHeader = document.querySelector('.filter-header-wrapper');
-  const filterArrow = document.querySelector('.filter-header-toggle-arrow');
-  
-  if (filterBg && filterHeader) {
-    // Ensure filter starts in collapsed state
-    filterBg.classList.remove('expanded');
-    if (filterArrow) {
-      filterArrow.classList.remove('rotated');
-    }
-    
-    // Remove any existing event listeners to prevent conflicts
-    filterHeader.removeEventListener('click', handleFilterToggle);
-    
-    // Add the event listener
-    filterHeader.addEventListener('click', handleFilterToggle);
-    
-  }
+.application-type {
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  align-self: flex-start;
 }
 
-// Separate function for handling the toggle
-function handleFilterToggle(e) {
-  e.preventDefault();
-  e.stopPropagation();
-  
-  const filterBg = document.querySelector('.filter-bg');
-  const filterArrow = document.querySelector('.filter-header-toggle-arrow');
-  
-  if (filterBg) {
-    const isExpanded = filterBg.classList.contains('expanded');
-    
-    if (isExpanded) {
-      // Collapse
-      filterBg.classList.remove('expanded');
-      if (filterArrow) {
-        filterArrow.classList.remove('rotated');
-      }
-    } else {
-      // Expand
-      filterBg.classList.add('expanded');
-      if (filterArrow) {
-        filterArrow.classList.add('rotated');
-      }
-    }
-    
-  }
+.fliter-right-wrapper {
+  border-radius: var(--border-8px);
+  background-color: var(--duva-d-grey);
+  flex-flow: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 350px;
+  height: 300px;
+  margin-bottom: 20px;
+  padding: 20px 20px 10px;
+  display: flex;
 }
 
-// Initialize filter fields (input fields only)
-function initializeFilterFields() {
-  // Initialize input fields
-  const inputFields = document.querySelectorAll('.selection-filter-text');
-  
-  inputFields.forEach((field, index) => {
-    const fieldType = getFieldType(field);
-    
-    // Replace the div with an input field
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.className = 'filter-input-field';
-    input.placeholder = INPUT_FIELDS[fieldType] || 'Enter value';
-    // CSS handles all styling for .filter-input-field
-    
-    // Replace the existing content
-    const existingContent = field.querySelector('.text-filed');
-    if (existingContent) {
-      existingContent.replaceWith(input);
-    }
-    
-    // Add input handler for manual entry
-    input.addEventListener('input', () => {
-      updateFieldFilterState(fieldType, input.value);
-      applyFilters();
-      
-      // Update text label color based on input value
-      const wrapper = field.closest('.sub-filter-wrapper');
-      if (wrapper) {
-        if (input.value.trim() !== '') {
-          wrapper.classList.add('has-input');
-        } else {
-          wrapper.classList.remove('has-input');
-        }
-      }
-    });
-  });
-  
-  // Initialize checkboxes
-  initializeFilterCheckboxes();
+.filter-2nd-wrapper, .filter-3rd-wrapper, .filter-4th-wrapper {
+  padding: 10px;
 }
 
-// Get field type from the field element
-function getFieldType(field) {
-  // First try to get from data-type attribute of the parent wrapper
-  const parentWrapper = field.closest('[data-type]');
-  if (parentWrapper) {
-    const dataType = parentWrapper.getAttribute('data-type');
-    if (dataType) {
-      return dataType;
-    }
-  }
-  
-  // Fallback to text content
-  const text = field.textContent || '';
-  if (text.includes('Wattage')) return 'Wattage';
-  if (text.includes('Lumen')) return 'Lumen';
-  if (text.includes('CCT')) return 'CCT';
-  if (text.includes('Beam')) return 'Beam';
-  if (text.includes('CRI')) return 'CRI';
-  if (text.includes('UGR')) return 'UGR';
-  if (text.includes('Efficancy')) return 'Efficancy';
-  if (text.includes('IP')) return 'IP';
-  if (text.includes('IK')) return 'IK';
-  if (text.includes('Finish')) return 'Finish Color';
-  return 'Wattage'; // Default
+.filter-header-wrapper {
+  grid-column-gap: 12px;
+  grid-row-gap: 12px;
+  flex-flow: row;
+  justify-content: flex-start;
+  align-self: flex-start;
+  align-items: center;
+  margin-left: 20px;
+  padding-top: 20px;
+  display: flex;
 }
 
-// Initialize filter checkboxes
-function initializeFilterCheckboxes() {
-  const checkboxes = document.querySelectorAll('.sub-filter-wrapper');
-  
-  checkboxes.forEach((wrapper, index) => {
-    const text = wrapper.querySelector('.sub-filter-wattage');
-    const checkmark = wrapper.querySelector('.filter-checkmark');
-    
-    if (text && checkmark) {
-      // Add click handler only to the checkmark
-      checkmark.addEventListener('click', () => {
-        const isActive = wrapper.classList.contains('active');
-        
-        if (isActive) {
-          // Uncheck
-          wrapper.classList.remove('active');
-          checkmark.classList.remove('active');
-          const filterType = getCheckboxFilterType(wrapper);
-          const filterValue = text.textContent.trim().toLowerCase();
-          
-          if (filterType === 'applicationType') {
-            filterState.applicationType = filterState.applicationType.filter(v => v !== filterValue);
-          } else if (filterType === 'mountingType') {
-            filterState.mountingType = filterState.mountingType.filter(v => v !== filterValue);
-          } else if (filterType === 'formFactor') {
-            filterState.formFactor = filterState.formFactor.filter(v => v !== filterValue);
-          }
-        } else {
-          // Check
-          wrapper.classList.add('active');
-          checkmark.classList.add('active');
-          const filterType = getCheckboxFilterType(wrapper);
-          const filterValue = text.textContent.trim().toLowerCase();
-          
-          if (filterType === 'applicationType') {
-            if (!filterState.applicationType.includes(filterValue)) {
-              filterState.applicationType.push(filterValue);
-            }
-          } else if (filterType === 'mountingType') {
-            if (!filterState.mountingType.includes(filterValue)) {
-              filterState.mountingType.push(filterValue);
-            }
-          } else if (filterType === 'formFactor') {
-            if (!filterState.formFactor.includes(filterValue)) {
-              filterState.formFactor.push(filterValue);
-            }
-          }
-        }
-        
-        applyFilters();
-      });
-    }
-  });
+.filter-sections-wrapper {
+  grid-column-gap: 10px;
+  grid-row-gap: 10px;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
 }
 
-// Get checkbox filter type
-function getCheckboxFilterType(wrapper) {
-  // First try to get from data-filter attribute of parent
-  const parentFilter = wrapper.closest('[data-filter]');
-  if (parentFilter) {
-    const filterType = parentFilter.getAttribute('data-filter');
-    if (filterType === 'Application Type') return 'applicationType';
-    if (filterType === 'Mounting Type') return 'mountingType';
-    if (filterType === 'Form Factor') return 'formFactor';
-  }
-  
-  // Fallback to text content
-  const text = wrapper.querySelector('.sub-filter-wattage')?.textContent || '';
-  const lowerText = text.toLowerCase();
-  if (lowerText.includes('outdoor') || lowerText.includes('indoor') || lowerText.includes('facade') || 
-      lowerText.includes('retail') || lowerText.includes('landscape') || lowerText.includes('architectural')) {
-    return 'applicationType';
-  } else if (lowerText.includes('surface') || lowerText.includes('recessed') || lowerText.includes('flex') || 
-             lowerText.includes('pendant') || lowerText.includes('track') || lowerText.includes('bollard')) {
-    return 'mountingType';
-  } else if (lowerText.includes('linear') || lowerText.includes('circular') || lowerText.includes('square') || 
-             lowerText.includes('spotlight') || lowerText.includes('downlight') || lowerText.includes('floodlight') ||
-             lowerText.includes('strip') || lowerText.includes('tube') || lowerText.includes('trimless')) {
-    return 'formFactor';
-  }
-  return 'applicationType'; // Default
+.filter-arrow {
+  width: 20px;
 }
 
-// Update field filter state
-function updateFieldFilterState(fieldType, value) {
-  if (fieldType === 'Wattage') {
-    filterState.performanceSpecs.wattage = value;
-  } else if (fieldType === 'CCT') {
-    filterState.performanceSpecs.cct = value;
-  } else if (fieldType === 'Beam') {
-    filterState.performanceSpecs.beam = value;
-  } else if (fieldType === 'CRI') {
-    filterState.performanceSpecs.cri = value;
-  } else if (fieldType === 'UGR') {
-    filterState.performanceSpecs.ugr = value;
-  } else if (fieldType === 'Efficancy') {
-    filterState.performanceSpecs.efficancy = value;
-  } else if (fieldType === 'IP') {
-    filterState.technicalSpecs.ip = value;
-  } else if (fieldType === 'IK') {
-    filterState.technicalSpecs.ik = value;
-  } else if (fieldType === 'Finish Color') {
-    filterState.technicalSpecs.finishcolor = value;
-  }
+.text-block-30 {
+  font-family: var(--section-title);
+  color: var(--duva-d-grey);
+  font-size: var(--section-title-size);
+  line-height: var(--section-title-height);
+  font-weight: var(--section-title-weight);
+  margin-right: 40px;
 }
 
-// Initialize apply filter button
-function initializeApplyFilterButton() {
-  const applyButton = document.querySelector('.filter-apply-button');
-  if (applyButton) {
-    applyButton.addEventListener('click', () => {
-      closeAllDropdowns();
-      applyFilters();
-    });
-  }
+.first-filter {
+  display: flex;
+  width: 100%;
+  flex-flow: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0px;
 }
 
-// Initialize reset filter button
-function initializeResetFilterButton() {
-  const resetButton = document.querySelector('.filter-reset-button');
-  if (resetButton) {
-    resetButton.addEventListener('click', () => {
-      resetAllFilters();
-    });
-  }
+.heading {
+  color: var(--duva-light-grey);
+  font-family: Gotham, Georgia, sans-serif;
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 35px;
 }
 
-// Reset all filters
-function resetAllFilters() {
-  // Reset filter state
-  filterState.applicationType = [];
-  filterState.mountingType = [];
-  filterState.formFactor = [];
-  filterState.performanceSpecs = { wattage: '', cct: '', beam: '', lumen: '', cri: '', ugr: '', efficancy: '' };
-  filterState.technicalSpecs = { ip: '', ik: '', outdoor: '', indoor: '', finishcolor: '' };
-  
-  // Reset checkboxes - remove active class from both wrapper and checkbox
-  document.querySelectorAll('.sub-filter-wrapper').forEach(wrapper => {
-    wrapper.classList.remove('active');
-    const checkmark = wrapper.querySelector('.filter-checkmark');
-    if (checkmark) {
-      checkmark.classList.remove('active');
-    }
-  });
-  
-  // Reset input fields
-  document.querySelectorAll('.filter-input-field').forEach(input => {
-    input.value = '';
-    
-    // Reset text label color for input fields
-    const wrapper = input.closest('.sub-filter-wrapper');
-    if (wrapper) {
-      wrapper.classList.remove('has-input');
-    }
-  });
-  
-  // Clear main page category filter from URL
-  const url = new URL(window.location);
-  url.searchParams.delete('category');
-  
-  // Update URL without page reload
-  window.history.replaceState({}, '', url);
-  
-  // Close all dropdowns
-  closeAllDropdowns();
-  
-  // Show all products
-  showAllProducts();
+.text-block-31 {
+  color: var(--duva-light-grey);
+  font-family: Gotham Rounded, Georgia, sans-serif;
+  font-size: 30px;
+  font-weight: 300;
+  line-height: 35px;
 }
 
-// Close all dropdowns (no longer needed but kept for compatibility)
-function closeAllDropdowns() {
-  // No dropdowns to close in input-only version
+.text-block-32 {
+  color: var(--duva-light-grey);
+  font-family: Gotham, Georgia, sans-serif;
+  font-size: 16px;
+  font-weight: 300;
 }
 
-// Get CMS data from Webflow collection item
-function getCMSDataFromCard(card) {
-  const cmsData = {
-    productCode: '',
-    name: '',
-    family: '',
-    shortDescription: '',
-    fullDescription: '',
-    wattage: '',
-    lumen: '',
-    cct: '',
-    voltage: '',
-    overviewTitle: '',
-    ipRating: '',
-    ikRating: '',
-    beamAngle: '',
-    cri: '',
-    location: '',
-    finishColor: '',
-    searchTags: '',
-    allText: ''
-  };
-  
-  // Method 1: Try to get data from Webflow's data attributes (exact field names from CSV)
-  if (card.dataset) {
-    cmsData.productCode = card.dataset.productCode || card.dataset['product-code'] || '';
-    cmsData.name = card.dataset.name || card.dataset['name-en'] || '';
-    cmsData.family = card.dataset.family || card.dataset.familyname || '';
-    cmsData.shortDescription = card.dataset.shortDescription || card.dataset['short-description'] || '';
-    cmsData.fullDescription = card.dataset.fullDescription || card.dataset['full-description'] || '';
-    cmsData.wattage = card.dataset.wattage || '';
-    cmsData.lumen = card.dataset.lumen || '';
-    cmsData.cct = card.dataset.cct || '';
-    cmsData.voltage = card.dataset.voltage || '';
-    cmsData.overviewTitle = card.dataset.overviewTitle || card.dataset['overview-title'] || '';
-    cmsData.ipRating = card.dataset.ipRating || card.dataset['ip-rating'] || card.dataset.ip || '';
-    cmsData.ikRating = card.dataset.ikRating || card.dataset['ik-rating'] || card.dataset.ik || '';
-    cmsData.beamAngle = card.dataset.beamAngle || card.dataset['beam-angle'] || card.dataset.beam || '';
-    cmsData.cri = card.dataset.cri || '';
-    cmsData.location = card.dataset.location || '';
-    cmsData.finishColor = card.dataset.finishColor || card.dataset['finish-color'] || '';
-    cmsData.searchTags = card.dataset.searchTags || card.dataset['search-tags'] || card.dataset.tags || '';
-  }
-  
-  // Method 2: Try to get data from Webflow's CMS binding elements
-  const searchTagsElement = card.querySelector('[data-wf-cms-bind="search-tags"], [data-wf-cms-bind="searchTags"], [data-wf-cms-bind="tags"]');
-  if (searchTagsElement) {
-    cmsData.searchTags = searchTagsElement.textContent || searchTagsElement.innerText || '';
-  }
-  
-  // Method 3: Fallback to visible text content
-  const allText = card.textContent || card.innerText || '';
-  cmsData.allText = allText.toLowerCase();
-  
-  return cmsData;
+.link-block-5 {
+  background-color: #0000;
 }
 
-// Check if a product matches the filter criteria using CMS data
-function checkProductMatchWithCMSData(cmsData) {
-  
-  // Check application type filters
-  if (filterState.applicationType.length > 0) {
-    const searchText = cmsData.allText;
-    const hasMatchingApplication = filterState.applicationType.some(type => 
-      searchText.includes(type.toLowerCase())
-    );
-    if (!hasMatchingApplication) {
-      return false;
-    }
-  }
-  
-  // Check main page category filters (URL parameters)
-  const urlParams = new URLSearchParams(window.location.search);
-  const categoryParam = urlParams.get('category');
-  
-  if (categoryParam) {
-    const category = categoryParam.toLowerCase().trim();
-    const searchText = cmsData.allText;
-    let categoryMatch = false;
-    
-    // Map category parameters to search terms - More specific matching
-    switch (category) {
-      case 'outdoor':
-        categoryMatch = searchText.includes('outdoor') || searchText.includes('exterior') || searchText.includes('external');
-        break;
-      case 'indoor':
-        categoryMatch = searchText.includes('indoor') || searchText.includes('interior') || searchText.includes('internal');
-        break;
-      case 'flex-strip':
-        categoryMatch = searchText.includes('flex') || searchText.includes('strip') || searchText.includes('flexible') || searchText.includes('linear');
-        break;
-      case 'custom-light':
-        // More specific matching for custom light - avoid false positives
-        categoryMatch = (searchText.includes('custom') && (searchText.includes('light') || searchText.includes('lamp') || searchText.includes('fixture'))) ||
-                       searchText.includes('bespoke lighting') ||
-                       searchText.includes('tailored lighting');
-        break;
-      case 'decorative-light':
-        // More specific matching for decorative light - avoid false positives
-        categoryMatch = (searchText.includes('decorative') && (searchText.includes('light') || searchText.includes('lamp') || searchText.includes('fixture'))) ||
-                       searchText.includes('ornamental lighting') ||
-                       searchText.includes('aesthetic lighting');
-        break;
-      case 'weather-proof':
-        categoryMatch = searchText.includes('weather') || searchText.includes('waterproof') || searchText.includes('ip') || searchText.includes('outdoor');
-        break;
-    }
-    
-    if (!categoryMatch) {
-      return false;
-    }
-  }
-  
-  // Check mounting type filters
-  if (filterState.mountingType.length > 0) {
-    const searchText = cmsData.allText;
-    const hasMatchingMounting = filterState.mountingType.some(type => 
-      searchText.includes(type.toLowerCase())
-    );
-    if (!hasMatchingMounting) {
-      return false;
-    }
-  }
-  
-  // Check form factor filters
-  if (filterState.formFactor.length > 0) {
-    const searchText = cmsData.allText;
-    const hasMatchingFormFactor = filterState.formFactor.some(type => 
-      searchText.includes(type.toLowerCase())
-    );
-    if (!hasMatchingFormFactor) {
-      return false;
-    }
-  }
-  
-  // Check performance specs
-  for (const [key, value] of Object.entries(filterState.performanceSpecs)) {
-    if (value && value.trim() !== '') {
-      const searchValue = value.toLowerCase().trim();
-      let found = false;
-      
-      // First priority: Check Search Tags field
-      if (cmsData.searchTags) {
-        const searchTags = cmsData.searchTags.toLowerCase();
-        const regex = new RegExp(`\\b${searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-        found = regex.test(searchTags);
-      }
-      
-      // Second priority: Check specific CMS fields
-      if (!found) {
-        if (key === 'cct' && cmsData.cct) {
-          const cctValues = cmsData.cct.toLowerCase().split(',').map(v => v.trim());
-          found = cctValues.some(val => val === searchValue);
-        }
-        
-        if (key === 'lumen' && cmsData.lumen) {
-          const lumenValues = cmsData.lumen.toLowerCase().split(',').map(v => v.trim());
-          found = lumenValues.some(val => val === searchValue);
-        }
-        
-        if (key === 'beam' && cmsData.beamAngle) {
-          const beamValues = cmsData.beamAngle.toLowerCase().split(',').map(v => v.trim());
-          found = beamValues.some(val => val === searchValue);
-        }
-        
-        if (key === 'cri' && cmsData.cri) {
-          const criValues = cmsData.cri.toLowerCase().split(',').map(v => v.trim());
-          found = criValues.some(val => val === searchValue);
-        }
-        
-        if (key === 'wattage' && cmsData.wattage) {
-          const wattageValues = cmsData.wattage.toLowerCase().split(',').map(v => v.trim());
-          found = wattageValues.some(val => val === searchValue);
-        }
-      }
-      
-      // Third priority: Check in all text
-      if (!found) {
-        const regex = new RegExp(`\\b${searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-        found = regex.test(cmsData.allText);
-      }
-      
-      if (!found) {
-        return false;
-      }
-    }
-  }
-  
-  // Check technical specs
-  for (const [key, value] of Object.entries(filterState.technicalSpecs)) {
-    if (value && value.trim() !== '') {
-      const searchValue = value.toLowerCase().trim();
-      let found = false;
-      
-      // First priority: Check Search Tags field
-      if (cmsData.searchTags) {
-        const searchTags = cmsData.searchTags.toLowerCase();
-        const regex = new RegExp(`\\b${searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-        found = regex.test(searchTags);
-      }
-      
-      // Second priority: Check specific CMS fields
-      if (!found) {
-        if (key === 'ip' && cmsData.ipRating) {
-          const ipValues = cmsData.ipRating.toLowerCase().split(',').map(v => v.trim());
-          found = ipValues.some(val => val === searchValue);
-        }
-        
-        if (key === 'ik' && cmsData.ikRating) {
-          const ikValues = cmsData.ikRating.toLowerCase().split(',').map(v => v.trim());
-          found = ikValues.some(val => val === searchValue);
-        }
-        
-        if (key === 'outdoor' && cmsData.location) {
-          found = cmsData.location.toLowerCase() === searchValue;
-        }
-        
-        if (key === 'indoor' && cmsData.location) {
-          found = cmsData.location.toLowerCase() === searchValue;
-        }
-        
-        if (key === 'finishcolor' && cmsData.finishColor) {
-          const finishValues = cmsData.finishColor.toLowerCase().split(',').map(v => v.trim());
-          found = finishValues.some(val => val === searchValue);
-        }
-      }
-      
-      // Third priority: Check in all text
-      if (!found) {
-        const regex = new RegExp(`\\b${searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-        found = regex.test(cmsData.allText);
-      }
-      
-      if (!found) {
-        return false;
-      }
-    }
-  }
-  
-  return true;
+.link-block-5.w--current {
+  background-color: var(--duva-red);
+  align-self: flex-end;
+  width: 120px;
+  height: 50px;
+  padding-bottom: 20px;
 }
 
-// Apply filters to show/hide products
-function applyFilters() {
-  
-  const cardsContainer = document.querySelector('.cards-container');
-  if (!cardsContainer) {
-    return;
-  }
-  
-  const productCards = cardsContainer.querySelectorAll('.collection-item, .w-dyn-item');
-  const noResultsMessage = document.querySelector('.no-results-message');
-  
-  let visibleCount = 0;
-  
-  productCards.forEach(card => {
-    const cmsData = getCMSDataFromCard(card);
-    const matches = checkProductMatchWithCMSData(cmsData);
-    
-    if (matches) {
-      // Remove any inline display style to let CSS handle the layout
-      card.style.removeProperty('display');
-      visibleCount++;
-    } else {
-      card.style.display = 'none';
-    }
-  });
-  
-  // Show/hide no results message
-  if (noResultsMessage) {
-    if (visibleCount === 0) {
-      // No cards match the filter
-      noResultsMessage.style.display = 'block';
-    } else {
-      // Cards are visible
-      noResultsMessage.style.display = 'none';
-    }
-  }
-  
+.text-block-33 {
+  text-decoration: underline;
 }
 
-// Show all products
-function showAllProducts() {
-  const cardsContainer = document.querySelector('.cards-container');
-  if (!cardsContainer) return;
-  
-  const productCards = cardsContainer.querySelectorAll('.collection-item, .w-dyn-item');
-  const noResultsMessage = document.querySelector('.no-results-message');
-  
-  productCards.forEach(card => {
-    // Remove any inline display style to let CSS handle the layout
-    card.style.removeProperty('display');
-  });
-  
-  // Hide no results message when showing all products
-  if (noResultsMessage) {
-    noResultsMessage.style.display = 'none';
-  }
-  
+.text-block-34 {
+  color: var(--duva-light-grey);
+  text-align: right;
+  margin-right: 10px;
+  padding-top: 5px;
+  padding-left: 5px;
+  font-family: Gotham Rounded, Georgia, sans-serif;
+  font-size: 25px;
+  text-decoration: none;
 }
 
-// Start the filter when the page loads
-initializeFilter();
-
-// Apply category filter on page load if URL has category parameter
-function applyCategoryFilterOnLoad() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const categoryParam = urlParams.get('category');
-  
-  if (categoryParam) {
-    console.log(`🎯 Applying category filter on load: ${categoryParam}`);
-    
-    // Wait for the filter system to be ready, then apply filters
-    setTimeout(() => {
-      applyFilters();
-      console.log(`✅ Category filter applied for: ${categoryParam}`);
-    }, 2000);
-  }
+.image-19 {
+  height: 20px;
+  margin-right: 10px;
 }
 
-// Initialize category filter on page load
-document.addEventListener('DOMContentLoaded', applyCategoryFilterOnLoad);
-
-// Also try when Webflow loads
-if (window.Webflow) {
-  window.Webflow.push(() => {
-    applyCategoryFilterOnLoad();
-  });
+.div-block-10 {
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 40px;
+  display: flex;
 }
 
-// Retry after a delay
-setTimeout(applyCategoryFilterOnLoad, 3000);
+.filter-bg {
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 2000px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+}
+
+.sub-filter-wrapper {
+  grid-column-gap: 20px;
+  grid-row-gap: 20px;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  display: flex;
+}
+
+/* Force text color with maximum specificity */
+.main-filter-wrapper .sub-filter-wrapper .sub-filter-wattage,
+.main-filter-wrapper .main-sub-filter-wrapper .sub-filter-wrapper .sub-filter-wattage,
+.sub-filter-wrapper .sub-filter-wattage {
+  margin-right: 20px;
+  font-family: "Gothamnarrow Book";
+  color: var(--highlighted-duva-grey);
+  font-size: 16px;
+  font-weight: 300;
+}
+
+.filter-checkmark {
+  border: 1px solid var(--border-divider-light);
+  border-radius: var(--border-4px-cornner);
+  width: 20px;
+  height: 20px;
+}
+
+.filter-checkmark:hover {
+  border-color: var(--duva-border-shadow);
+}
+
+.text-block-36 {
+  color: var(--duva-d-grey);
+  font-family: Gothamnarrow Book, Georgia, sans-serif;
+}
+
+.downlight {
+  display: flex;
+  width: 100%;
+  flex-flow: row;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+}
+
+.mounting-type {
+  color: var(--duva-d-grey);
+  font-family: Gotham Rounded, Georgia, sans-serif;
+  font-size: 16px;
+}
+
+.main-sub-filter-wrapper {
+  display: flex;
+  margin-bottom: 10px;
+  flex-flow: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+.filter-div {
+  background-color: var(--border-divider-light);
+  width: 100%;
+  height: 1px;
+  margin-bottom: 10px;
+}
+
+.link-block-6 {
+  border: 1px solid var(--border-divider-light);
+  border-radius: var(--border-8px);
+  text-decoration: underline;
+}
+
+.link-block-6:hover {
+  background-color: var(--duva-red);
+}
+
+.link-block-6.w--current {
+  border: 1px solid var(--duva-light-grey);
+  border-radius: var(--border-8px);
+  text-decoration: none;
+  -webkit-text-decoration-color: var(--btn-red-bg);
+  text-decoration-color: var(--btn-red-bg);
+  align-items: center;
+  width: auto;
+  height: 50px;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.link-block-6.w--current:hover {
+  border-radius: var(--border-4px-cornner);
+  background-color: var(--duva-red);
+}
+
+.filter-divider-vertical {
+  background-color: var(--border-divider-light);
+  width: 1px;
+  height: 240px;
+}
+
+.text-filed {
+  border: 1px solid var(--border-divider-light);
+  border-radius: var(--section-title-size);
+  color: var(--border-divider-light);
+  text-align: center;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100px;
+  height: 25px;
+  padding: 2px;
+  font-family: Gotham, Georgia, sans-serif;
+  font-size: 12px;
+  font-weight: 100;
+}
+
+.image-20 {
+  width: 35px;
+}
+
+.sub-selection-arrow {
+  object-fit: fill;
+  width: 12px;
+  max-width: 12px;
+}
+
+.sub-filter-dropdown {
+  border: 1px solid var(--border-divider-light);
+  border-radius: var(--border-4px-cornner);
+  justify-content: center;
+  align-items: center;
+  width: 27px;
+  height: 27px;
+  display: flex;
+}
+
+.selection-filter-text {
+  justify-content: flex-end;
+  align-items: center;
+  display: flex;
+}
+
+.div-block-11 {
+  flex-flow: column;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.button-2 {
+  justify-content: flex-end;
+  align-items: center;
+  border-top-left-radius: var(--border-8px);
+  border-top-right-radius: var(--border-8px);
+  border-bottom-left-radius: var(--border-8px);
+  border-bottom-right-radius: var(--border-8px);
+  background-color: var(--duva-d-grey);
+  font-family: var(--btn-font);
+  color: var(--duva-light-grey);
+  font-size: var(--btn-size);
+  line-height: var(--btn-height);
+  font-weight: var(--btn-weight);
+}
+
+.button-2.-wfp-hover,
+.button-2:hover {
+  background-color: var(--duva-red);
+}
+
+.filter-reset-button {
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 20px;
+  display: flex;
+}
+
+.filter-apply-button {
+  border: 1px solid var(--border-divider-light);
+  border-radius: var(--border-8px);
+  background-color: var(--duva-d-grey);
+  font-family: var(--btn-font);
+  color: var(--duva-light-grey);
+  font-size: 20px;
+  line-height: var(--btn-height);
+  font-weight: 400;
+}
+
+.filter-apply-button:hover {
+  background-color: var(--duva-red);
+}
+
+.text-block-37, .form-factor, .performance-specs, .technical-specs {
+  color: var(--duva-d-grey);
+  font-family: Gotham Rounded, Georgia, sans-serif;
+  font-size: 16px;
+}
+
+.text-block-38, .text-block-39, .text-block-40, .text-block-41, .text-block-42, .text-block-43, .text-block-44, .text-block-45, .text-block-46, .text-block-47 {
+  font-size: 10px;
+}
+
+/* === FILTER-SPECIFIC ADDITIONS ONLY === */
+
+/* === Filter Text Color States === */
+.sub-filter-wrapper.active .sub-filter-wattage {
+  color: #212121 !important; /* Dark color when checked */
+  font-weight: 400 !important;
+}
+
+/* Force active state with maximum specificity */
+.main-filter-wrapper .sub-filter-wrapper.active .sub-filter-wattage,
+.main-filter-wrapper .main-sub-filter-wrapper .sub-filter-wrapper.active .sub-filter-wattage {
+  color: #212121 !important;
+  font-weight: 400 !important;
+}
+
+/* Force input field active state with maximum specificity */
+.main-filter-wrapper .sub-filter-wrapper.has-input .sub-filter-wattage,
+.main-filter-wrapper .main-sub-filter-wrapper .sub-filter-wrapper.has-input .sub-filter-wattage {
+  color: #212121 !important;
+  font-weight: 400 !important;
+}
+
+/* === Filter Section Expand/Collapse === */
+.filter-bg {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out;
+  /* Ensure it starts collapsed */
+  display: block;
+}
+
+.filter-bg.expanded {
+  max-height: 1000px;
+}
+
+/* Ensure the arrow starts in the correct position */
+.filter-header-toggle-arrow {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  z-index: 10;
+  /* Start in collapsed position */
+  transform: rotate(0deg);
+}
+
+.filter-header-toggle-arrow.rotated {
+  transform: rotate(180deg);
+}
+
+/* === Filter Checkbox Styling === */
+.filter-checkmark {
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: white;
+  width: 17px;
+  height: 17px;
+}
+
+.filter-checkmark.active {
+  background-color: #c0392b;
+  border-color: #c0392b;
+  width: 17px;
+  height: 17px;
+}
+
+.filter-checkmark.active {
+  background-color: #c0392b;
+  border-color: #c0392b;
+}
+
+/* Default state - checkmark hidden */
+.filter-checkmark::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 7px;
+  height: 4px;
+  border-left: 2px solid white;
+  border-bottom: 2px solid white;
+  transform: translate(-50%, -60%) rotate(-45deg) scale(0);
+  opacity: 0;
+  transition: all 0.2s ease;
+  pointer-events: none;
+}
+
+/* Active state - checkmark visible */
+.filter-checkmark.active::after {
+  transform: translate(-50%, -60%) rotate(-45deg) scale(1);
+  opacity: 1;
+}
+
+/* Only make specific elements clickable, not the entire wrapper */
+.sub-filter-wrapper {
+  /* Remove cursor pointer and hover effects from the wrapper */
+}
+
+/* Keep checkbox clickable */
+.filter-checkmark {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Keep input field clickable */
+.filter-input-field {
+  cursor: text;
+}
+
+/* === Filter Input Fields === */
+/* Input fields are styled by the original Webflow CSS */
+
+/* === Filter Input Field === */
+.filter-input-field {
+  border: 1px solid var(--border-divider-light) !important;
+  border-radius: var(--section-title-size) !important;
+  background: white !important;
+  padding: 4px 8px !important;
+  font-size: 12px !important;
+  width: 100px !important;
+  text-align: center !important;
+  color: #333 !important;
+  font-weight: 400 !important;
+  font-family: Gotham, Georgia, sans-serif !important;
+  display: block !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  outline: none !important;
+}
+
+/* === Filter Input Field Placeholder === */
+.filter-input-field::placeholder {
+  color: var(--border-divider-light) !important;
+  font-weight: 100 !important;
+}
+
+.filter-input-field:focus {
+  outline: none;
+}
+
+.filter-input-field::placeholder {
+  font-weight: 500;
+  color: #666;
+}
+
+/* Hide placeholder when input is focused */
+.filter-input-field:focus::placeholder {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* === Input Field Container === */
+.selection-filter-text {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+/* Ensure filter header remains clickable */
+.filter-header-wrapper {
+  position: relative;
+  z-index: 10; /* Ensure it's above other elements */
+  cursor: pointer;
+}
