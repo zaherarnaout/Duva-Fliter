@@ -13,7 +13,7 @@ const filterState = {
     lumen: '',
     cri: '',
     ugr: '',
-    efficacy: ''
+    efficancy: ''
   },
   technicalSpecs: {
     ip: '',
@@ -32,7 +32,7 @@ const INPUT_FIELDS = {
   'Beam': 'Beam',
   'CRI': 'CRI',
   'UGR': 'UGR',
-  'Efficacy': 'Efficacy',
+  'Efficancy': 'Efficancy',
   'IP': 'IP',
   'IK': 'IK',
   'Finish Color': 'Finish Color'
@@ -58,8 +58,6 @@ function initializeFilter() {
       initializeFilterComponents();
     });
   }
-  
-
 }
 
 // Initialize all filter components
@@ -166,41 +164,29 @@ function initializeFilterFields() {
 }
 
 // Get field type from the field element
-// === Case-insensitive field type detection & normalization ===
 function getFieldType(field) {
-  const parent = field.closest('[data-type]');
-  const map = {
-    'wattage': 'Wattage',
-    'lumen': 'Lumen',
-    'cct': 'CCT',
-    'beam': 'Beam',
-    'cri': 'CRI',
-    'ugr': 'UGR',
-    'efficacy': 'Efficacy',   // preferred
-    'efficancy': 'Efficancy', // legacy safety
-    'ip': 'IP',
-    'ik': 'IK',
-    'finish': 'Finish Color',
-    'finish color': 'Finish Color'
-  };
-
-  if (parent) {
-    const raw = (parent.getAttribute('data-type') || '').trim().toLowerCase();
-    if (map[raw]) return map[raw];
+  // First try to get from data-type attribute of the parent wrapper
+  const parentWrapper = field.closest('[data-type]');
+  if (parentWrapper) {
+    const dataType = parentWrapper.getAttribute('data-type');
+    if (dataType) {
+      return dataType;
+    }
   }
-
-  const t = (field.textContent || '').toLowerCase();
-  if (t.includes('watt')) return 'Wattage';
-  if (t.includes('lumen')) return 'Lumen';
-  if (t.includes('cct')) return 'CCT';
-  if (t.includes('beam')) return 'Beam';
-  if (t.includes('cri')) return 'CRI';
-  if (t.includes('ugr')) return 'UGR';
-  if (t.includes('effic')) return 'Efficacy';
-  if (t.includes('ip')) return 'IP';
-  if (t.includes('ik')) return 'IK';
-  if (t.includes('finish')) return 'Finish Color';
-  return 'Wattage';
+  
+  // Fallback to text content
+  const text = field.textContent || '';
+  if (text.includes('Wattage')) return 'Wattage';
+  if (text.includes('Lumen')) return 'Lumen';
+  if (text.includes('CCT')) return 'CCT';
+  if (text.includes('Beam')) return 'Beam';
+  if (text.includes('CRI')) return 'CRI';
+  if (text.includes('UGR')) return 'UGR';
+  if (text.includes('Efficancy')) return 'Efficancy';
+  if (text.includes('IP')) return 'IP';
+  if (text.includes('IK')) return 'IK';
+  if (text.includes('Finish')) return 'Finish Color';
+  return 'Wattage'; // Default
 }
 
 // Initialize filter checkboxes
@@ -263,10 +249,10 @@ function getCheckboxFilterType(wrapper) {
   // First try to get from data-filter attribute of parent
   const parentFilter = wrapper.closest('[data-filter]');
   if (parentFilter) {
-    const f = (parentFilter.getAttribute('data-filter') || '').toLowerCase();
-    if (f === 'application type') return 'applicationType';
-    if (f === 'mounting type')   return 'mountingType';
-    if (f === 'form factor')     return 'formFactor';
+    const filterType = parentFilter.getAttribute('data-filter');
+    if (filterType === 'Application Type') return 'applicationType';
+    if (filterType === 'Mounting Type') return 'mountingType';
+    if (filterType === 'Form Factor') return 'formFactor';
   }
   
   // Fallback to text content
@@ -298,8 +284,8 @@ function updateFieldFilterState(fieldType, value) {
     filterState.performanceSpecs.cri = value;
   } else if (fieldType === 'UGR') {
     filterState.performanceSpecs.ugr = value;
-  } else if (fieldType === 'Efficacy') {
-    filterState.performanceSpecs.efficacy = value;
+  } else if (fieldType === 'Efficancy') {
+    filterState.performanceSpecs.efficancy = value;
   } else if (fieldType === 'IP') {
     filterState.technicalSpecs.ip = value;
   } else if (fieldType === 'IK') {
@@ -336,7 +322,7 @@ function resetAllFilters() {
   filterState.applicationType = [];
   filterState.mountingType = [];
   filterState.formFactor = [];
-  filterState.performanceSpecs = { wattage: '', cct: '', beam: '', lumen: '', cri: '', ugr: '', efficacy: '' };
+  filterState.performanceSpecs = { wattage: '', cct: '', beam: '', lumen: '', cri: '', ugr: '', efficancy: '' };
   filterState.technicalSpecs = { ip: '', ik: '', outdoor: '', indoor: '', finishcolor: '' };
   
   // Reset checkboxes - remove active class from both wrapper and checkbox
