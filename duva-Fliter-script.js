@@ -13,7 +13,7 @@ const filterState = {
     lumen: '',
     cri: '',
     ugr: '',
-    efficancy: ''
+    efficacy: ''
   },
   technicalSpecs: {
     ip: '',
@@ -32,7 +32,7 @@ const INPUT_FIELDS = {
   'Beam': 'Beam',
   'CRI': 'CRI',
   'UGR': 'UGR',
-  'Efficancy': 'Efficancy',
+  'Efficacy': 'Efficacy',
   'IP': 'IP',
   'IK': 'IK',
   'Finish Color': 'Finish Color'
@@ -182,7 +182,7 @@ function getFieldType(field) {
   if (text.includes('Beam')) return 'Beam';
   if (text.includes('CRI')) return 'CRI';
   if (text.includes('UGR')) return 'UGR';
-  if (text.includes('Efficancy')) return 'Efficancy';
+      if (text.includes('Efficacy')) return 'Efficacy';
   if (text.includes('IP')) return 'IP';
   if (text.includes('IK')) return 'IK';
   if (text.includes('Finish')) return 'Finish Color';
@@ -284,8 +284,8 @@ function updateFieldFilterState(fieldType, value) {
     filterState.performanceSpecs.cri = value;
   } else if (fieldType === 'UGR') {
     filterState.performanceSpecs.ugr = value;
-  } else if (fieldType === 'Efficancy') {
-    filterState.performanceSpecs.efficancy = value;
+  } else if (fieldType === 'Efficacy') {
+    filterState.performanceSpecs.efficacy = value;
   } else if (fieldType === 'IP') {
     filterState.technicalSpecs.ip = value;
   } else if (fieldType === 'IK') {
@@ -322,7 +322,7 @@ function resetAllFilters() {
   filterState.applicationType = [];
   filterState.mountingType = [];
   filterState.formFactor = [];
-  filterState.performanceSpecs = { wattage: '', cct: '', beam: '', lumen: '', cri: '', ugr: '', efficancy: '' };
+  filterState.performanceSpecs = { wattage: '', cct: '', beam: '', lumen: '', cri: '', ugr: '', efficacy: '' };
   filterState.technicalSpecs = { ip: '', ik: '', outdoor: '', indoor: '', finishcolor: '' };
   
   // Reset checkboxes - remove active class from both wrapper and checkbox
