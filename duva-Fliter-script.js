@@ -59,13 +59,7 @@ function initializeFilter() {
     });
   }
   
-  // Test case-insensitive field detection
-  console.log('🧪 Testing case-insensitive field detection:');
-  console.log('Field type for "WATTAGE":', getFieldType({ textContent: 'WATTAGE' }));
-  console.log('Field type for "wattage":', getFieldType({ textContent: 'wattage' }));
-  console.log('Field type for "Wattage":', getFieldType({ textContent: 'Wattage' }));
-  console.log('Field type for "EFFICACY":', getFieldType({ textContent: 'EFFICACY' }));
-  console.log('Field type for "efficancy":', getFieldType({ textContent: 'efficancy' }));
+
 }
 
 // Initialize all filter components
