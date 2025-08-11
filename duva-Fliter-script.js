@@ -13,7 +13,7 @@ const filterState = {
     lumen: '',
     cri: '',
     ugr: '',
-    efficancy: ''
+    efficacy: ''
   },
   technicalSpecs: {
     ip: '',
@@ -32,7 +32,7 @@ const INPUT_FIELDS = {
   'Beam': 'Beam',
   'CRI': 'CRI',
   'UGR': 'UGR',
-  'Efficancy': 'Efficancy',
+  'Efficacy': 'Efficacy',
   'IP': 'IP',
   'IK': 'IK',
   'Finish Color': 'Finish Color'
@@ -81,7 +81,7 @@ function initializeFilterToggle() {
     // Ensure filter starts in collapsed state
     filterBg.classList.remove('expanded');
     if (filterArrow) {
-      filterArrow.style.transform = 'rotate(0deg)';
+      filterArrow.classList.remove('rotated');
     }
     
     // Remove any existing event listeners to prevent conflicts
@@ -108,13 +108,13 @@ function handleFilterToggle(e) {
       // Collapse
       filterBg.classList.remove('expanded');
       if (filterArrow) {
-        filterArrow.style.transform = 'rotate(0deg)';
+        filterArrow.classList.remove('rotated');
       }
     } else {
       // Expand
       filterBg.classList.add('expanded');
       if (filterArrow) {
-        filterArrow.style.transform = 'rotate(180deg)';
+        filterArrow.classList.add('rotated');
       }
     }
     
@@ -182,7 +182,7 @@ function getFieldType(field) {
   if (text.includes('Beam')) return 'Beam';
   if (text.includes('CRI')) return 'CRI';
   if (text.includes('UGR')) return 'UGR';
-  if (text.includes('Efficancy')) return 'Efficancy';
+      if (text.includes('Efficacy')) return 'Efficacy';
   if (text.includes('IP')) return 'IP';
   if (text.includes('IK')) return 'IK';
   if (text.includes('Finish')) return 'Finish Color';
@@ -284,8 +284,8 @@ function updateFieldFilterState(fieldType, value) {
     filterState.performanceSpecs.cri = value;
   } else if (fieldType === 'UGR') {
     filterState.performanceSpecs.ugr = value;
-  } else if (fieldType === 'Efficancy') {
-    filterState.performanceSpecs.efficancy = value;
+  } else if (fieldType === 'Efficacy') {
+    filterState.performanceSpecs.efficacy = value;
   } else if (fieldType === 'IP') {
     filterState.technicalSpecs.ip = value;
   } else if (fieldType === 'IK') {
@@ -322,7 +322,7 @@ function resetAllFilters() {
   filterState.applicationType = [];
   filterState.mountingType = [];
   filterState.formFactor = [];
-  filterState.performanceSpecs = { wattage: '', cct: '', beam: '', lumen: '', cri: '', ugr: '', efficancy: '' };
+  filterState.performanceSpecs = { wattage: '', cct: '', beam: '', lumen: '', cri: '', ugr: '', efficacy: '' };
   filterState.technicalSpecs = { ip: '', ik: '', outdoor: '', indoor: '', finishcolor: '' };
   
   // Reset checkboxes - remove active class from both wrapper and checkbox
@@ -344,6 +344,13 @@ function resetAllFilters() {
       wrapper.classList.remove('has-input');
     }
   });
+  
+  // Clear main page category filter from URL
+  const url = new URL(window.location);
+  url.searchParams.delete('category');
+  
+  // Update URL without page reload
+  window.history.replaceState({}, '', url);
   
   // Close all dropdowns
   closeAllDropdowns();
@@ -424,6 +431,48 @@ function checkProductMatchWithCMSData(cmsData) {
       searchText.includes(type.toLowerCase())
     );
     if (!hasMatchingApplication) {
+      return false;
+    }
+  }
+  
+  // Check main page category filters (URL parameters)
+  const urlParams = new URLSearchParams(window.location.search);
+  const categoryParam = urlParams.get('category');
+  
+  if (categoryParam) {
+    const category = categoryParam.toLowerCase().trim();
+    const searchText = cmsData.allText;
+    let categoryMatch = false;
+    
+    // Map category parameters to search terms - More specific matching
+    switch (category) {
+      case 'outdoor':
+        categoryMatch = searchText.includes('outdoor') || searchText.includes('exterior') || searchText.includes('external');
+        break;
+      case 'indoor':
+        categoryMatch = searchText.includes('indoor') || searchText.includes('interior') || searchText.includes('internal');
+        break;
+      case 'flex-strip':
+        categoryMatch = searchText.includes('flex') || searchText.includes('strip') || searchText.includes('flexible') || searchText.includes('linear');
+        break;
+      case 'custom-light':
+        // More specific matching for custom light - avoid false positives
+        categoryMatch = (searchText.includes('custom') && (searchText.includes('light') || searchText.includes('lamp') || searchText.includes('fixture'))) ||
+                       searchText.includes('bespoke lighting') ||
+                       searchText.includes('tailored lighting');
+        break;
+      case 'decorative-light':
+        // More specific matching for decorative light - avoid false positives
+        categoryMatch = (searchText.includes('decorative') && (searchText.includes('light') || searchText.includes('lamp') || searchText.includes('fixture'))) ||
+                       searchText.includes('ornamental lighting') ||
+                       searchText.includes('aesthetic lighting');
+        break;
+      case 'weather-proof':
+        categoryMatch = searchText.includes('weather') || searchText.includes('waterproof') || searchText.includes('ip') || searchText.includes('outdoor');
+        break;
+    }
+    
+    if (!categoryMatch) {
       return false;
     }
   }
@@ -566,6 +615,7 @@ function applyFilters() {
   }
   
   const productCards = cardsContainer.querySelectorAll('.collection-item, .w-dyn-item');
+  const noResultsMessage = document.querySelector('.no-results-message');
   
   let visibleCount = 0;
   
@@ -582,6 +632,17 @@ function applyFilters() {
     }
   });
   
+  // Show/hide no results message
+  if (noResultsMessage) {
+    if (visibleCount === 0) {
+      // No cards match the filter
+      noResultsMessage.style.display = 'block';
+    } else {
+      // Cards are visible
+      noResultsMessage.style.display = 'none';
+    }
+  }
+  
 }
 
 // Show all products
@@ -590,12 +651,48 @@ function showAllProducts() {
   if (!cardsContainer) return;
   
   const productCards = cardsContainer.querySelectorAll('.collection-item, .w-dyn-item');
+  const noResultsMessage = document.querySelector('.no-results-message');
+  
   productCards.forEach(card => {
     // Remove any inline display style to let CSS handle the layout
     card.style.removeProperty('display');
   });
   
+  // Hide no results message when showing all products
+  if (noResultsMessage) {
+    noResultsMessage.style.display = 'none';
+  }
+  
 }
 
 // Start the filter when the page loads
 initializeFilter();
+
+// Apply category filter on page load if URL has category parameter
+function applyCategoryFilterOnLoad() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const categoryParam = urlParams.get('category');
+  
+  if (categoryParam) {
+    console.log(`🎯 Applying category filter on load: ${categoryParam}`);
+    
+    // Wait for the filter system to be ready, then apply filters
+    setTimeout(() => {
+      applyFilters();
+      console.log(`✅ Category filter applied for: ${categoryParam}`);
+    }, 2000);
+  }
+}
+
+// Initialize category filter on page load
+document.addEventListener('DOMContentLoaded', applyCategoryFilterOnLoad);
+
+// Also try when Webflow loads
+if (window.Webflow) {
+  window.Webflow.push(() => {
+    applyCategoryFilterOnLoad();
+  });
+}
+
+// Retry after a delay
+setTimeout(applyCategoryFilterOnLoad, 3000);
