@@ -266,7 +266,15 @@ function getCheckboxFilterType(wrapper) {
     return 'mountingType';
   } else if (lowerText.includes('linear') || lowerText.includes('circular') || lowerText.includes('square') || 
              lowerText.includes('spotlight') || lowerText.includes('downlight') || lowerText.includes('floodlight') ||
-             lowerText.includes('strip') || lowerText.includes('tube') || lowerText.includes('trimless')) {
+             lowerText.includes('strip') || lowerText.includes('tube') || lowerText.includes('trimless') ||
+             lowerText.includes('round') || lowerText.includes('rectangular') || lowerText.includes('oval') ||
+             lowerText.includes('wall') || lowerText.includes('ceiling') || lowerText.includes('floor') ||
+             lowerText.includes('step') || lowerText.includes('path') || lowerText.includes('garden') ||
+             lowerText.includes('post') || lowerText.includes('bollard') || lowerText.includes('column') ||
+             lowerText.includes('pendant') || lowerText.includes('track') || lowerText.includes('surface') ||
+             lowerText.includes('recessed') || lowerText.includes('flex') || lowerText.includes('flexible') ||
+             lowerText.includes('led') || lowerText.includes('bulb') || lowerText.includes('lamp') ||
+             lowerText.includes('fixture') || lowerText.includes('luminaire') || lowerText.includes('lighting')) {
     return 'formFactor';
   }
   return 'applicationType'; // Default
@@ -435,47 +443,8 @@ function checkProductMatchWithCMSData(cmsData) {
     }
   }
   
-  // Check main page category filters (URL parameters)
-  const urlParams = new URLSearchParams(window.location.search);
-  const categoryParam = urlParams.get('category');
-  
-  if (categoryParam) {
-    const category = categoryParam.toLowerCase().trim();
-    const searchText = cmsData.allText;
-    let categoryMatch = false;
-    
-    // Map category parameters to search terms - More specific matching
-    switch (category) {
-      case 'outdoor':
-        categoryMatch = searchText.includes('outdoor') || searchText.includes('exterior') || searchText.includes('external');
-        break;
-      case 'indoor':
-        categoryMatch = searchText.includes('indoor') || searchText.includes('interior') || searchText.includes('internal');
-        break;
-      case 'flex-strip':
-        categoryMatch = searchText.includes('flex') || searchText.includes('strip') || searchText.includes('flexible') || searchText.includes('linear');
-        break;
-      case 'custom-light':
-        // More specific matching for custom light - avoid false positives
-        categoryMatch = (searchText.includes('custom') && (searchText.includes('light') || searchText.includes('lamp') || searchText.includes('fixture'))) ||
-                       searchText.includes('bespoke lighting') ||
-                       searchText.includes('tailored lighting');
-        break;
-      case 'decorative-light':
-        // More specific matching for decorative light - avoid false positives
-        categoryMatch = (searchText.includes('decorative') && (searchText.includes('light') || searchText.includes('lamp') || searchText.includes('fixture'))) ||
-                       searchText.includes('ornamental lighting') ||
-                       searchText.includes('aesthetic lighting');
-        break;
-      case 'weather-proof':
-        categoryMatch = searchText.includes('weather') || searchText.includes('waterproof') || searchText.includes('ip') || searchText.includes('outdoor');
-        break;
-    }
-    
-    if (!categoryMatch) {
-      return false;
-    }
-  }
+  // Note: Category filtering is now handled by script.js through simulated clicks
+  // This ensures proper sync with filterState and visual consistency
   
   // Check mounting type filters
   if (filterState.mountingType.length > 0) {
@@ -668,31 +637,5 @@ function showAllProducts() {
 // Start the filter when the page loads
 initializeFilter();
 
-// Apply category filter on page load if URL has category parameter
-function applyCategoryFilterOnLoad() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const categoryParam = urlParams.get('category');
-  
-  if (categoryParam) {
-    console.log(`🎯 Applying category filter on load: ${categoryParam}`);
-    
-    // Wait for the filter system to be ready, then apply filters
-    setTimeout(() => {
-      applyFilters();
-      console.log(`✅ Category filter applied for: ${categoryParam}`);
-    }, 2000);
-  }
-}
-
-// Initialize category filter on page load
-document.addEventListener('DOMContentLoaded', applyCategoryFilterOnLoad);
-
-// Also try when Webflow loads
-if (window.Webflow) {
-  window.Webflow.push(() => {
-    applyCategoryFilterOnLoad();
-  });
-}
-
-// Retry after a delay
-setTimeout(applyCategoryFilterOnLoad, 3000);
+// Note: Category filtering is now handled by script.js through simulated clicks
+// This ensures proper sync with filterState and visual consistency
