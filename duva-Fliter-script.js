@@ -215,12 +215,14 @@ function initializeFilterCheckboxes() {
           return;
         }
         
+        // Get filter type and value outside the if/else blocks so they're accessible everywhere
+        const filterType = getCheckboxFilterType(wrapper);
+        const filterValue = text.textContent.trim().toLowerCase();
+        
         if (isActive) {
           // Uncheck
           wrapper.classList.remove('active');
           newCheckmark.classList.remove('active');
-          const filterType = getCheckboxFilterType(wrapper);
-          const filterValue = text.textContent.trim().toLowerCase();
           
           if (filterType === 'applicationType') {
             filterState.applicationType = filterState.applicationType.filter(v => v !== filterValue);
@@ -233,8 +235,6 @@ function initializeFilterCheckboxes() {
           // Check
           wrapper.classList.add('active');
           newCheckmark.classList.add('active');
-          const filterType = getCheckboxFilterType(wrapper);
-          const filterValue = text.textContent.trim().toLowerCase();
           
           console.log(`🔍 Check section - filterValue: ${filterValue}, filterType: ${filterType}`);
           
