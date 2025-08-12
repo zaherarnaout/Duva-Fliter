@@ -452,7 +452,7 @@ function getCMSDataFromCard(card) {
     cmsData.beamAngle = card.dataset.beamAngle || card.dataset['beam-angle'] || card.dataset.beam || '';
     cmsData.cri = card.dataset.cri || '';
     cmsData.location = card.dataset.location || '';
-    cmsData.finishColor = card.dataset.finishColor || card.dataset['finish-color'] || '';
+    cmsData.finishColor = card.dataset.finishColor || card.dataset['finish-color'] || card.dataset.finish || '';
     cmsData.searchTags = card.dataset.searchTags || card.dataset['search-tags'] || card.dataset.tags || '';
   }
   
@@ -496,6 +496,9 @@ function getCMSDataFromCard(card) {
   } else {
     console.log(`🔍 No finish color data found in card dataset`);
   }
+  
+  // Debug: Log the mapped finish color data
+  console.log(`🔍 Mapped finish color data: "${cmsData.finishColor}"`);
   
   return cmsData;
 }
