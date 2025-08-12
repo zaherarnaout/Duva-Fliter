@@ -308,35 +308,38 @@ function getCheckboxFilterType(wrapper) {
 function updateFieldFilterState(fieldType, value) {
   console.log(`🔍 updateFieldFilterState called with fieldType: "${fieldType}", value: "${value}"`);
   
-  if (fieldType === 'Wattage') {
+  // Normalize field type to handle case variations
+  const normalizedFieldType = fieldType.toLowerCase();
+  
+  if (normalizedFieldType === 'wattage') {
     filterState.performanceSpecs.wattage = value;
     console.log(`🔍 Set performanceSpecs.wattage to: "${value}"`);
-  } else if (fieldType === 'CCT') {
+  } else if (normalizedFieldType === 'cct') {
     filterState.performanceSpecs.cct = value;
     console.log(`🔍 Set performanceSpecs.cct to: "${value}"`);
-  } else if (fieldType === 'Beam') {
+  } else if (normalizedFieldType === 'beam') {
     filterState.performanceSpecs.beam = value;
     console.log(`🔍 Set performanceSpecs.beam to: "${value}"`);
-  } else if (fieldType === 'CRI') {
+  } else if (normalizedFieldType === 'cri') {
     filterState.performanceSpecs.cri = value;
     console.log(`🔍 Set performanceSpecs.cri to: "${value}"`);
-  } else if (fieldType === 'UGR') {
+  } else if (normalizedFieldType === 'ugr') {
     filterState.performanceSpecs.ugr = value;
     console.log(`🔍 Set performanceSpecs.ugr to: "${value}"`);
-  } else if (fieldType === 'Efficacy') {
+  } else if (normalizedFieldType === 'efficacy') {
     filterState.performanceSpecs.efficacy = value;
     console.log(`🔍 Set performanceSpecs.efficacy to: "${value}"`);
-  } else if (fieldType === 'IP') {
+  } else if (normalizedFieldType === 'ip') {
     filterState.technicalSpecs.ip = value;
     console.log(`🔍 Set technicalSpecs.ip to: "${value}"`);
-  } else if (fieldType === 'IK') {
+  } else if (normalizedFieldType === 'ik') {
     filterState.technicalSpecs.ik = value;
     console.log(`🔍 Set technicalSpecs.ik to: "${value}"`);
-  } else if (fieldType === 'Finish Color') {
+  } else if (normalizedFieldType === 'finish color') {
     filterState.technicalSpecs.finishcolor = value;
     console.log(`🔍 Set technicalSpecs.finishcolor to: "${value}"`);
   } else {
-    console.warn(`⚠️ Unknown field type: "${fieldType}"`);
+    console.warn(`⚠️ Unknown field type: "${fieldType}" (normalized: "${normalizedFieldType}")`);
   }
 }
 
