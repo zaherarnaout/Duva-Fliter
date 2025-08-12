@@ -490,6 +490,13 @@ function getCMSDataFromCard(card) {
     console.log(`🔍 No CCT data found in card dataset`);
   }
   
+  // Debug: Check if finish color data exists in the card
+  if (card.dataset.finish) {
+    console.log(`🔍 Finish color data found in card: "${card.dataset.finish}"`);
+  } else {
+    console.log(`🔍 No finish color data found in card dataset`);
+  }
+  
   return cmsData;
 }
 
@@ -607,6 +614,7 @@ function checkProductMatchWithCMSData(cmsData) {
   for (const [key, value] of Object.entries(filterState.technicalSpecs)) {
     if (value && value.trim() !== '') {
       const searchValue = value.toLowerCase().trim();
+      console.log(`🔍 Checking technical spec: key="${key}", searchValue="${searchValue}", cmsData.${key}="${cmsData[key]}"`);
       let found = false;
       
       // First priority: Check Search Tags field
