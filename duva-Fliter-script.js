@@ -191,85 +191,60 @@ function getFieldType(field) {
 
 // Initialize filter checkboxes
 function initializeFilterCheckboxes() {
-  const checkboxes = document.querySelectorAll('.sub-filter-wrapper');
+  // Initialize checkboxes for data-attribute based filtering
+  const checkboxes = document.querySelectorAll('[data-type]');
   
-  checkboxes.forEach((wrapper, index) => {
-    const text = wrapper.querySelector('.sub-filter-wattage');
-    const checkmark = wrapper.querySelector('.filter-checkmark');
-    
-    if (text && checkmark) {
-      // Add click handler only to the checkmark
-      checkmark.addEventListener('click', () => {
-        const isActive = wrapper.classList.contains('active');
-        
-        if (isActive) {
-          // Uncheck
-          wrapper.classList.remove('active');
-          checkmark.classList.remove('active');
-          const filterType = getCheckboxFilterType(wrapper);
-          const filterValue = text.textContent.trim().toLowerCase();
-          
-          if (filterType === 'applicationType') {
-            filterState.applicationType = filterState.applicationType.filter(v => v !== filterValue);
-          } else if (filterType === 'mountingType') {
-            filterState.mountingType = filterState.mountingType.filter(v => v !== filterValue);
-          } else if (filterType === 'formFactor') {
-            filterState.formFactor = filterState.formFactor.filter(v => v !== filterValue);
-          }
-        } else {
-          // Check
-          wrapper.classList.add('active');
-          checkmark.classList.add('active');
-          const filterType = getCheckboxFilterType(wrapper);
-          const filterValue = text.textContent.trim().toLowerCase();
-          
-          if (filterType === 'applicationType') {
-            if (!filterState.applicationType.includes(filterValue)) {
-              filterState.applicationType.push(filterValue);
-            }
-          } else if (filterType === 'mountingType') {
-            if (!filterState.mountingType.includes(filterValue)) {
-              filterState.mountingType.push(filterValue);
-            }
-          } else if (filterType === 'formFactor') {
-            if (!filterState.formFactor.includes(filterValue)) {
-              filterState.formFactor.push(filterValue);
-            }
-          }
+  checkboxes.forEach((checkbox) => {
+    // Add click handler to the checkbox element
+    checkbox.addEventListener('click', () => {
+      const isActive = checkbox.classList.contains('active') || 
+                      (checkbox.querySelector('input[type="checkbox"]') && 
+                       checkbox.querySelector('input[type="checkbox"]').checked);
+      
+      if (isActive) {
+        // Uncheck
+        checkbox.classList.remove('active');
+        const input = checkbox.querySelector('input[type="checkbox"]');
+        if (input) {
+          input.checked = false;
+          input.dispatchEvent(new Event('change', { bubbles: true }));
         }
-        
-        applyFilters();
-      });
-    }
+      } else {
+        // Check
+        checkbox.classList.add('active');
+        const input = checkbox.querySelector('input[type="checkbox"]');
+        if (input) {
+          input.checked = true;
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      }
+      
+      applyFilters();
+    });
+  });
+  
+  // Also handle direct checkbox input changes
+  const checkboxInputs = document.querySelectorAll('[data-type] input[type="checkbox"]');
+  checkboxInputs.forEach((input) => {
+    input.addEventListener('change', () => {
+      const wrapper = input.closest('[data-type]');
+      if (wrapper) {
+        if (input.checked) {
+          wrapper.classList.add('active');
+        } else {
+          wrapper.classList.remove('active');
+        }
+      }
+      applyFilters();
+    });
   });
 }
 
-// Get checkbox filter type
+// Get checkbox filter type (DEPRECATED - Now using data-attribute system)
 function getCheckboxFilterType(wrapper) {
-  // First try to get from data-filter attribute of parent
-  const parentFilter = wrapper.closest('[data-filter]');
-  if (parentFilter) {
-    const filterType = parentFilter.getAttribute('data-filter');
-    if (filterType === 'Application Type') return 'applicationType';
-    if (filterType === 'Mounting Type') return 'mountingType';
-    if (filterType === 'Form Factor') return 'formFactor';
-  }
-  
-  // Fallback to text content
-  const text = wrapper.querySelector('.sub-filter-wattage')?.textContent || '';
-  const lowerText = text.toLowerCase();
-  if (lowerText.includes('outdoor') || lowerText.includes('indoor') || lowerText.includes('facade') || 
-      lowerText.includes('retail') || lowerText.includes('landscape') || lowerText.includes('architectural')) {
-    return 'applicationType';
-  } else if (lowerText.includes('surface') || lowerText.includes('recessed') || lowerText.includes('flex') || 
-             lowerText.includes('pendant') || lowerText.includes('track') || lowerText.includes('bollard')) {
-    return 'mountingType';
-  } else if (lowerText.includes('linear') || lowerText.includes('circular') || lowerText.includes('square') || 
-             lowerText.includes('spotlight') || lowerText.includes('downlight') || lowerText.includes('floodlight') ||
-             lowerText.includes('strip') || lowerText.includes('tube') || lowerText.includes('trimless')) {
-    return 'formFactor';
-  }
-  return 'applicationType'; // Default
+  // This function is deprecated - filter types are now determined by data-filter attributes
+  console.log('ℹ️ getCheckboxFilterType is deprecated - using data-attribute system');
+  return 'applicationType'; // Default fallback
 }
 
 // Update field filter state
@@ -365,250 +340,22 @@ function closeAllDropdowns() {
 }
 
 // Get CMS data from Webflow collection item
+// Get CMS data from a product card (DEPRECATED - Now using data-attribute system)
 function getCMSDataFromCard(card) {
-  const cmsData = {
-    productCode: '',
-    name: '',
-    family: '',
-    shortDescription: '',
-    fullDescription: '',
-    wattage: '',
-    lumen: '',
-    cct: '',
-    voltage: '',
-    overviewTitle: '',
-    ipRating: '',
-    ikRating: '',
-    beamAngle: '',
-    cri: '',
-    location: '',
-    finishColor: '',
-    searchTags: '',
-    allText: ''
-  };
-  
-  // Method 1: Try to get data from Webflow's data attributes (exact field names from CSV)
-  if (card.dataset) {
-    cmsData.productCode = card.dataset.productCode || card.dataset['product-code'] || '';
-    cmsData.name = card.dataset.name || card.dataset['name-en'] || '';
-    cmsData.family = card.dataset.family || card.dataset.familyname || '';
-    cmsData.shortDescription = card.dataset.shortDescription || card.dataset['short-description'] || '';
-    cmsData.fullDescription = card.dataset.fullDescription || card.dataset['full-description'] || '';
-    cmsData.wattage = card.dataset.wattage || '';
-    cmsData.lumen = card.dataset.lumen || '';
-    cmsData.cct = card.dataset.cct || '';
-    cmsData.voltage = card.dataset.voltage || '';
-    cmsData.overviewTitle = card.dataset.overviewTitle || card.dataset['overview-title'] || '';
-    cmsData.ipRating = card.dataset.ipRating || card.dataset['ip-rating'] || card.dataset.ip || '';
-    cmsData.ikRating = card.dataset.ikRating || card.dataset['ik-rating'] || card.dataset.ik || '';
-    cmsData.beamAngle = card.dataset.beamAngle || card.dataset['beam-angle'] || card.dataset.beam || '';
-    cmsData.cri = card.dataset.cri || '';
-    cmsData.location = card.dataset.location || '';
-    cmsData.finishColor = card.dataset.finishColor || card.dataset['finish-color'] || '';
-    cmsData.searchTags = card.dataset.searchTags || card.dataset['search-tags'] || card.dataset.tags || '';
-  }
-  
-  // Method 2: Try to get data from Webflow's CMS binding elements
-  const searchTagsElement = card.querySelector('[data-wf-cms-bind="search-tags"], [data-wf-cms-bind="searchTags"], [data-wf-cms-bind="tags"]');
-  if (searchTagsElement) {
-    cmsData.searchTags = searchTagsElement.textContent || searchTagsElement.innerText || '';
-  }
-  
-  // Method 3: Fallback to visible text content
-  const allText = card.textContent || card.innerText || '';
-  cmsData.allText = allText.toLowerCase();
-  
-  return cmsData;
+  // This function is deprecated - now using data attributes directly on cards
+  console.log('ℹ️ getCMSDataFromCard is deprecated - using data-attribute system');
+  return {};
 }
 
-// Check if a product matches the filter criteria using CMS data
+// Check if a product matches the filter criteria using CMS data (DEPRECATED)
 function checkProductMatchWithCMSData(cmsData) {
-  
-  // Check application type filters
-  if (filterState.applicationType.length > 0) {
-    const searchText = cmsData.allText;
-    const hasMatchingApplication = filterState.applicationType.some(type => 
-      searchText.includes(type.toLowerCase())
-    );
-    if (!hasMatchingApplication) {
-      return false;
-    }
-  }
-  
-  // Check main page category filters (URL parameters)
-  const urlParams = new URLSearchParams(window.location.search);
-  const categoryParam = urlParams.get('category');
-  
-  if (categoryParam) {
-    const category = categoryParam.toLowerCase().trim();
-    const searchText = cmsData.allText;
-    let categoryMatch = false;
-    
-    // Map category parameters to search terms - More specific matching
-    switch (category) {
-      case 'outdoor':
-        categoryMatch = searchText.includes('outdoor') || searchText.includes('exterior') || searchText.includes('external');
-        break;
-      case 'indoor':
-        categoryMatch = searchText.includes('indoor') || searchText.includes('interior') || searchText.includes('internal');
-        break;
-      case 'flex-strip':
-        categoryMatch = searchText.includes('flex') || searchText.includes('strip') || searchText.includes('flexible') || searchText.includes('linear');
-        break;
-      case 'custom-light':
-        // More specific matching for custom light - avoid false positives
-        categoryMatch = (searchText.includes('custom') && (searchText.includes('light') || searchText.includes('lamp') || searchText.includes('fixture'))) ||
-                       searchText.includes('bespoke lighting') ||
-                       searchText.includes('tailored lighting');
-        break;
-      case 'decorative-light':
-        // More specific matching for decorative light - avoid false positives
-        categoryMatch = (searchText.includes('decorative') && (searchText.includes('light') || searchText.includes('lamp') || searchText.includes('fixture'))) ||
-                       searchText.includes('ornamental lighting') ||
-                       searchText.includes('aesthetic lighting');
-        break;
-      case 'weather-proof':
-        categoryMatch = searchText.includes('weather') || searchText.includes('waterproof') || searchText.includes('ip') || searchText.includes('outdoor');
-        break;
-    }
-    
-    if (!categoryMatch) {
-      return false;
-    }
-  }
-  
-  // Check mounting type filters
-  if (filterState.mountingType.length > 0) {
-    const searchText = cmsData.allText;
-    const hasMatchingMounting = filterState.mountingType.some(type => 
-      searchText.includes(type.toLowerCase())
-    );
-    if (!hasMatchingMounting) {
-      return false;
-    }
-  }
-  
-  // Check form factor filters
-  if (filterState.formFactor.length > 0) {
-    const searchText = cmsData.allText;
-    const hasMatchingFormFactor = filterState.formFactor.some(type => 
-      searchText.includes(type.toLowerCase())
-    );
-    if (!hasMatchingFormFactor) {
-      return false;
-    }
-  }
-  
-  // Check performance specs
-  for (const [key, value] of Object.entries(filterState.performanceSpecs)) {
-    if (value && value.trim() !== '') {
-      const searchValue = value.toLowerCase().trim();
-      let found = false;
-      
-      // First priority: Check Search Tags field
-      if (cmsData.searchTags) {
-        const searchTags = cmsData.searchTags.toLowerCase();
-        const regex = new RegExp(`\\b${searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-        found = regex.test(searchTags);
-      }
-      
-      // Second priority: Check specific CMS fields
-      if (!found) {
-        if (key === 'cct' && cmsData.cct) {
-          const cctValues = cmsData.cct.toLowerCase().split(',').map(v => v.trim());
-          found = cctValues.some(val => val === searchValue);
-        }
-        
-        if (key === 'lumen' && cmsData.lumen) {
-          const lumenValues = cmsData.lumen.toLowerCase().split(',').map(v => v.trim());
-          found = lumenValues.some(val => val === searchValue);
-        }
-        
-        if (key === 'beam' && cmsData.beamAngle) {
-          const beamValues = cmsData.beamAngle.toLowerCase().split(',').map(v => v.trim());
-          found = beamValues.some(val => val === searchValue);
-        }
-        
-        if (key === 'cri' && cmsData.cri) {
-          const criValues = cmsData.cri.toLowerCase().split(',').map(v => v.trim());
-          found = criValues.some(val => val === searchValue);
-        }
-        
-        if (key === 'wattage' && cmsData.wattage) {
-          const wattageValues = cmsData.wattage.toLowerCase().split(',').map(v => v.trim());
-          found = wattageValues.some(val => val === searchValue);
-        }
-      }
-      
-      // Third priority: Check in all text
-      if (!found) {
-        const regex = new RegExp(`\\b${searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-        found = regex.test(cmsData.allText);
-      }
-      
-      if (!found) {
-        return false;
-      }
-    }
-  }
-  
-  // Check technical specs
-  for (const [key, value] of Object.entries(filterState.technicalSpecs)) {
-    if (value && value.trim() !== '') {
-      const searchValue = value.toLowerCase().trim();
-      let found = false;
-      
-      // First priority: Check Search Tags field
-      if (cmsData.searchTags) {
-        const searchTags = cmsData.searchTags.toLowerCase();
-        const regex = new RegExp(`\\b${searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-        found = regex.test(searchTags);
-      }
-      
-      // Second priority: Check specific CMS fields
-      if (!found) {
-        if (key === 'ip' && cmsData.ipRating) {
-          const ipValues = cmsData.ipRating.toLowerCase().split(',').map(v => v.trim());
-          found = ipValues.some(val => val === searchValue);
-        }
-        
-        if (key === 'ik' && cmsData.ikRating) {
-          const ikValues = cmsData.ikRating.toLowerCase().split(',').map(v => v.trim());
-          found = ikValues.some(val => val === searchValue);
-        }
-        
-        if (key === 'outdoor' && cmsData.location) {
-          found = cmsData.location.toLowerCase() === searchValue;
-        }
-        
-        if (key === 'indoor' && cmsData.location) {
-          found = cmsData.location.toLowerCase() === searchValue;
-        }
-        
-        if (key === 'finishcolor' && cmsData.finishColor) {
-          const finishValues = cmsData.finishColor.toLowerCase().split(',').map(v => v.trim());
-          found = finishValues.some(val => val === searchValue);
-        }
-      }
-      
-      // Third priority: Check in all text
-      if (!found) {
-        const regex = new RegExp(`\\b${searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-        found = regex.test(cmsData.allText);
-      }
-      
-      if (!found) {
-        return false;
-      }
-    }
-  }
-  
+  // This function is deprecated - now using checkProductMatchWithDataAttributes
+  console.log('ℹ️ checkProductMatchWithCMSData is deprecated - using data-attribute system');
   return true;
 }
 
-// Apply filters to show/hide products
+// Apply filters to show/hide products (Data-Attribute Based)
 function applyFilters() {
-  
   const cardsContainer = document.querySelector('.cards-container');
   if (!cardsContainer) {
     return;
@@ -620,8 +367,7 @@ function applyFilters() {
   let visibleCount = 0;
   
   productCards.forEach(card => {
-    const cmsData = getCMSDataFromCard(card);
-    const matches = checkProductMatchWithCMSData(cmsData);
+    const matches = checkProductMatchWithDataAttributes(card);
     
     if (matches) {
       // Remove any inline display style to let CSS handle the layout
@@ -642,7 +388,58 @@ function applyFilters() {
       noResultsMessage.style.display = 'none';
     }
   }
+}
+
+// Check if a product card matches the current filter state using data attributes
+function checkProductMatchWithDataAttributes(card) {
+  const norm = s => (s||'').toString().toLowerCase().trim();
+  function splitList(v) { return norm(v).split(',').map(s=>s.trim()).filter(Boolean); }
   
+  // Get all active filter groups
+  const activeGroups = {};
+  
+  // Check each filter group for active options
+  Object.keys(GROUPS).forEach(groupName => {
+    const groupSelector = `[data-filter="${groupName}"]`;
+    const groupElement = document.querySelector(groupSelector);
+    
+    if (groupElement) {
+      const activeOptions = groupElement.querySelectorAll('[data-type].active, input[type="checkbox"]:checked');
+      if (activeOptions.length > 0) {
+        activeGroups[groupName] = Array.from(activeOptions).map(option => {
+          return norm(option.getAttribute('data-type') || option.value || option.textContent);
+        });
+      }
+    }
+  });
+  
+  // If no active filters, show all products
+  if (Object.keys(activeGroups).length === 0) {
+    return true;
+  }
+  
+  // Check each active group against the card's data attributes
+  for (const [groupName, activeOptions] of Object.entries(activeGroups)) {
+    const groupConfig = GROUPS[groupName];
+    if (!groupConfig || !groupConfig.attr) continue;
+    
+    const cardValue = card.dataset[groupConfig.attr];
+    if (!cardValue) {
+      // If card doesn't have this attribute and we have active filters for this group, hide it
+      return false;
+    }
+    
+    const cardValues = splitList(cardValue);
+    const hasMatch = activeOptions.some(option => 
+      cardValues.some(cardVal => norm(cardVal) === norm(option))
+    );
+    
+    if (!hasMatch) {
+      return false;
+    }
+  }
+  
+  return true;
 }
 
 // Show all products
@@ -679,143 +476,78 @@ function applyCategoryFilterOnLoad() {
 // which provides better integration and performance
 
 /* ============================
-   DUVA FILTER PUBLIC API
+   DUVA FILTER PUBLIC API (Data-Attribute Based)
    - Exposes functions for external scripts to interact with the filter system
    ============================ */
 
+// Define filter groups and their corresponding data attributes
+const GROUPS = window.DUVA_GROUPS || (window.DUVA_GROUPS = {});
+GROUPS['Application Type'] = { attr: 'application' };
+GROUPS['Form Factor']      = { attr: 'form' };
+GROUPS['Mounting Type']    = { attr: 'mounting' };
+GROUPS['Feature Lighting'] = { attr: 'feature' };
+
 // Expose DUVA Filter API globally
-window.DUVA_FILTER = {
-  // Activate a checkbox by its label text
-  activateCheckboxByLabel: function(labelText) {
-    console.log(`🎯 DUVA API: Activating checkbox for label: "${labelText}"`);
-    
-    // Find the checkbox wrapper by label text
-    const checkboxes = document.querySelectorAll('.sub-filter-wrapper');
-    let targetWrapper = null;
-    
-    for (const wrapper of checkboxes) {
-      const textElement = wrapper.querySelector('.sub-filter-wattage');
-      if (textElement && textElement.textContent.trim().toLowerCase() === labelText.toLowerCase()) {
-        targetWrapper = wrapper;
-        break;
-      }
-    }
-    
-    if (targetWrapper) {
-      const checkmark = targetWrapper.querySelector('.filter-checkmark');
-      if (checkmark && !targetWrapper.classList.contains('active')) {
-        // Simulate the same click logic as the original handler
-        targetWrapper.classList.add('active');
-        checkmark.classList.add('active');
-        
-        const filterType = getCheckboxFilterType(targetWrapper);
-        const filterValue = targetWrapper.querySelector('.sub-filter-wattage').textContent.trim().toLowerCase();
-        
-        // Update filter state
-        if (filterType === 'applicationType') {
-          if (!filterState.applicationType.includes(filterValue)) {
-            filterState.applicationType.push(filterValue);
-          }
-        } else if (filterType === 'mountingType') {
-          if (!filterState.mountingType.includes(filterValue)) {
-            filterState.mountingType.push(filterValue);
-          }
-        } else if (filterType === 'formFactor') {
-          if (!filterState.formFactor.includes(filterValue)) {
-            filterState.formFactor.push(filterValue);
-          }
-        }
-        
-        // Apply filters
-        applyFilters();
-        
-        console.log(`✅ DUVA API: Successfully activated checkbox for "${labelText}"`);
-        return true;
-      } else {
-        console.log(`ℹ️ DUVA API: Checkbox for "${labelText}" is already active`);
-        return true;
-      }
-    } else {
-      console.warn(`❌ DUVA API: Could not find checkbox for label "${labelText}"`);
-      return false;
-    }
-  },
+window.DUVA_FILTER = window.DUVA_FILTER || {};
+
+/**
+ * Activates the same code path as a real user click on a filter option.
+ * labelText: the visible text of the checkbox/label (e.g. "Indoor", "Flex Strip")
+ * groupText: optional group label (e.g. "Application Type"). If omitted, match by label across groups.
+ */
+window.DUVA_FILTER.activateCheckboxByLabel = function(labelText, groupText) {
+  console.log(`🎯 DUVA API: Activating checkbox for label: "${labelText}"${groupText ? ` in group: "${groupText}"` : ''}`);
   
-  // Deactivate a checkbox by its label text
-  deactivateCheckboxByLabel: function(labelText) {
-    console.log(`🎯 DUVA API: Deactivating checkbox for label: "${labelText}"`);
-    
-    const checkboxes = document.querySelectorAll('.sub-filter-wrapper');
-    let targetWrapper = null;
-    
-    for (const wrapper of checkboxes) {
-      const textElement = wrapper.querySelector('.sub-filter-wattage');
-      if (textElement && textElement.textContent.trim().toLowerCase() === labelText.toLowerCase()) {
-        targetWrapper = wrapper;
-        break;
-      }
-    }
-    
-    if (targetWrapper) {
-      const checkmark = targetWrapper.querySelector('.filter-checkmark');
-      if (checkmark && targetWrapper.classList.contains('active')) {
-        // Simulate the same click logic as the original handler
-        targetWrapper.classList.remove('active');
-        checkmark.classList.remove('active');
-        
-        const filterType = getCheckboxFilterType(targetWrapper);
-        const filterValue = targetWrapper.querySelector('.sub-filter-wattage').textContent.trim().toLowerCase();
-        
-        // Update filter state
-        if (filterType === 'applicationType') {
-          filterState.applicationType = filterState.applicationType.filter(v => v !== filterValue);
-        } else if (filterType === 'mountingType') {
-          filterState.mountingType = filterState.mountingType.filter(v => v !== filterValue);
-        } else if (filterType === 'formFactor') {
-          filterState.formFactor = filterState.formFactor.filter(v => v !== filterValue);
-        }
-        
-        // Apply filters
-        applyFilters();
-        
-        console.log(`✅ DUVA API: Successfully deactivated checkbox for "${labelText}"`);
-        return true;
-      } else {
-        console.log(`ℹ️ DUVA API: Checkbox for "${labelText}" is already inactive`);
-        return true;
-      }
-    } else {
-      console.warn(`❌ DUVA API: Could not find checkbox for label "${labelText}"`);
-      return false;
-    }
-  },
-  
-  // Get current filter state
-  getFilterState: function() {
-    return JSON.parse(JSON.stringify(filterState)); // Return a copy to prevent external modification
-  },
-  
-  // Reset all filters
-  resetAllFilters: function() {
-    console.log('🎯 DUVA API: Resetting all filters');
-    resetAllFilters();
-    return true;
-  },
-  
-  // Apply filters manually
-  applyFilters: function() {
-    console.log('🎯 DUVA API: Applying filters');
-    applyFilters();
-    return true;
-  },
-  
-  // Check if filter system is ready
-  isReady: function() {
-    const hasCheckboxes = document.querySelectorAll('.sub-filter-wrapper').length > 0;
-    const hasCardsContainer = !!document.querySelector('.cards-container');
-    return hasCheckboxes && hasCardsContainer;
+  const norm = s => (s||'').toString().trim().toLowerCase();
+  const labelSel = groupText
+    ? `[data-filter="${groupText}"] [data-type]`
+    : `[data-type]`;
+
+  const target = [...document.querySelectorAll(labelSel)]
+    .find(el => norm(el.getAttribute('data-type')) === norm(labelText));
+
+  if (!target) {
+    console.warn(`❌ DUVA API: Could not find checkbox for label "${labelText}"${groupText ? ` in group "${groupText}"` : ''}`);
+    return false;
   }
+
+  // If there is a real checkbox inside, toggle it and dispatch events; otherwise click the label.
+  const input = target.querySelector('input[type="checkbox"]');
+  if (input) {
+    input.checked = !input.checked;
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  } else {
+    target.click();
+  }
+
+  // call DUVA's existing "apply/update filters" function
+  if (typeof applyFilters === 'function') applyFilters();
+  if (typeof updateActiveChips === 'function') updateActiveChips();
+  
+  console.log(`✅ DUVA API: Successfully activated checkbox for "${labelText}"`);
+  return true;
 };
+
+// Consume category parameter on load
+(function consumeCategoryParam() {
+  const url = new URL(location.href);
+  const cat = (url.searchParams.get('category') || sessionStorage.getItem('duvaPendingCategory') || '').toLowerCase();
+  if (!cat) return;
+
+  // Map URL keys -> visible labels in your DUVA UI
+  const MAP = { indoor: 'Indoor', outdoor: 'Outdoor', flexstrip: 'Flex Strip' };
+
+  const label = MAP[cat] || (cat.charAt(0).toUpperCase() + cat.slice(1));
+  const ok = window.DUVA_FILTER.activateCheckboxByLabel(label, 'Application Type'); // group name that contains Indoor/Outdoor
+  sessionStorage.removeItem('duvaPendingCategory');
+
+  // Optional: remove the param after applying so it doesn't re-apply on SPA nav
+  if (ok && history.replaceState) {
+    url.searchParams.delete('category');
+    history.replaceState({}, '', url);
+  }
+})();
 
 // Dispatch ready event when DUVA Filter is fully initialized
 function dispatchDuvaReadyEvent() {
