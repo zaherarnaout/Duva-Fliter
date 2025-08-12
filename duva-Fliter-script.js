@@ -651,22 +651,21 @@ function checkProductMatchWithCMSData(cmsData) {
           console.log(`🔍 Finish values after split:`, finishValues);
           
           // Smart finish color matching: handle abbreviations
-          const colorMappings = {
-            'wh': 'white',
-            'white': 'white',
-            'bk': 'black', 
-            'black': 'black',
-            'gr': 'grey',
-            'grey': 'grey',
-            'gray': 'grey',
-            'ss': 'stainless',
-            'stainless': 'stainless'
-          };
-          
-          const normalizedSearch = colorMappings[searchValue] || searchValue;
           found = finishValues.some(val => {
-            const normalizedVal = colorMappings[val] || val;
-            return val === searchValue || normalizedVal === normalizedSearch;
+            // Direct match
+            if (val === searchValue) return true;
+            
+            // Abbreviation matches
+            if (searchValue === 'wh' && val === 'white') return true;
+            if (searchValue === 'white' && val === 'wh') return true;
+            if (searchValue === 'bk' && val === 'black') return true;
+            if (searchValue === 'black' && val === 'bk') return true;
+            if (searchValue === 'gr' && (val === 'grey' || val === 'gray')) return true;
+            if ((searchValue === 'grey' || searchValue === 'gray') && val === 'gr') return true;
+            if (searchValue === 'ss' && val === 'stainless') return true;
+            if (searchValue === 'stainless' && val === 'ss') return true;
+            
+            return false;
           });
           console.log(`🔍 Finish color match found:`, found);
         }
