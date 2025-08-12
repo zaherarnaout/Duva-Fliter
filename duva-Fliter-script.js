@@ -198,14 +198,21 @@ function initializeFilterCheckboxes() {
     const checkmark = wrapper.querySelector('.filter-checkmark');
     
     if (text && checkmark) {
+      // Remove any existing listeners to prevent duplicates
+      const newCheckmark = checkmark.cloneNode(true);
+      checkmark.parentNode.replaceChild(newCheckmark, checkmark);
+      
       // Add click handler only to the checkmark
-      checkmark.addEventListener('click', () => {
+      newCheckmark.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
         const isActive = wrapper.classList.contains('active');
         
         if (isActive) {
           // Uncheck
           wrapper.classList.remove('active');
-          checkmark.classList.remove('active');
+          newCheckmark.classList.remove('active');
           const filterType = getCheckboxFilterType(wrapper);
           const filterValue = text.textContent.trim().toLowerCase();
           
@@ -219,7 +226,7 @@ function initializeFilterCheckboxes() {
         } else {
           // Check
           wrapper.classList.add('active');
-          checkmark.classList.add('active');
+          newCheckmark.classList.add('active');
           const filterType = getCheckboxFilterType(wrapper);
           const filterValue = text.textContent.trim().toLowerCase();
           
@@ -238,10 +245,15 @@ function initializeFilterCheckboxes() {
           }
         }
         
+        console.log(`🔍 Filter clicked: ${filterValue} (${filterType}) - Active: ${!isActive}`);
+        console.log(`🔍 Current filter state:`, filterState);
+        
         applyFilters();
       });
     }
   });
+  
+  console.log(`✅ Initialized ${checkboxes.length} filter checkboxes`);
 }
 
 // Get checkbox filter type
