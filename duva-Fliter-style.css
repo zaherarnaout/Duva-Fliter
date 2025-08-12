@@ -188,16 +188,8 @@
   font-weight: 300;
 }
 
-.filter-checkmark {
-  border: 1px solid var(--border-divider-light);
-  border-radius: var(--border-4px-cornner);
-  width: 20px;
-  height: 20px;
-}
-
-.filter-checkmark:hover {
-  border-color: var(--duva-border-shadow);
-}
+/* === Original Webflow Filter Checkmark (Legacy) === */
+/* Note: These styles are overridden by the enhanced styles below */
 
 .text-block-36 {
   color: var(--duva-d-grey);
@@ -433,11 +425,6 @@
   height: 17px;
 }
 
-.filter-checkmark.active {
-  background-color: #c0392b;
-  border-color: #c0392b;
-}
-
 /* Default state - checkmark hidden */
 .filter-checkmark::after {
   content: '';
@@ -466,10 +453,7 @@
 }
 
 /* Keep checkbox clickable */
-.filter-checkmark {
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
+/* Note: Cursor and transition are already defined in the main .filter-checkmark rule above */
 
 /* Keep input field clickable */
 .filter-input-field {
