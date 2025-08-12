@@ -160,11 +160,29 @@ function initializeFilterFields() {
       // Clear the text-filed div and add the input
       existingContent.innerHTML = '';
       existingContent.appendChild(input);
+      
+      // Hide any remaining placeholder text elements within the text-filed div
+      const placeholderElements = existingContent.querySelectorAll('.text-block-38, .text-block-39, .text-block-40, .text-block-41, .text-block-42, .text-block-43, .text-block-44, .text-block-45, .text-block-46, .text-block-47');
+      placeholderElements.forEach(el => {
+        el.style.display = 'none';
+        el.style.visibility = 'hidden';
+        el.style.opacity = '0';
+      });
     } else {
       // If no .text-filed div, replace the entire field content
       field.innerHTML = '';
       field.appendChild(input);
     }
+    
+    // Hide any remaining placeholder text elements in the entire field
+    const allPlaceholderElements = field.querySelectorAll('.text-block-38, .text-block-39, .text-block-40, .text-block-41, .text-block-42, .text-block-43, .text-block-44, .text-block-45, .text-block-46, .text-block-47');
+    allPlaceholderElements.forEach(el => {
+      el.style.display = 'none';
+      el.style.visibility = 'hidden';
+      el.style.opacity = '0';
+      el.style.position = 'absolute';
+      el.style.left = '-9999px';
+    });
     
     // Add input handler for manual entry
     input.addEventListener('input', () => {
