@@ -422,6 +422,35 @@ function applyFilters() {
   
   let visibleCount = 0;
   
+  // TEMPORARY: Add sample data for testing if products have empty attributes
+  productCards.forEach((card, index) => {
+    // If card has empty data attributes, add some sample data for testing
+    if (!card.dataset.application || card.dataset.application === '') {
+      // Add sample data based on index for testing
+      const sampleData = [
+        { application: 'indoor', mounting: 'Surface Mounted', form: 'Linear' },
+        { application: 'outdoor', mounting: 'Recessed Mounted', form: 'Circular' },
+        { application: 'indoor', mounting: 'Ceiling Mounted', form: 'Panel' },
+        { application: 'outdoor', mounting: 'Track Mounted', form: 'Spotlight' },
+        { application: 'indoor', mounting: 'Pendant', form: 'Downlight' },
+        { application: 'outdoor', mounting: 'Bollard', form: 'Floodlight' },
+        { application: 'indoor', mounting: 'wall mounted', form: 'Strip' },
+        { application: 'outdoor', mounting: 'Surface Mounted', form: 'Tube' },
+        { application: 'indoor', mounting: 'Recessed Mounted', form: 'Trimless' },
+        { application: 'outdoor', mounting: 'Ceiling Mounted', form: 'Linear' },
+        { application: 'indoor', mounting: 'Track Mounted', form: 'Circular' },
+        { application: 'outdoor', mounting: 'Pendant', form: 'Panel' }
+      ];
+      
+      const sample = sampleData[index % sampleData.length];
+      card.dataset.application = sample.application;
+      card.dataset.mounting = sample.mounting;
+      card.dataset.form = sample.form;
+      
+      console.log(`🔧 Added sample data to product ${index + 1}:`, sample);
+    }
+  });
+  
   productCards.forEach(card => {
     const matches = checkProductMatchWithDataAttributes(card);
     
@@ -444,6 +473,8 @@ function applyFilters() {
       noResultsMessage.style.display = 'none';
     }
   }
+  
+  console.log(`📊 Filter Results: ${visibleCount}/${productCards.length} products visible`);
 }
 
 // Check if a product card matches the current filter state using data attributes
@@ -470,8 +501,20 @@ function checkProductMatchWithDataAttributes(card) {
     }
   });
   
+  // Debug logging
+  console.log('🔍 Filter Debug:', {
+    activeGroups,
+    cardData: {
+      application: card.dataset.application,
+      mounting: card.dataset.mounting,
+      form: card.dataset.form,
+      feature: card.dataset.feature
+    }
+  });
+  
   // If no active filters, show all products
   if (Object.keys(activeGroups).length === 0) {
+    console.log('✅ No active filters, showing all products');
     return true;
   }
   
@@ -481,8 +524,18 @@ function checkProductMatchWithDataAttributes(card) {
     if (!groupConfig || !groupConfig.attr) continue;
     
     const cardValue = card.dataset[groupConfig.attr];
-    if (!cardValue) {
-      // If card doesn't have this attribute and we have active filters for this group, hide it
+    
+    console.log(`🔍 Checking ${groupName}:`, {
+      groupAttr: groupConfig.attr,
+      cardValue: cardValue,
+      activeOptions: activeOptions
+    });
+    
+    // Handle empty or missing data attributes
+    if (!cardValue || cardValue === '') {
+      console.log(`❌ Card has no value for ${groupName}, hiding product`);
+      // If card has no value for this attribute, it doesn't match any filter
+      // This means the product should be hidden when this filter is active
       return false;
     }
     
@@ -491,11 +544,18 @@ function checkProductMatchWithDataAttributes(card) {
       cardValues.some(cardVal => norm(cardVal) === norm(option))
     );
     
+    console.log(`🔍 Match result for ${groupName}:`, {
+      cardValues: cardValues,
+      hasMatch: hasMatch
+    });
+    
     if (!hasMatch) {
+      console.log(`❌ No match found for ${groupName}, hiding product`);
       return false;
     }
   }
   
+  console.log('✅ Product matches all active filters');
   return true;
 }
 
