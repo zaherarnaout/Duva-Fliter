@@ -13,7 +13,7 @@ const filterState = {
     lumen: '',
     cri: '',
     ugr: '',
-    efficancy: ''
+    efficacy: ''
   },
   technicalSpecs: {
     ip: '',
@@ -32,7 +32,7 @@ const INPUT_FIELDS = {
   'Beam': 'Beam',
   'CRI': 'CRI',
   'UGR': 'UGR',
-  'Efficancy': 'Efficancy',
+  'Efficacy': 'Efficacy',
   'IP': 'IP',
   'IK': 'IK',
   'Finish Color': 'Finish Color'
@@ -81,7 +81,7 @@ function initializeFilterToggle() {
     // Ensure filter starts in collapsed state
     filterBg.classList.remove('expanded');
     if (filterArrow) {
-      filterArrow.style.transform = 'rotate(0deg)';
+      filterArrow.classList.remove('rotated');
     }
     
     // Remove any existing event listeners to prevent conflicts
@@ -108,13 +108,13 @@ function handleFilterToggle(e) {
       // Collapse
       filterBg.classList.remove('expanded');
       if (filterArrow) {
-        filterArrow.style.transform = 'rotate(0deg)';
+        filterArrow.classList.remove('rotated');
       }
     } else {
       // Expand
       filterBg.classList.add('expanded');
       if (filterArrow) {
-        filterArrow.style.transform = 'rotate(180deg)';
+        filterArrow.classList.add('rotated');
       }
     }
     
@@ -182,7 +182,7 @@ function getFieldType(field) {
   if (text.includes('Beam')) return 'Beam';
   if (text.includes('CRI')) return 'CRI';
   if (text.includes('UGR')) return 'UGR';
-  if (text.includes('Efficancy')) return 'Efficancy';
+      if (text.includes('Efficacy')) return 'Efficacy';
   if (text.includes('IP')) return 'IP';
   if (text.includes('IK')) return 'IK';
   if (text.includes('Finish')) return 'Finish Color';
@@ -266,7 +266,15 @@ function getCheckboxFilterType(wrapper) {
     return 'mountingType';
   } else if (lowerText.includes('linear') || lowerText.includes('circular') || lowerText.includes('square') || 
              lowerText.includes('spotlight') || lowerText.includes('downlight') || lowerText.includes('floodlight') ||
-             lowerText.includes('strip') || lowerText.includes('tube') || lowerText.includes('trimless')) {
+             lowerText.includes('strip') || lowerText.includes('tube') || lowerText.includes('trimless') ||
+             lowerText.includes('round') || lowerText.includes('rectangular') || lowerText.includes('oval') ||
+             lowerText.includes('wall') || lowerText.includes('ceiling') || lowerText.includes('floor') ||
+             lowerText.includes('step') || lowerText.includes('path') || lowerText.includes('garden') ||
+             lowerText.includes('post') || lowerText.includes('bollard') || lowerText.includes('column') ||
+             lowerText.includes('pendant') || lowerText.includes('track') || lowerText.includes('surface') ||
+             lowerText.includes('recessed') || lowerText.includes('flex') || lowerText.includes('flexible') ||
+             lowerText.includes('led') || lowerText.includes('bulb') || lowerText.includes('lamp') ||
+             lowerText.includes('fixture') || lowerText.includes('luminaire') || lowerText.includes('lighting')) {
     return 'formFactor';
   }
   return 'applicationType'; // Default
@@ -284,8 +292,8 @@ function updateFieldFilterState(fieldType, value) {
     filterState.performanceSpecs.cri = value;
   } else if (fieldType === 'UGR') {
     filterState.performanceSpecs.ugr = value;
-  } else if (fieldType === 'Efficancy') {
-    filterState.performanceSpecs.efficancy = value;
+  } else if (fieldType === 'Efficacy') {
+    filterState.performanceSpecs.efficacy = value;
   } else if (fieldType === 'IP') {
     filterState.technicalSpecs.ip = value;
   } else if (fieldType === 'IK') {
@@ -322,7 +330,7 @@ function resetAllFilters() {
   filterState.applicationType = [];
   filterState.mountingType = [];
   filterState.formFactor = [];
-  filterState.performanceSpecs = { wattage: '', cct: '', beam: '', lumen: '', cri: '', ugr: '', efficancy: '' };
+  filterState.performanceSpecs = { wattage: '', cct: '', beam: '', lumen: '', cri: '', ugr: '', efficacy: '' };
   filterState.technicalSpecs = { ip: '', ik: '', outdoor: '', indoor: '', finishcolor: '' };
   
   // Reset checkboxes - remove active class from both wrapper and checkbox
@@ -344,6 +352,13 @@ function resetAllFilters() {
       wrapper.classList.remove('has-input');
     }
   });
+  
+  // Clear main page category filter from URL
+  const url = new URL(window.location);
+  url.searchParams.delete('category');
+  
+  // Update URL without page reload
+  window.history.replaceState({}, '', url);
   
   // Close all dropdowns
   closeAllDropdowns();
@@ -427,6 +442,9 @@ function checkProductMatchWithCMSData(cmsData) {
       return false;
     }
   }
+  
+  // Note: Category filtering is now handled by script.js through simulated clicks
+  // This ensures proper sync with filterState and visual consistency
   
   // Check mounting type filters
   if (filterState.mountingType.length > 0) {
@@ -566,6 +584,7 @@ function applyFilters() {
   }
   
   const productCards = cardsContainer.querySelectorAll('.collection-item, .w-dyn-item');
+  const noResultsMessage = document.querySelector('.no-results-message');
   
   let visibleCount = 0;
   
@@ -582,6 +601,17 @@ function applyFilters() {
     }
   });
   
+  // Show/hide no results message
+  if (noResultsMessage) {
+    if (visibleCount === 0) {
+      // No cards match the filter
+      noResultsMessage.style.display = 'block';
+    } else {
+      // Cards are visible
+      noResultsMessage.style.display = 'none';
+    }
+  }
+  
 }
 
 // Show all products
@@ -590,12 +620,22 @@ function showAllProducts() {
   if (!cardsContainer) return;
   
   const productCards = cardsContainer.querySelectorAll('.collection-item, .w-dyn-item');
+  const noResultsMessage = document.querySelector('.no-results-message');
+  
   productCards.forEach(card => {
     // Remove any inline display style to let CSS handle the layout
     card.style.removeProperty('display');
   });
   
+  // Hide no results message when showing all products
+  if (noResultsMessage) {
+    noResultsMessage.style.display = 'none';
+  }
+  
 }
 
 // Start the filter when the page loads
 initializeFilter();
+
+// Note: Category filtering is now handled by script.js through simulated clicks
+// This ensures proper sync with filterState and visual consistency
