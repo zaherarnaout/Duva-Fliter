@@ -531,13 +531,16 @@ window.DUVA_FILTER.activateCheckboxByLabel = function(labelText, groupText) {
     return false;
   }
 
-  // If there is a real checkbox inside, ensure it's checked and dispatch events; otherwise click the label.
+  // If there is a real checkbox inside, force ON and dispatch events; otherwise click the label.
   const input = target.querySelector('input[type="checkbox"]');
   if (input) {
     if (!input.checked) {
       input.checked = true;
       input.dispatchEvent(new Event('change', { bubbles: true }));
       input.dispatchEvent(new Event('input', { bubbles: true }));
+    } else {
+      // already on; still notify listeners for consistency
+      input.dispatchEvent(new Event('change', { bubbles: true }));
     }
     // ensure the UI wrapper looks active too
     input.closest('[data-type]')?.classList.add('active');
@@ -551,6 +554,23 @@ window.DUVA_FILTER.activateCheckboxByLabel = function(labelText, groupText) {
   
   console.log(`✅ DUVA API: Successfully activated checkbox for "${labelText}"`);
   return true;
+};
+
+/**
+ * Returns the current filter state across all groups
+ * @returns {Object} Object with group names as keys and arrays of active filter values
+ */
+window.DUVA_FILTER.getFilterState = function () {
+  const state = {};
+  Object.keys(GROUPS).forEach(groupName => {
+    const el = document.querySelector(`[data-filter="${groupName}"]`);
+    if (!el) return;
+    const active = [...el.querySelectorAll('[data-type].active, input[type="checkbox"]:checked')].map(
+      n => (n.getAttribute('data-type') || n.value || n.textContent || '').trim()
+    );
+    if (active.length) state[groupName] = active;
+  });
+  return state;
 };
 
 // Consume category parameter on load (DISABLED - Now handled by DUVA Filter Bridge in script.js)
