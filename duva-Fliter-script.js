@@ -483,6 +483,13 @@ function getCMSDataFromCard(card) {
     tags: card.dataset.tags
   });
   
+  // Debug: Check if CCT data exists in the card
+  if (card.dataset.cct) {
+    console.log(`🔍 CCT data found in card: "${card.dataset.cct}"`);
+  } else {
+    console.log(`🔍 No CCT data found in card dataset`);
+  }
+  
   return cmsData;
 }
 
@@ -541,8 +548,11 @@ function checkProductMatchWithCMSData(cmsData) {
       // Second priority: Check specific CMS fields
       if (!found) {
         if (key === 'cct' && cmsData.cct) {
+          console.log(`🔍 CCT filtering: searchValue="${searchValue}", cmsData.cct="${cmsData.cct}"`);
           const cctValues = cmsData.cct.toLowerCase().split(',').map(v => v.trim());
+          console.log(`🔍 CCT values after split:`, cctValues);
           found = cctValues.some(val => val === searchValue);
+          console.log(`🔍 CCT match found:`, found);
         }
         
         if (key === 'lumen' && cmsData.lumen) {
