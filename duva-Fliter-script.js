@@ -136,10 +136,16 @@ function initializeFilterFields() {
     input.placeholder = INPUT_FIELDS[fieldType] || 'Enter value';
     // CSS handles all styling for .filter-input-field
     
-    // Replace the existing content
+    // Replace the existing content - handle both .text-filed and direct text content
     const existingContent = field.querySelector('.text-filed');
     if (existingContent) {
-      existingContent.replaceWith(input);
+      // Clear the text-filed div and add the input
+      existingContent.innerHTML = '';
+      existingContent.appendChild(input);
+    } else {
+      // If no .text-filed div, replace the entire field content
+      field.innerHTML = '';
+      field.appendChild(input);
     }
     
     // Add input handler for manual entry
@@ -192,7 +198,8 @@ function getFieldType(field) {
 // Initialize filter checkboxes
 function initializeFilterCheckboxes() {
   // Initialize checkboxes for data-attribute based filtering
-  const checkboxes = document.querySelectorAll('[data-type]');
+  // Only target the actual checkbox elements, not the wrapper divs
+  const checkboxes = document.querySelectorAll('.filter-checkmark[data-type]');
   
   checkboxes.forEach((checkbox) => {
     // Add click handler to the checkbox element
@@ -234,13 +241,13 @@ function initializeFilterCheckboxes() {
   });
   
   // Also handle direct checkbox input changes
-  const checkboxInputs = document.querySelectorAll('[data-type] input[type="checkbox"]');
+  const checkboxInputs = document.querySelectorAll('.filter-checkmark[data-type] input[type="checkbox"]');
   checkboxInputs.forEach((input) => {
     input.addEventListener('change', (e) => {
       e.preventDefault();
       e.stopPropagation();
       
-      const wrapper = input.closest('[data-type]');
+      const wrapper = input.closest('.filter-checkmark[data-type]');
       if (wrapper) {
         if (input.checked) {
           wrapper.classList.add('active');
@@ -320,12 +327,12 @@ function resetAllFilters() {
   filterState.performanceSpecs = { wattage: '', cct: '', beam: '', lumen: '', cri: '', ugr: '', efficacy: '' };
   filterState.technicalSpecs = { ip: '', ik: '', outdoor: '', indoor: '', finishcolor: '' };
   
-  // Reset checkboxes - remove active class from both wrapper and checkbox
-  document.querySelectorAll('.sub-filter-wrapper').forEach(wrapper => {
-    wrapper.classList.remove('active');
-    const checkmark = wrapper.querySelector('.filter-checkmark');
-    if (checkmark) {
-      checkmark.classList.remove('active');
+  // Reset checkboxes - remove active class from checkmarks
+  document.querySelectorAll('.filter-checkmark[data-type]').forEach(checkmark => {
+    checkmark.classList.remove('active');
+    const input = checkmark.querySelector('input[type="checkbox"]');
+    if (input) {
+      input.checked = false;
     }
   });
   
@@ -424,7 +431,8 @@ function checkProductMatchWithDataAttributes(card) {
     const groupElement = document.querySelector(groupSelector);
     
     if (groupElement) {
-      const activeOptions = groupElement.querySelectorAll('[data-type].active, input[type="checkbox"]:checked');
+      // Look for active checkmarks specifically
+      const activeOptions = groupElement.querySelectorAll('.filter-checkmark[data-type].active, .filter-checkmark[data-type] input[type="checkbox"]:checked');
       if (activeOptions.length > 0) {
         activeGroups[groupName] = Array.from(activeOptions).map(option => {
           return norm(option.getAttribute('data-type') || option.value || option.textContent);
@@ -506,6 +514,9 @@ GROUPS['Application Type'] = { attr: 'application' };
 GROUPS['Form Factor']      = { attr: 'form' };
 GROUPS['Mounting Type']    = { attr: 'mounting' };
 GROUPS['Feature Lighting'] = { attr: 'feature' };
+GROUPS['feature lighting'] = { attr: 'feature' }; // Handle lowercase version
+GROUPS['Performance Specs'] = { attr: 'performance' };
+GROUPS['Technical Specs'] = { attr: 'technical' };
 
 // Expose DUVA Filter API globally
 window.DUVA_FILTER = window.DUVA_FILTER || {};
@@ -520,8 +531,8 @@ window.DUVA_FILTER.activateCheckboxByLabel = function(labelText, groupText) {
   
   const norm = s => (s||'').toString().trim().toLowerCase();
   const labelSel = groupText
-    ? `[data-filter="${groupText}"] [data-type]`
-    : `[data-type]`;
+    ? `[data-filter="${groupText}"] .filter-checkmark[data-type]`
+    : `.filter-checkmark[data-type]`;
 
   const target = [...document.querySelectorAll(labelSel)]
     .find(el => norm(el.getAttribute('data-type')) === norm(labelText));
@@ -565,7 +576,7 @@ window.DUVA_FILTER.getFilterState = function () {
   Object.keys(GROUPS).forEach(groupName => {
     const el = document.querySelector(`[data-filter="${groupName}"]`);
     if (!el) return;
-    const active = [...el.querySelectorAll('[data-type].active, input[type="checkbox"]:checked')].map(
+    const active = [...el.querySelectorAll('.filter-checkmark[data-type].active, .filter-checkmark[data-type] input[type="checkbox"]:checked')].map(
       n => (n.getAttribute('data-type') || n.value || n.textContent || '').trim()
     );
     if (active.length) state[groupName] = active;
