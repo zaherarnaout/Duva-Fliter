@@ -196,7 +196,10 @@ function initializeFilterCheckboxes() {
   
   checkboxes.forEach((checkbox) => {
     // Add click handler to the checkbox element
-    checkbox.addEventListener('click', () => {
+    checkbox.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
       const isActive = checkbox.classList.contains('active') || 
                       (checkbox.querySelector('input[type="checkbox"]') && 
                        checkbox.querySelector('input[type="checkbox"]').checked);
@@ -209,6 +212,7 @@ function initializeFilterCheckboxes() {
           input.checked = false;
           input.dispatchEvent(new Event('change', { bubbles: true }));
         }
+        console.log('🔲 Filter checkbox unchecked:', checkbox.getAttribute('data-type'));
       } else {
         // Check
         checkbox.classList.add('active');
@@ -217,7 +221,13 @@ function initializeFilterCheckboxes() {
           input.checked = true;
           input.dispatchEvent(new Event('change', { bubbles: true }));
         }
+        console.log('☑️ Filter checkbox checked:', checkbox.getAttribute('data-type'));
       }
+      
+      // Force a repaint to ensure styles are applied
+      checkbox.style.display = 'none';
+      checkbox.offsetHeight; // Trigger reflow
+      checkbox.style.display = '';
       
       applyFilters();
     });
@@ -226,14 +236,24 @@ function initializeFilterCheckboxes() {
   // Also handle direct checkbox input changes
   const checkboxInputs = document.querySelectorAll('[data-type] input[type="checkbox"]');
   checkboxInputs.forEach((input) => {
-    input.addEventListener('change', () => {
+    input.addEventListener('change', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
       const wrapper = input.closest('[data-type]');
       if (wrapper) {
         if (input.checked) {
           wrapper.classList.add('active');
+          console.log('☑️ Filter input checked:', wrapper.getAttribute('data-type'));
         } else {
           wrapper.classList.remove('active');
+          console.log('🔲 Filter input unchecked:', wrapper.getAttribute('data-type'));
         }
+        
+        // Force a repaint to ensure styles are applied
+        wrapper.style.display = 'none';
+        wrapper.offsetHeight; // Trigger reflow
+        wrapper.style.display = '';
       }
       applyFilters();
     });
