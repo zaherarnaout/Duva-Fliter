@@ -62,12 +62,24 @@ function initializeFilter() {
 
 // Initialize all filter components
 function initializeFilterComponents() {
+  // Prevent multiple initializations
+  if (window.__duvaFilterInitialized) {
+    console.log('ℹ️ DUVA Filter already initialized, skipping...');
+    return;
+  }
+  
   // Wait a bit for Webflow to render CMS items
   setTimeout(() => {
+    if (window.__duvaFilterInitialized) return; // Double-check
+    
+    console.log('🚀 Initializing DUVA Filter components...');
     initializeFilterToggle();
     initializeFilterFields();
     initializeApplyFilterButton();
     initializeResetFilterButton();
+    
+    window.__duvaFilterInitialized = true;
+    console.log('✅ DUVA Filter initialization complete');
   }, 1000);
 }
 
@@ -127,6 +139,12 @@ function initializeFilterFields() {
   const inputFields = document.querySelectorAll('.selection-filter-text');
   
   inputFields.forEach((field, index) => {
+    // Skip if already has an input field
+    if (field.querySelector('.filter-input-field')) {
+      console.log('ℹ️ Input field already exists, skipping:', field);
+      return;
+    }
+    
     const fieldType = getFieldType(field);
     
     // Replace the div with an input field
@@ -163,6 +181,8 @@ function initializeFilterFields() {
         }
       }
     });
+    
+    console.log('✅ Created input field for:', fieldType);
   });
   
   // Initialize checkboxes
@@ -202,6 +222,15 @@ function initializeFilterCheckboxes() {
   const checkboxes = document.querySelectorAll('.filter-checkmark[data-type]');
   
   checkboxes.forEach((checkbox) => {
+    // Skip if already has event listener
+    if (checkbox.hasAttribute('data-duva-initialized')) {
+      console.log('ℹ️ Checkbox already initialized, skipping:', checkbox.getAttribute('data-type'));
+      return;
+    }
+    
+    // Mark as initialized
+    checkbox.setAttribute('data-duva-initialized', 'true');
+    
     // Add click handler to the checkbox element
     checkbox.addEventListener('click', (e) => {
       e.preventDefault();
