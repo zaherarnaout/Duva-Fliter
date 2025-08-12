@@ -209,6 +209,12 @@ function initializeFilterCheckboxes() {
         
         const isActive = wrapper.classList.contains('active');
         
+        // Debug: Check if text element exists
+        if (!text) {
+          console.error('❌ Text element not found for filter checkbox');
+          return;
+        }
+        
         if (isActive) {
           // Uncheck
           wrapper.classList.remove('active');
@@ -230,6 +236,8 @@ function initializeFilterCheckboxes() {
           const filterType = getCheckboxFilterType(wrapper);
           const filterValue = text.textContent.trim().toLowerCase();
           
+          console.log(`🔍 Check section - filterValue: ${filterValue}, filterType: ${filterType}`);
+          
           if (filterType === 'applicationType') {
             if (!filterState.applicationType.includes(filterValue)) {
               filterState.applicationType.push(filterValue);
@@ -248,7 +256,9 @@ function initializeFilterCheckboxes() {
         console.log(`🔍 Filter clicked: ${filterValue} (${filterType}) - Active: ${!isActive}`);
         console.log(`🔍 Current filter state:`, filterState);
         
+        console.log('🔍 About to call applyFilters()...');
         applyFilters();
+        console.log('🔍 applyFilters() called successfully');
       });
     }
   });
