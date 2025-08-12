@@ -511,12 +511,16 @@ window.DUVA_FILTER.activateCheckboxByLabel = function(labelText, groupText) {
     return false;
   }
 
-  // If there is a real checkbox inside, toggle it and dispatch events; otherwise click the label.
+  // If there is a real checkbox inside, ensure it's checked and dispatch events; otherwise click the label.
   const input = target.querySelector('input[type="checkbox"]');
   if (input) {
-    input.checked = !input.checked;
-    input.dispatchEvent(new Event('change', { bubbles: true }));
-    input.dispatchEvent(new Event('input', { bubbles: true }));
+    if (!input.checked) {
+      input.checked = true;
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    // ensure the UI wrapper looks active too
+    input.closest('[data-type]')?.classList.add('active');
   } else {
     target.click();
   }
@@ -529,24 +533,12 @@ window.DUVA_FILTER.activateCheckboxByLabel = function(labelText, groupText) {
   return true;
 };
 
-// Consume category parameter on load
+// Consume category parameter on load (DISABLED - Now handled by DUVA Filter Bridge in script.js)
+// This functionality has been moved to the bridge to prevent double-trigger issues
 (function consumeCategoryParam() {
-  const url = new URL(location.href);
-  const cat = (url.searchParams.get('category') || sessionStorage.getItem('duvaPendingCategory') || '').toLowerCase();
-  if (!cat) return;
-
-  // Map URL keys -> visible labels in your DUVA UI
-  const MAP = { indoor: 'Indoor', outdoor: 'Outdoor', flexstrip: 'Flex Strip' };
-
-  const label = MAP[cat] || (cat.charAt(0).toUpperCase() + cat.slice(1));
-  const ok = window.DUVA_FILTER.activateCheckboxByLabel(label, 'Application Type'); // group name that contains Indoor/Outdoor
-  sessionStorage.removeItem('duvaPendingCategory');
-
-  // Optional: remove the param after applying so it doesn't re-apply on SPA nav
-  if (ok && history.replaceState) {
-    url.searchParams.delete('category');
-    history.replaceState({}, '', url);
-  }
+  // This function is disabled - category filtering is now handled by the DUVA Filter Bridge
+  // which provides better integration and prevents double-trigger issues
+  console.log('ℹ️ Category parameter consumption disabled - handled by DUVA Filter Bridge');
 })();
 
 // Dispatch ready event when DUVA Filter is fully initialized
