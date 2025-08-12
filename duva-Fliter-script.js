@@ -438,6 +438,23 @@ function getCMSDataFromCard(card) {
   const allText = card.textContent || card.innerText || '';
   cmsData.allText = allText.toLowerCase();
   
+  // Debug: Log what we found
+  console.log('🔍 Data attributes found:', {
+    application: card.dataset.application,
+    mounting: card.dataset.mounting,
+    form: card.dataset.form,
+    ip: card.dataset.ip,
+    lumen: card.dataset.lumen,
+    name: card.dataset.name,
+    cct: card.dataset.cct,
+    wattage: card.dataset.wattage,
+    beam: card.dataset.beam,
+    feature: card.dataset.feature,
+    finish: card.dataset.finish,
+    cri: card.dataset.cri,
+    tags: card.dataset.tags
+  });
+  
   return cmsData;
 }
 
@@ -589,20 +606,40 @@ function checkProductMatchWithCMSData(cmsData) {
 
 // Apply filters to show/hide products
 function applyFilters() {
+  console.log('🔍 applyFilters() called');
+  console.log('🔍 Current filter state:', filterState);
   
   const cardsContainer = document.querySelector('.cards-container');
   if (!cardsContainer) {
+    console.log('⚠️ No cards container found');
     return;
   }
   
   const productCards = cardsContainer.querySelectorAll('.collection-item, .w-dyn-item');
+  console.log(`🔍 Found ${productCards.length} product cards`);
+  
   const noResultsMessage = document.querySelector('.no-results-message');
   
   let visibleCount = 0;
   
-  productCards.forEach(card => {
+  productCards.forEach((card, index) => {
     const cmsData = getCMSDataFromCard(card);
+    console.log(`🔍 Card ${index + 1} data:`, cmsData);
+    
+    // TEMPORARY: Add sample data for testing if data attributes are empty
+    if (!cmsData.allText || cmsData.allText.trim() === '') {
+      console.log('🔧 Adding sample data for testing');
+      // Add sample data to test the filter
+      cmsData.allText = 'indoor surface mounted led downlight 3000k warm white';
+      cmsData.application = 'indoor';
+      cmsData.mounting = 'surface mounted';
+      cmsData.form = 'downlight';
+      cmsData.cct = '3000k';
+      cmsData.finish = 'warm white';
+    }
+    
     const matches = checkProductMatchWithCMSData(cmsData);
+    console.log(`🔍 Card ${index + 1} matches:`, matches);
     
     if (matches) {
       // Remove any inline display style to let CSS handle the layout
@@ -613,14 +650,18 @@ function applyFilters() {
     }
   });
   
+  console.log(`🔍 Total visible cards: ${visibleCount}`);
+  
   // Show/hide no results message
   if (noResultsMessage) {
     if (visibleCount === 0) {
       // No cards match the filter
       noResultsMessage.style.display = 'block';
+      console.log('⚠️ No results message shown');
     } else {
       // Cards are visible
       noResultsMessage.style.display = 'none';
+      console.log('✅ Results found, hiding no results message');
     }
   }
   
