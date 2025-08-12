@@ -551,7 +551,13 @@ function checkProductMatchWithCMSData(cmsData) {
           console.log(`🔍 CCT filtering: searchValue="${searchValue}", cmsData.cct="${cmsData.cct}"`);
           const cctValues = cmsData.cct.toLowerCase().split(',').map(v => v.trim());
           console.log(`🔍 CCT values after split:`, cctValues);
-          found = cctValues.some(val => val === searchValue);
+          
+          // Smart CCT matching: handle both "3000" and "3000K" formats
+          found = cctValues.some(val => {
+            const valWithoutK = val.replace('k', '');
+            const searchWithoutK = searchValue.replace('k', '');
+            return val === searchValue || valWithoutK === searchWithoutK;
+          });
           console.log(`🔍 CCT match found:`, found);
         }
         
@@ -561,8 +567,17 @@ function checkProductMatchWithCMSData(cmsData) {
         }
         
         if (key === 'beam' && cmsData.beamAngle) {
+          console.log(`🔍 Beam filtering: searchValue="${searchValue}", cmsData.beamAngle="${cmsData.beamAngle}"`);
           const beamValues = cmsData.beamAngle.toLowerCase().split(',').map(v => v.trim());
-          found = beamValues.some(val => val === searchValue);
+          console.log(`🔍 Beam values after split:`, beamValues);
+          
+          // Smart beam matching: handle both "15" and "15°" formats
+          found = beamValues.some(val => {
+            const valWithoutDegree = val.replace('°', '').replace('deg', '');
+            const searchWithoutDegree = searchValue.replace('°', '').replace('deg', '');
+            return val === searchValue || valWithoutDegree === searchWithoutDegree;
+          });
+          console.log(`🔍 Beam match found:`, found);
         }
         
         if (key === 'cri' && cmsData.cri) {
@@ -604,8 +619,17 @@ function checkProductMatchWithCMSData(cmsData) {
       // Second priority: Check specific CMS fields
       if (!found) {
         if (key === 'ip' && cmsData.ipRating) {
+          console.log(`🔍 IP filtering: searchValue="${searchValue}", cmsData.ipRating="${cmsData.ipRating}"`);
           const ipValues = cmsData.ipRating.toLowerCase().split(',').map(v => v.trim());
-          found = ipValues.some(val => val === searchValue);
+          console.log(`🔍 IP values after split:`, ipValues);
+          
+          // Smart IP matching: handle both "IP65" and "65" formats
+          found = ipValues.some(val => {
+            const valWithoutIP = val.replace('ip', '');
+            const searchWithoutIP = searchValue.replace('ip', '');
+            return val === searchValue || valWithoutIP === searchWithoutIP;
+          });
+          console.log(`🔍 IP match found:`, found);
         }
         
         if (key === 'ik' && cmsData.ikRating) {
@@ -622,8 +646,29 @@ function checkProductMatchWithCMSData(cmsData) {
         }
         
         if (key === 'finishcolor' && cmsData.finishColor) {
+          console.log(`🔍 Finish color filtering: searchValue="${searchValue}", cmsData.finishColor="${cmsData.finishColor}"`);
           const finishValues = cmsData.finishColor.toLowerCase().split(',').map(v => v.trim());
-          found = finishValues.some(val => val === searchValue);
+          console.log(`🔍 Finish values after split:`, finishValues);
+          
+          // Smart finish color matching: handle abbreviations
+          const colorMappings = {
+            'wh': 'white',
+            'white': 'white',
+            'bk': 'black', 
+            'black': 'black',
+            'gr': 'grey',
+            'grey': 'grey',
+            'gray': 'grey',
+            'ss': 'stainless',
+            'stainless': 'stainless'
+          };
+          
+          const normalizedSearch = colorMappings[searchValue] || searchValue;
+          found = finishValues.some(val => {
+            const normalizedVal = colorMappings[val] || val;
+            return val === searchValue || normalizedVal === normalizedSearch;
+          });
+          console.log(`🔍 Finish color match found:`, found);
         }
       }
       
