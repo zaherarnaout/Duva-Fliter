@@ -144,7 +144,9 @@ function initializeFilterFields() {
     
     // Add input handler for manual entry
     input.addEventListener('input', () => {
+      console.log(`🔍 Input field "${fieldType}" changed to: "${input.value}"`);
       updateFieldFilterState(fieldType, input.value);
+      console.log(`🔍 Updated filter state:`, filterState);
       applyFilters();
       
       // Update text label color based on input value
@@ -304,24 +306,37 @@ function getCheckboxFilterType(wrapper) {
 
 // Update field filter state
 function updateFieldFilterState(fieldType, value) {
+  console.log(`🔍 updateFieldFilterState called with fieldType: "${fieldType}", value: "${value}"`);
+  
   if (fieldType === 'Wattage') {
     filterState.performanceSpecs.wattage = value;
+    console.log(`🔍 Set performanceSpecs.wattage to: "${value}"`);
   } else if (fieldType === 'CCT') {
     filterState.performanceSpecs.cct = value;
+    console.log(`🔍 Set performanceSpecs.cct to: "${value}"`);
   } else if (fieldType === 'Beam') {
     filterState.performanceSpecs.beam = value;
+    console.log(`🔍 Set performanceSpecs.beam to: "${value}"`);
   } else if (fieldType === 'CRI') {
     filterState.performanceSpecs.cri = value;
+    console.log(`🔍 Set performanceSpecs.cri to: "${value}"`);
   } else if (fieldType === 'UGR') {
     filterState.performanceSpecs.ugr = value;
+    console.log(`🔍 Set performanceSpecs.ugr to: "${value}"`);
   } else if (fieldType === 'Efficacy') {
     filterState.performanceSpecs.efficacy = value;
+    console.log(`🔍 Set performanceSpecs.efficacy to: "${value}"`);
   } else if (fieldType === 'IP') {
     filterState.technicalSpecs.ip = value;
+    console.log(`🔍 Set technicalSpecs.ip to: "${value}"`);
   } else if (fieldType === 'IK') {
     filterState.technicalSpecs.ik = value;
+    console.log(`🔍 Set technicalSpecs.ik to: "${value}"`);
   } else if (fieldType === 'Finish Color') {
     filterState.technicalSpecs.finishcolor = value;
+    console.log(`🔍 Set technicalSpecs.finishcolor to: "${value}"`);
+  } else {
+    console.warn(`⚠️ Unknown field type: "${fieldType}"`);
   }
 }
 
