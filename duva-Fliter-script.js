@@ -62,24 +62,12 @@ function initializeFilter() {
 
 // Initialize all filter components
 function initializeFilterComponents() {
-  // Prevent multiple initializations
-  if (window.__duvaFilterInitialized) {
-    console.log('ℹ️ DUVA Filter already initialized, skipping...');
-    return;
-  }
-  
   // Wait a bit for Webflow to render CMS items
   setTimeout(() => {
-    if (window.__duvaFilterInitialized) return; // Double-check
-    
-    console.log('🚀 Initializing DUVA Filter components...');
     initializeFilterToggle();
     initializeFilterFields();
     initializeApplyFilterButton();
     initializeResetFilterButton();
-    
-    window.__duvaFilterInitialized = true;
-    console.log('✅ DUVA Filter initialization complete');
   }, 1000);
 }
 
@@ -139,12 +127,6 @@ function initializeFilterFields() {
   const inputFields = document.querySelectorAll('.selection-filter-text');
   
   inputFields.forEach((field, index) => {
-    // Skip if already has an input field
-    if (field.querySelector('.filter-input-field')) {
-      console.log('ℹ️ Input field already exists, skipping:', field);
-      return;
-    }
-    
     const fieldType = getFieldType(field);
     
     // Replace the div with an input field
@@ -154,35 +136,11 @@ function initializeFilterFields() {
     input.placeholder = INPUT_FIELDS[fieldType] || 'Enter value';
     // CSS handles all styling for .filter-input-field
     
-    // Replace the existing content - handle both .text-filed and direct text content
+    // Replace the existing content
     const existingContent = field.querySelector('.text-filed');
     if (existingContent) {
-      // Clear the text-filed div and add the input
-      existingContent.innerHTML = '';
-      existingContent.appendChild(input);
-      
-      // Hide any remaining placeholder text elements within the text-filed div
-      const placeholderElements = existingContent.querySelectorAll('.text-block-38, .text-block-39, .text-block-40, .text-block-41, .text-block-42, .text-block-43, .text-block-44, .text-block-45, .text-block-46, .text-block-47');
-      placeholderElements.forEach(el => {
-        el.style.display = 'none';
-        el.style.visibility = 'hidden';
-        el.style.opacity = '0';
-      });
-    } else {
-      // If no .text-filed div, replace the entire field content
-      field.innerHTML = '';
-      field.appendChild(input);
+      existingContent.replaceWith(input);
     }
-    
-    // Hide any remaining placeholder text elements in the entire field
-    const allPlaceholderElements = field.querySelectorAll('.text-block-38, .text-block-39, .text-block-40, .text-block-41, .text-block-42, .text-block-43, .text-block-44, .text-block-45, .text-block-46, .text-block-47');
-    allPlaceholderElements.forEach(el => {
-      el.style.display = 'none';
-      el.style.visibility = 'hidden';
-      el.style.opacity = '0';
-      el.style.position = 'absolute';
-      el.style.left = '-9999px';
-    });
     
     // Add input handler for manual entry
     input.addEventListener('input', () => {
@@ -199,8 +157,6 @@ function initializeFilterFields() {
         }
       }
     });
-    
-    console.log('✅ Created input field for:', fieldType);
   });
   
   // Initialize checkboxes
@@ -235,90 +191,93 @@ function getFieldType(field) {
 
 // Initialize filter checkboxes
 function initializeFilterCheckboxes() {
-  // Initialize checkboxes for data-attribute based filtering
-  // Only target the actual checkbox elements, not the wrapper divs
-  const checkboxes = document.querySelectorAll('.filter-checkmark[data-type]');
+  const checkboxes = document.querySelectorAll('.sub-filter-wrapper');
   
-  checkboxes.forEach((checkbox) => {
-    // Skip if already has event listener
-    if (checkbox.hasAttribute('data-duva-initialized')) {
-      console.log('ℹ️ Checkbox already initialized, skipping:', checkbox.getAttribute('data-type'));
-      return;
-    }
+  checkboxes.forEach((wrapper, index) => {
+    const text = wrapper.querySelector('.sub-filter-wattage');
+    const checkmark = wrapper.querySelector('.filter-checkmark');
     
-    // Mark as initialized
-    checkbox.setAttribute('data-duva-initialized', 'true');
-    
-    // Add click handler to the checkbox element
-    checkbox.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      
-      const isActive = checkbox.classList.contains('active') || 
-                      (checkbox.querySelector('input[type="checkbox"]') && 
-                       checkbox.querySelector('input[type="checkbox"]').checked);
-      
-      if (isActive) {
-        // Uncheck
-        checkbox.classList.remove('active');
-        const input = checkbox.querySelector('input[type="checkbox"]');
-        if (input) {
-          input.checked = false;
-          input.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-        console.log('🔲 Filter checkbox unchecked:', checkbox.getAttribute('data-type'));
-      } else {
-        // Check
-        checkbox.classList.add('active');
-        const input = checkbox.querySelector('input[type="checkbox"]');
-        if (input) {
-          input.checked = true;
-          input.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-        console.log('☑️ Filter checkbox checked:', checkbox.getAttribute('data-type'));
-      }
-      
-      // Force a repaint to ensure styles are applied
-      checkbox.style.display = 'none';
-      checkbox.offsetHeight; // Trigger reflow
-      checkbox.style.display = '';
-      
-      applyFilters();
-    });
-  });
-  
-  // Also handle direct checkbox input changes
-  const checkboxInputs = document.querySelectorAll('.filter-checkmark[data-type] input[type="checkbox"]');
-  checkboxInputs.forEach((input) => {
-    input.addEventListener('change', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      
-      const wrapper = input.closest('.filter-checkmark[data-type]');
-      if (wrapper) {
-        if (input.checked) {
-          wrapper.classList.add('active');
-          console.log('☑️ Filter input checked:', wrapper.getAttribute('data-type'));
-        } else {
+    if (text && checkmark) {
+      // Add click handler only to the checkmark
+      checkmark.addEventListener('click', () => {
+        const isActive = wrapper.classList.contains('active');
+        
+        if (isActive) {
+          // Uncheck
           wrapper.classList.remove('active');
-          console.log('🔲 Filter input unchecked:', wrapper.getAttribute('data-type'));
+          checkmark.classList.remove('active');
+          const filterType = getCheckboxFilterType(wrapper);
+          const filterValue = text.textContent.trim().toLowerCase();
+          
+          if (filterType === 'applicationType') {
+            filterState.applicationType = filterState.applicationType.filter(v => v !== filterValue);
+          } else if (filterType === 'mountingType') {
+            filterState.mountingType = filterState.mountingType.filter(v => v !== filterValue);
+          } else if (filterType === 'formFactor') {
+            filterState.formFactor = filterState.formFactor.filter(v => v !== filterValue);
+          }
+        } else {
+          // Check
+          wrapper.classList.add('active');
+          checkmark.classList.add('active');
+          const filterType = getCheckboxFilterType(wrapper);
+          const filterValue = text.textContent.trim().toLowerCase();
+          
+          if (filterType === 'applicationType') {
+            if (!filterState.applicationType.includes(filterValue)) {
+              filterState.applicationType.push(filterValue);
+            }
+          } else if (filterType === 'mountingType') {
+            if (!filterState.mountingType.includes(filterValue)) {
+              filterState.mountingType.push(filterValue);
+            }
+          } else if (filterType === 'formFactor') {
+            if (!filterState.formFactor.includes(filterValue)) {
+              filterState.formFactor.push(filterValue);
+            }
+          }
         }
         
-        // Force a repaint to ensure styles are applied
-        wrapper.style.display = 'none';
-        wrapper.offsetHeight; // Trigger reflow
-        wrapper.style.display = '';
-      }
-      applyFilters();
-    });
+        applyFilters();
+      });
+    }
   });
 }
 
-// Get checkbox filter type (DEPRECATED - Now using data-attribute system)
+// Get checkbox filter type
 function getCheckboxFilterType(wrapper) {
-  // This function is deprecated - filter types are now determined by data-filter attributes
-  console.log('ℹ️ getCheckboxFilterType is deprecated - using data-attribute system');
-  return 'applicationType'; // Default fallback
+  // First try to get from data-filter attribute of parent
+  const parentFilter = wrapper.closest('[data-filter]');
+  if (parentFilter) {
+    const filterType = parentFilter.getAttribute('data-filter');
+    if (filterType === 'Application Type') return 'applicationType';
+    if (filterType === 'Mounting Type') return 'mountingType';
+    if (filterType === 'Form Factor') return 'formFactor';
+  }
+  
+  // Fallback to text content
+  const text = wrapper.querySelector('.sub-filter-wattage')?.textContent || '';
+  const lowerText = text.toLowerCase();
+  if (lowerText.includes('outdoor') || lowerText.includes('indoor') || lowerText.includes('facade') || 
+      lowerText.includes('retail') || lowerText.includes('landscape') || lowerText.includes('architectural')) {
+    return 'applicationType';
+  } else if (lowerText.includes('surface') || lowerText.includes('recessed') || lowerText.includes('flex') || 
+             lowerText.includes('pendant') || lowerText.includes('track') || lowerText.includes('bollard')) {
+    return 'mountingType';
+  } else if (lowerText.includes('linear') || lowerText.includes('circular') || lowerText.includes('square') || 
+             lowerText.includes('spotlight') || lowerText.includes('downlight') || lowerText.includes('floodlight') ||
+             lowerText.includes('strip') || lowerText.includes('tube') || lowerText.includes('trimless') ||
+             lowerText.includes('round') || lowerText.includes('rectangular') || lowerText.includes('oval') ||
+             lowerText.includes('wall') || lowerText.includes('ceiling') || lowerText.includes('floor') ||
+             lowerText.includes('step') || lowerText.includes('path') || lowerText.includes('garden') ||
+             lowerText.includes('post') || lowerText.includes('bollard') || lowerText.includes('column') ||
+             lowerText.includes('pendant') || lowerText.includes('track') || lowerText.includes('surface') ||
+             lowerText.includes('recessed') || lowerText.includes('flex') || lowerText.includes('flexible') ||
+             lowerText.includes('led') || lowerText.includes('bulb') || lowerText.includes('lamp') ||
+             lowerText.includes('fixture') || lowerText.includes('luminaire') || lowerText.includes('lighting')) {
+    return 'formFactor';
+  }
+  return 'applicationType'; // Default
 }
 
 // Update field filter state
@@ -374,12 +333,12 @@ function resetAllFilters() {
   filterState.performanceSpecs = { wattage: '', cct: '', beam: '', lumen: '', cri: '', ugr: '', efficacy: '' };
   filterState.technicalSpecs = { ip: '', ik: '', outdoor: '', indoor: '', finishcolor: '' };
   
-  // Reset checkboxes - remove active class from checkmarks
-  document.querySelectorAll('.filter-checkmark[data-type]').forEach(checkmark => {
-    checkmark.classList.remove('active');
-    const input = checkmark.querySelector('input[type="checkbox"]');
-    if (input) {
-      input.checked = false;
+  // Reset checkboxes - remove active class from both wrapper and checkbox
+  document.querySelectorAll('.sub-filter-wrapper').forEach(wrapper => {
+    wrapper.classList.remove('active');
+    const checkmark = wrapper.querySelector('.filter-checkmark');
+    if (checkmark) {
+      checkmark.classList.remove('active');
     }
   });
   
@@ -414,22 +373,211 @@ function closeAllDropdowns() {
 }
 
 // Get CMS data from Webflow collection item
-// Get CMS data from a product card (DEPRECATED - Now using data-attribute system)
 function getCMSDataFromCard(card) {
-  // This function is deprecated - now using data attributes directly on cards
-  console.log('ℹ️ getCMSDataFromCard is deprecated - using data-attribute system');
-  return {};
+  const cmsData = {
+    productCode: '',
+    name: '',
+    family: '',
+    shortDescription: '',
+    fullDescription: '',
+    wattage: '',
+    lumen: '',
+    cct: '',
+    voltage: '',
+    overviewTitle: '',
+    ipRating: '',
+    ikRating: '',
+    beamAngle: '',
+    cri: '',
+    location: '',
+    finishColor: '',
+    searchTags: '',
+    allText: ''
+  };
+  
+  // Method 1: Try to get data from Webflow's data attributes (exact field names from CSV)
+  if (card.dataset) {
+    cmsData.productCode = card.dataset.productCode || card.dataset['product-code'] || '';
+    cmsData.name = card.dataset.name || card.dataset['name-en'] || '';
+    cmsData.family = card.dataset.family || card.dataset.familyname || '';
+    cmsData.shortDescription = card.dataset.shortDescription || card.dataset['short-description'] || '';
+    cmsData.fullDescription = card.dataset.fullDescription || card.dataset['full-description'] || '';
+    cmsData.wattage = card.dataset.wattage || '';
+    cmsData.lumen = card.dataset.lumen || '';
+    cmsData.cct = card.dataset.cct || '';
+    cmsData.voltage = card.dataset.voltage || '';
+    cmsData.overviewTitle = card.dataset.overviewTitle || card.dataset['overview-title'] || '';
+    cmsData.ipRating = card.dataset.ipRating || card.dataset['ip-rating'] || card.dataset.ip || '';
+    cmsData.ikRating = card.dataset.ikRating || card.dataset['ik-rating'] || card.dataset.ik || '';
+    cmsData.beamAngle = card.dataset.beamAngle || card.dataset['beam-angle'] || card.dataset.beam || '';
+    cmsData.cri = card.dataset.cri || '';
+    cmsData.location = card.dataset.location || '';
+    cmsData.finishColor = card.dataset.finishColor || card.dataset['finish-color'] || '';
+    cmsData.searchTags = card.dataset.searchTags || card.dataset['search-tags'] || card.dataset.tags || '';
+  }
+  
+  // Method 2: Try to get data from Webflow's CMS binding elements
+  const searchTagsElement = card.querySelector('[data-wf-cms-bind="search-tags"], [data-wf-cms-bind="searchTags"], [data-wf-cms-bind="tags"]');
+  if (searchTagsElement) {
+    cmsData.searchTags = searchTagsElement.textContent || searchTagsElement.innerText || '';
+  }
+  
+  // Method 3: Fallback to visible text content
+  const allText = card.textContent || card.innerText || '';
+  cmsData.allText = allText.toLowerCase();
+  
+  return cmsData;
 }
 
-// Check if a product matches the filter criteria using CMS data (DEPRECATED)
+// Check if a product matches the filter criteria using CMS data
 function checkProductMatchWithCMSData(cmsData) {
-  // This function is deprecated - now using checkProductMatchWithDataAttributes
-  console.log('ℹ️ checkProductMatchWithCMSData is deprecated - using data-attribute system');
+  
+  // Check application type filters
+  if (filterState.applicationType.length > 0) {
+    const searchText = cmsData.allText;
+    const hasMatchingApplication = filterState.applicationType.some(type => 
+      searchText.includes(type.toLowerCase())
+    );
+    if (!hasMatchingApplication) {
+      return false;
+    }
+  }
+  
+  // Note: Category filtering is now handled by script.js through simulated clicks
+  // This ensures proper sync with filterState and visual consistency
+  
+  // Check mounting type filters
+  if (filterState.mountingType.length > 0) {
+    const searchText = cmsData.allText;
+    const hasMatchingMounting = filterState.mountingType.some(type => 
+      searchText.includes(type.toLowerCase())
+    );
+    if (!hasMatchingMounting) {
+      return false;
+    }
+  }
+  
+  // Check form factor filters
+  if (filterState.formFactor.length > 0) {
+    const searchText = cmsData.allText;
+    const hasMatchingFormFactor = filterState.formFactor.some(type => 
+      searchText.includes(type.toLowerCase())
+    );
+    if (!hasMatchingFormFactor) {
+      return false;
+    }
+  }
+  
+  // Check performance specs
+  for (const [key, value] of Object.entries(filterState.performanceSpecs)) {
+    if (value && value.trim() !== '') {
+      const searchValue = value.toLowerCase().trim();
+      let found = false;
+      
+      // First priority: Check Search Tags field
+      if (cmsData.searchTags) {
+        const searchTags = cmsData.searchTags.toLowerCase();
+        const regex = new RegExp(`\\b${searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+        found = regex.test(searchTags);
+      }
+      
+      // Second priority: Check specific CMS fields
+      if (!found) {
+        if (key === 'cct' && cmsData.cct) {
+          const cctValues = cmsData.cct.toLowerCase().split(',').map(v => v.trim());
+          found = cctValues.some(val => val === searchValue);
+        }
+        
+        if (key === 'lumen' && cmsData.lumen) {
+          const lumenValues = cmsData.lumen.toLowerCase().split(',').map(v => v.trim());
+          found = lumenValues.some(val => val === searchValue);
+        }
+        
+        if (key === 'beam' && cmsData.beamAngle) {
+          const beamValues = cmsData.beamAngle.toLowerCase().split(',').map(v => v.trim());
+          found = beamValues.some(val => val === searchValue);
+        }
+        
+        if (key === 'cri' && cmsData.cri) {
+          const criValues = cmsData.cri.toLowerCase().split(',').map(v => v.trim());
+          found = criValues.some(val => val === searchValue);
+        }
+        
+        if (key === 'wattage' && cmsData.wattage) {
+          const wattageValues = cmsData.wattage.toLowerCase().split(',').map(v => v.trim());
+          found = wattageValues.some(val => val === searchValue);
+        }
+      }
+      
+      // Third priority: Check in all text
+      if (!found) {
+        const regex = new RegExp(`\\b${searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+        found = regex.test(cmsData.allText);
+      }
+      
+      if (!found) {
+        return false;
+      }
+    }
+  }
+  
+  // Check technical specs
+  for (const [key, value] of Object.entries(filterState.technicalSpecs)) {
+    if (value && value.trim() !== '') {
+      const searchValue = value.toLowerCase().trim();
+      let found = false;
+      
+      // First priority: Check Search Tags field
+      if (cmsData.searchTags) {
+        const searchTags = cmsData.searchTags.toLowerCase();
+        const regex = new RegExp(`\\b${searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+        found = regex.test(searchTags);
+      }
+      
+      // Second priority: Check specific CMS fields
+      if (!found) {
+        if (key === 'ip' && cmsData.ipRating) {
+          const ipValues = cmsData.ipRating.toLowerCase().split(',').map(v => v.trim());
+          found = ipValues.some(val => val === searchValue);
+        }
+        
+        if (key === 'ik' && cmsData.ikRating) {
+          const ikValues = cmsData.ikRating.toLowerCase().split(',').map(v => v.trim());
+          found = ikValues.some(val => val === searchValue);
+        }
+        
+        if (key === 'outdoor' && cmsData.location) {
+          found = cmsData.location.toLowerCase() === searchValue;
+        }
+        
+        if (key === 'indoor' && cmsData.location) {
+          found = cmsData.location.toLowerCase() === searchValue;
+        }
+        
+        if (key === 'finishcolor' && cmsData.finishColor) {
+          const finishValues = cmsData.finishColor.toLowerCase().split(',').map(v => v.trim());
+          found = finishValues.some(val => val === searchValue);
+        }
+      }
+      
+      // Third priority: Check in all text
+      if (!found) {
+        const regex = new RegExp(`\\b${searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+        found = regex.test(cmsData.allText);
+      }
+      
+      if (!found) {
+        return false;
+      }
+    }
+  }
+  
   return true;
 }
 
-// Apply filters to show/hide products (Data-Attribute Based)
+// Apply filters to show/hide products
 function applyFilters() {
+  
   const cardsContainer = document.querySelector('.cards-container');
   if (!cardsContainer) {
     return;
@@ -440,37 +588,9 @@ function applyFilters() {
   
   let visibleCount = 0;
   
-  // TEMPORARY: Add sample data for testing if products have empty attributes
-  productCards.forEach((card, index) => {
-    // If card has empty data attributes, add some sample data for testing
-    if (!card.dataset.application || card.dataset.application === '') {
-      // Add sample data based on index for testing
-      const sampleData = [
-        { application: 'indoor', mounting: 'Surface Mounted', form: 'Linear' },
-        { application: 'outdoor', mounting: 'Recessed Mounted', form: 'Circular' },
-        { application: 'indoor', mounting: 'Ceiling Mounted', form: 'Panel' },
-        { application: 'outdoor', mounting: 'Track Mounted', form: 'Spotlight' },
-        { application: 'indoor', mounting: 'Pendant', form: 'Downlight' },
-        { application: 'outdoor', mounting: 'Bollard', form: 'Floodlight' },
-        { application: 'indoor', mounting: 'wall mounted', form: 'Strip' },
-        { application: 'outdoor', mounting: 'Surface Mounted', form: 'Tube' },
-        { application: 'indoor', mounting: 'Recessed Mounted', form: 'Trimless' },
-        { application: 'outdoor', mounting: 'Ceiling Mounted', form: 'Linear' },
-        { application: 'indoor', mounting: 'Track Mounted', form: 'Circular' },
-        { application: 'outdoor', mounting: 'Pendant', form: 'Panel' }
-      ];
-      
-      const sample = sampleData[index % sampleData.length];
-      card.dataset.application = sample.application;
-      card.dataset.mounting = sample.mounting;
-      card.dataset.form = sample.form;
-      
-      console.log(`🔧 Added sample data to product ${index + 1}:`, sample);
-    }
-  });
-  
   productCards.forEach(card => {
-    const matches = checkProductMatchWithDataAttributes(card);
+    const cmsData = getCMSDataFromCard(card);
+    const matches = checkProductMatchWithCMSData(cmsData);
     
     if (matches) {
       // Remove any inline display style to let CSS handle the layout
@@ -492,89 +612,6 @@ function applyFilters() {
     }
   }
   
-  console.log(`📊 Filter Results: ${visibleCount}/${productCards.length} products visible`);
-}
-
-// Check if a product card matches the current filter state using data attributes
-function checkProductMatchWithDataAttributes(card) {
-  const norm = s => (s||'').toString().toLowerCase().trim();
-  function splitList(v) { return norm(v).split(',').map(s=>s.trim()).filter(Boolean); }
-  
-  // Get all active filter groups
-  const activeGroups = {};
-  
-  // Check each filter group for active options
-  Object.keys(GROUPS).forEach(groupName => {
-    const groupSelector = `[data-filter="${groupName}"]`;
-    const groupElement = document.querySelector(groupSelector);
-    
-    if (groupElement) {
-      // Look for active checkmarks specifically
-      const activeOptions = groupElement.querySelectorAll('.filter-checkmark[data-type].active, .filter-checkmark[data-type] input[type="checkbox"]:checked');
-      if (activeOptions.length > 0) {
-        activeGroups[groupName] = Array.from(activeOptions).map(option => {
-          return norm(option.getAttribute('data-type') || option.value || option.textContent);
-        });
-      }
-    }
-  });
-  
-  // Debug logging
-  console.log('🔍 Filter Debug:', {
-    activeGroups,
-    cardData: {
-      application: card.dataset.application,
-      mounting: card.dataset.mounting,
-      form: card.dataset.form,
-      feature: card.dataset.feature
-    }
-  });
-  
-  // If no active filters, show all products
-  if (Object.keys(activeGroups).length === 0) {
-    console.log('✅ No active filters, showing all products');
-    return true;
-  }
-  
-  // Check each active group against the card's data attributes
-  for (const [groupName, activeOptions] of Object.entries(activeGroups)) {
-    const groupConfig = GROUPS[groupName];
-    if (!groupConfig || !groupConfig.attr) continue;
-    
-    const cardValue = card.dataset[groupConfig.attr];
-    
-    console.log(`🔍 Checking ${groupName}:`, {
-      groupAttr: groupConfig.attr,
-      cardValue: cardValue,
-      activeOptions: activeOptions
-    });
-    
-    // Handle empty or missing data attributes
-    if (!cardValue || cardValue === '') {
-      console.log(`❌ Card has no value for ${groupName}, hiding product`);
-      // If card has no value for this attribute, it doesn't match any filter
-      // This means the product should be hidden when this filter is active
-      return false;
-    }
-    
-    const cardValues = splitList(cardValue);
-    const hasMatch = activeOptions.some(option => 
-      cardValues.some(cardVal => norm(cardVal) === norm(option))
-    );
-    
-    console.log(`🔍 Match result for ${groupName}:`, {
-      cardValues: cardValues,
-      hasMatch: hasMatch
-    });
-    
-    if (!hasMatch) {
-      console.log(`❌ No match found for ${groupName}, hiding product`);
-      return false;
-    }
-  }
-  
-  console.log('✅ Product matches all active filters');
-  return true;
 }
 
 // Show all products
@@ -600,122 +637,5 @@ function showAllProducts() {
 // Start the filter when the page loads
 initializeFilter();
 
-// Apply category filter on page load if URL has category parameter (DEPRECATED)
-// This functionality is now handled by the DUVA Filter Bridge in script.js
-function applyCategoryFilterOnLoad() {
-  // This function is deprecated - category filtering is now handled by the bridge
-  console.log('ℹ️ Category filter on load is now handled by DUVA Filter Bridge');
-}
-
-// Note: Category filtering is now handled by the DUVA Filter Bridge in script.js
-// which provides better integration and performance
-
-/* ============================
-   DUVA FILTER PUBLIC API (Data-Attribute Based)
-   - Exposes functions for external scripts to interact with the filter system
-   ============================ */
-
-// Define filter groups and their corresponding data attributes
-const GROUPS = window.DUVA_GROUPS || (window.DUVA_GROUPS = {});
-GROUPS['Application Type'] = { attr: 'application' };
-GROUPS['Form Factor']      = { attr: 'form' };
-GROUPS['Mounting Type']    = { attr: 'mounting' };
-GROUPS['Feature Lighting'] = { attr: 'feature' };
-GROUPS['feature lighting'] = { attr: 'feature' }; // Handle lowercase version
-GROUPS['Performance Specs'] = { attr: 'performance' };
-GROUPS['Technical Specs'] = { attr: 'technical' };
-
-// Expose DUVA Filter API globally
-window.DUVA_FILTER = window.DUVA_FILTER || {};
-
-/**
- * Activates the same code path as a real user click on a filter option.
- * labelText: the visible text of the checkbox/label (e.g. "Indoor", "Flex Strip")
- * groupText: optional group label (e.g. "Application Type"). If omitted, match by label across groups.
- */
-window.DUVA_FILTER.activateCheckboxByLabel = function(labelText, groupText) {
-  console.log(`🎯 DUVA API: Activating checkbox for label: "${labelText}"${groupText ? ` in group: "${groupText}"` : ''}`);
-  
-  const norm = s => (s||'').toString().trim().toLowerCase();
-  const labelSel = groupText
-    ? `[data-filter="${groupText}"] .filter-checkmark[data-type]`
-    : `.filter-checkmark[data-type]`;
-
-  const target = [...document.querySelectorAll(labelSel)]
-    .find(el => norm(el.getAttribute('data-type')) === norm(labelText));
-
-  if (!target) {
-    console.warn(`❌ DUVA API: Could not find checkbox for label "${labelText}"${groupText ? ` in group "${groupText}"` : ''}`);
-    return false;
-  }
-
-  // If there is a real checkbox inside, force ON and dispatch events; otherwise click the label.
-  const input = target.querySelector('input[type="checkbox"]');
-  if (input) {
-    if (!input.checked) {
-      input.checked = true;
-      input.dispatchEvent(new Event('change', { bubbles: true }));
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-    } else {
-      // already on; still notify listeners for consistency
-      input.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-    // ensure the UI wrapper looks active too
-    input.closest('[data-type]')?.classList.add('active');
-  } else {
-    target.click();
-  }
-
-  // call DUVA's existing "apply/update filters" function
-  if (typeof applyFilters === 'function') applyFilters();
-  if (typeof updateActiveChips === 'function') updateActiveChips();
-  
-  console.log(`✅ DUVA API: Successfully activated checkbox for "${labelText}"`);
-  return true;
-};
-
-/**
- * Returns the current filter state across all groups
- * @returns {Object} Object with group names as keys and arrays of active filter values
- */
-window.DUVA_FILTER.getFilterState = function () {
-  const state = {};
-  Object.keys(GROUPS).forEach(groupName => {
-    const el = document.querySelector(`[data-filter="${groupName}"]`);
-    if (!el) return;
-    const active = [...el.querySelectorAll('.filter-checkmark[data-type].active, .filter-checkmark[data-type] input[type="checkbox"]:checked')].map(
-      n => (n.getAttribute('data-type') || n.value || n.textContent || '').trim()
-    );
-    if (active.length) state[groupName] = active;
-  });
-  return state;
-};
-
-// Consume category parameter on load (DISABLED - Now handled by DUVA Filter Bridge in script.js)
-// This functionality has been moved to the bridge to prevent double-trigger issues
-(function consumeCategoryParam() {
-  // This function is disabled - category filtering is now handled by the DUVA Filter Bridge
-  // which provides better integration and prevents double-trigger issues
-  console.log('ℹ️ Category parameter consumption disabled - handled by DUVA Filter Bridge');
-})();
-
-// Dispatch ready event when DUVA Filter is fully initialized
-function dispatchDuvaReadyEvent() {
-  console.log('🚀 DUVA Filter ready - dispatching duva:ready event');
-  window.dispatchEvent(new CustomEvent('duva:ready', {
-    detail: { 
-      timestamp: Date.now(),
-      filterState: window.DUVA_FILTER.getFilterState()
-    }
-  }));
-}
-
-// Dispatch ready event after initialization
-setTimeout(dispatchDuvaReadyEvent, 2000);
-
-// Also dispatch when Webflow loads
-if (window.Webflow) {
-  window.Webflow.push(() => {
-    setTimeout(dispatchDuvaReadyEvent, 1000);
-  });
-}
+// Note: Category filtering is now handled by script.js through simulated clicks
+// This ensures proper sync with filterState and visual consistency
