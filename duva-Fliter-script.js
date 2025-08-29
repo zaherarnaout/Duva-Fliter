@@ -66,7 +66,6 @@ function initializeFilterComponents() {
   setTimeout(() => {
     initializeFilterToggle();
     initializeFilterFields();
-    initializeApplyFilterButton();
     initializeResetFilterButton();
   }, 1000);
 }
@@ -343,16 +342,7 @@ function updateFieldFilterState(fieldType, value) {
   }
 }
 
-// Initialize apply filter button
-function initializeApplyFilterButton() {
-  const applyButton = document.querySelector('.filter-apply-button');
-  if (applyButton) {
-    applyButton.addEventListener('click', () => {
-      closeAllDropdowns();
-      applyFilters();
-    });
-  }
-}
+
 
 // Initialize reset filter button
 function initializeResetFilterButton() {
