@@ -333,18 +333,6 @@
   align-items: center;
   margin-top: 20px;
   display: flex;
-  background-color: var(--duva-d-grey);
-  color: var(--duva-light-grey);
-  padding: 10px 20px;
-  border-radius: var(--border-8px);
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.filter-reset-button:hover {
-  background-color: var(--duva-red);
-  color: var(--duva-light-grey);
 }
 
 
