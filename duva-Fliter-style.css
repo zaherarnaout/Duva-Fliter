@@ -576,14 +576,44 @@
   color: var(--duva-text-secondary, #D1D1D1) !important;
 }
 
+/* Active state for filter input field - placeholder turns red */
+.filter-input-field:focus::placeholder,
+.filter-input-field.active::placeholder,
+.selection-filter-text .filter-input-field:focus::placeholder,
+.selection-filter-text .filter-input-field.active::placeholder {
+  color: var(--duva-red, #C0392B) !important;
+  font-weight: 500 !important;
+}
+
+/* Dark theme active state for filter input field - placeholder turns red */
+[data-theme="dark"] .filter-input-field:focus::placeholder,
+[data-theme="dark"] .filter-input-field.active::placeholder,
+[data-theme="dark"] .selection-filter-text .filter-input-field:focus::placeholder,
+[data-theme="dark"] .selection-filter-text .filter-input-field.active::placeholder {
+  color: var(--duva-red, #C0392B) !important;
+  font-weight: 500 !important;
+}
+
 /* Dark theme for button 2 */
 [data-theme="dark"] .button-2 {
-  background-color: var(--duva-bg-tertiary, #333333) !important;
-  color: var(--duva-text-primary, #F4F5F6) !important;
+  background-color: var(--duva-light-grey, #F4F5F6) !important;
+  color: var(--duva-text-primary, #212121) !important;
 }
 
 [data-theme="dark"] .button-2:hover {
   background-color: var(--duva-red, #C0392B) !important;
+  color: var(--duva-text-secondary, #D1D1D1) !important;
+}
+
+/* Dark theme for filter reset button */
+[data-theme="dark"] .filter-reset-button {
+  background-color: var(--duva-bg-tertiary, #333333) !important;
+  color: var(--duva-text-primary, #F4F5F6) !important;
+}
+
+[data-theme="dark"] .filter-reset-button:hover {
+  background-color: var(--duva-red, #C0392B) !important;
+  color: var(--duva-text-secondary, #D1D1D1) !important;
 }
 
 /* Dark theme for text blocks in filter */
