@@ -529,3 +529,100 @@
   z-index: 10; /* Ensure it's above other elements */
   cursor: pointer;
 }
+
+/* === END FILTER-SPECIFIC ADDITIONS ONLY === */
+
+/* === DARK THEME SUPPORT FOR FILTER === */
+
+/* Dark theme for main filter wrapper */
+[data-theme="dark"] .main-filter-wrapper {
+  background-color: var(--duva-bg-secondary, #2a2a2a) !important;
+  border-color: var(--duva-border-secondary, #333333) !important;
+}
+
+/* Dark theme for filter right wrapper */
+[data-theme="dark"] .fliter-right-wrapper {
+  background-color: var(--duva-light-grey, #F4F5F6) !important;
+}
+
+/* Dark theme for mounting type text */
+[data-theme="dark"] .mounting-type {
+  color: var(--duva-text-secondary, #D1D1D1) !important;
+}
+
+/* Dark theme for filter checkmark */
+[data-theme="dark"] .filter-checkmark {
+  background-color: var(--duva-bg-primary, white) !important;
+  border-color: var(--duva-border-secondary, #333333) !important;
+}
+
+[data-theme="dark"] .filter-checkmark:hover {
+  border-color: var(--duva-red, #C0392B) !important;
+}
+
+[data-theme="dark"] .filter-checkmark.active {
+  background-color: var(--duva-red, #C0392B) !important;
+  border-color: var(--duva-red, #C0392B) !important;
+}
+
+/* Dark theme for filter input field */
+[data-theme="dark"] .filter-input-field {
+  background-color: var(--duva-bg-primary, white) !important;
+  border-color: var(--duva-border-secondary, #333333) !important;
+  color: var(--duva-text-primary, #212121) !important;
+}
+
+[data-theme="dark"] .filter-input-field::placeholder {
+  color: var(--duva-text-secondary, #D1D1D1) !important;
+}
+
+/* Dark theme for button 2 */
+[data-theme="dark"] .button-2 {
+  background-color: var(--duva-bg-tertiary, #333333) !important;
+  color: var(--duva-text-primary, #F4F5F6) !important;
+}
+
+[data-theme="dark"] .button-2:hover {
+  background-color: var(--duva-red, #C0392B) !important;
+}
+
+/* Dark theme for text blocks in filter */
+[data-theme="dark"] .text-block-30 {
+  color: var(--duva-text-secondary, #D1D1D1) !important;
+}
+
+[data-theme="dark"] .text-block-31,
+[data-theme="dark"] .text-block-32 {
+  color: var(--duva-text-primary, #212121) !important;
+}
+
+/* Dark theme for sub-filter wattage - turns red when checked */
+[data-theme="dark"] .sub-filter-wrapper.active .sub-filter-wattage,
+[data-theme="dark"] .main-filter-wrapper .sub-filter-wrapper.active .sub-filter-wattage,
+[data-theme="dark"] .main-filter-wrapper .main-sub-filter-wrapper .sub-filter-wrapper.active .sub-filter-wattage {
+  color: var(--duva-red, #C0392B) !important;
+  font-weight: 600 !important;
+}
+
+/* Dark theme for sub-filter wattage with input */
+[data-theme="dark"] .sub-filter-wrapper.has-input .sub-filter-wattage,
+[data-theme="dark"] .main-filter-wrapper .sub-filter-wrapper.has-input .sub-filter-wattage,
+[data-theme="dark"] .main-filter-wrapper .main-sub-filter-wrapper .sub-filter-wrapper.has-input .sub-filter-wattage {
+  color: var(--duva-red, #C0392B) !important;
+  font-weight: 600 !important;
+}
+
+/* Dark theme for other text elements */
+[data-theme="dark"] .text-block-37,
+[data-theme="dark"] .form-factor,
+[data-theme="dark"] .performance-specs,
+[data-theme="dark"] .technical-specs {
+  color: var(--duva-text-secondary, #D1D1D1) !important;
+}
+
+/* Dark theme for filter divider */
+[data-theme="dark"] .filter-divider,
+[data-theme="dark"] .filter-divider-vertical,
+[data-theme="dark"] .filter-div {
+  background-color: var(--duva-border-secondary, #333333) !important;
+}
