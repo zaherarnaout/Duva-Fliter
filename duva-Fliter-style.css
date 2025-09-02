@@ -35,7 +35,7 @@
 
 .fliter-right-wrapper {
   border-radius: var(--border-8px);
-  background-color: var(--duva-light-grey);
+  background-color: var(--duva-d-grey);
   flex-flow: column;
   justify-content: space-between;
   align-items: flex-start;
@@ -597,20 +597,42 @@
   color: var(--duva-text-secondary, #D1D1D1) !important;
 }
 
-/* Dark theme for filter reset button */
-[data-theme="dark"] .filter-reset-button {
-  background-color: var(--duva-bg-tertiary, #333333) !important;
-  color: var(--duva-text-primary, #F4F5F6) !important;
+/* Filter reset button - just a wrapper, no styling */
+.filter-reset-button {
+  /* Just a wrapper - no styling needed */
+  background: none !important;
+  border: none !important;
+  color: inherit !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: none !important;
 }
 
-[data-theme="dark"] .filter-reset-button:hover {
-  background-color: var(--duva-red, #C0392B) !important;
-  color: var(--duva-text-secondary, #D1D1D1) !important;
+.filter-reset-button:hover,
+.filter-reset-button:focus,
+.filter-reset-button:active {
+  background: none !important;
+  border: none !important;
+  color: inherit !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: none !important;
+  outline: none !important;
 }
 
 /* Dark theme for text blocks in filter */
 [data-theme="dark"] .text-block-30 {
   color: var(--duva-text-secondary, #D1D1D1) !important;
+}
+
+/* Light mode text colors for fliter-right-wrapper */
+.fliter-right-wrapper .text-block-31,
+.fliter-right-wrapper .text-block-32 {
+  color: var(--duva-light-grey, #F4F5F6) !important;
 }
 
 [data-theme="dark"] .text-block-31,
