@@ -107,7 +107,7 @@
   color: var(--duva-light-grey);
   font-family: Gotham Rounded, Georgia, sans-serif;
   font-size: 40px;
-  font-weight: 300;
+  font-weight: 400;
   line-height: 50px;
 }
 
@@ -411,12 +411,14 @@
 .filter-checkmark:hover {
   transform: scale(1.05);
   box-shadow: 0 6px 20px rgba(192, 57, 43, 0.25);
-  border-color: var(--duva-red, #C0392B) !important;
+  border: var(--border-main, 1px) solid var(--duva-red, #C0392B) !important;
+  border-radius: var(--border-4px-cornner, 4px);
 }
 
 .filter-checkmark.active {
   background-color: #c0392b;
-  border-color: #c0392b;
+  border: var(--border-main, 1px) solid var(--duva-red, #C0392B) !important;
+  border-radius: var(--border-4px-cornner, 4px);
   width: 17px;
   height: 17px;
   transform: scale(1.08);
@@ -543,12 +545,14 @@
 }
 
 [data-theme="dark"] .filter-checkmark:hover {
-  border-color: var(--duva-red, #C0392B) !important;
+  border: var(--border-main, 1px) solid var(--duva-red, #C0392B) !important;
+  border-radius: var(--border-4px-cornner, 4px);
 }
 
 [data-theme="dark"] .filter-checkmark.active {
   background-color: var(--duva-red, #C0392B) !important;
-  border-color: var(--duva-red, #C0392B) !important;
+  border: var(--border-main, 1px) solid var(--duva-red, #C0392B) !important;
+  border-radius: var(--border-4px-cornner, 4px);
 }
 
 /* Dark theme for filter input field */
