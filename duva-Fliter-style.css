@@ -106,9 +106,9 @@
 .text-block-31 {
   color: var(--duva-light-grey);
   font-family: Gotham Rounded, Georgia, sans-serif;
-  font-size: 30px;
+  font-size: 40px;
   font-weight: 300;
-  line-height: 35px;
+  line-height: 50px;
 }
 
 .text-block-32 {
@@ -116,6 +116,7 @@
   font-family: Gotham, Georgia, sans-serif;
   font-size: 16px;
   font-weight: 300;
+  line-height: 20px;
 }
 
 .link-block-5 {
@@ -589,12 +590,12 @@
 /* Dark theme for button 2 */
 [data-theme="dark"] .button-2 {
   background-color: var(--duva-light-grey, #F4F5F6) !important;
-  color: var(--duva-text-primary, #212121) !important;
+  color: var(--duva-d-grey, #212121) !important;
 }
 
 [data-theme="dark"] .button-2:hover {
   background-color: var(--duva-red, #C0392B) !important;
-  color: var(--duva-text-secondary, #D1D1D1) !important;
+  color: var(--duva-light-grey, #F4F5F6) !important;
 }
 
 /* Filter reset button - just a wrapper, no styling */
