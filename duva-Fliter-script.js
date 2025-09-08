@@ -62,12 +62,17 @@ function initializeFilter() {
 
 // Initialize all filter components
 function initializeFilterComponents() {
-  // Wait a bit for Webflow to render CMS items
+  // Initialize immediately for better responsiveness
+  initializeFilterToggle();
+  initializeFilterFields();
+  initializeResetFilterButton();
+  
+  // Also retry after a short delay to catch any late-loading elements
   setTimeout(() => {
     initializeFilterToggle();
     initializeFilterFields();
     initializeResetFilterButton();
-  }, 1000);
+  }, 100);
 }
 
 // Initialize filter toggle functionality
