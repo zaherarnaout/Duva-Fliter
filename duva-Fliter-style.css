@@ -141,7 +141,7 @@
   margin-right: 10px;
   padding-top: 5px;
   padding-left: 5px;
-  font-family: Gotham Rounded, Georgia, sans-serif;
+  font-family: var(--section-title);
   font-size: 25px;
   text-decoration: none;
 }
@@ -183,7 +183,7 @@
 .main-filter-wrapper .main-sub-filter-wrapper .sub-filter-wrapper .sub-filter-wattage,
 .sub-filter-wrapper .sub-filter-wattage {
   margin-right: 20px;
-  font-family: "Gothamnarrow Book";
+  font-family: var(--section-title);
   color: #D1D1D1;
   font-size: 16px;
   font-weight: 300;
@@ -194,7 +194,7 @@
 
 .text-block-36 {
   color: #212121;
-  font-family: "Gothamnarrow Book", Georgia, sans-serif;
+  font-family: var(--section-title);
 }
 
 .downlight {
@@ -208,7 +208,7 @@
 
 .mounting-type {
   color: #212121;
-  font-family: Gotham Rounded, Georgia, sans-serif;
+  font-family: var(--section-title);
   font-size: 16px;
 }
 
@@ -272,7 +272,7 @@
   width: 100px;
   height: 25px;
   padding: 2px;
-  font-family: Gotham, Georgia, sans-serif;
+  font-family: var(--section-title);
   font-size: 12px;
   font-weight: 100;
 }
@@ -317,7 +317,7 @@
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
   background-color: #212121;
-  font-family: Gotham, Georgia, sans-serif;
+  font-family: var(--section-title);
   color: #F4F5F6;
   font-size: 16px;
   line-height: 20px;
@@ -340,7 +340,7 @@
 
 .text-block-37, .form-factor, .performance-specs, .technical-specs {
   color: #212121;
-  font-family: Gotham Rounded, Georgia, sans-serif;
+  font-family: var(--section-title);
   font-size: 16px;
 }
 
