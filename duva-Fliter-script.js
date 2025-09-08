@@ -83,12 +83,14 @@ function initializeFilterToggle() {
       filterArrow.classList.remove('rotated');
     }
     
-    // Remove any existing event listeners to prevent conflicts
-    filterHeader.removeEventListener('click', handleFilterToggle);
+    // Remove any existing event listeners by cloning the element
+    const newFilterHeader = filterHeader.cloneNode(true);
+    filterHeader.parentNode.replaceChild(newFilterHeader, filterHeader);
     
-    // Add the event listener
-    filterHeader.addEventListener('click', handleFilterToggle);
+    // Add the event listener to the new element
+    newFilterHeader.addEventListener('click', handleFilterToggle);
     
+    console.log('✅ Filter toggle functionality initialized');
   }
 }
 
@@ -102,6 +104,7 @@ function handleFilterToggle(e) {
   
   if (filterBg) {
     const isExpanded = filterBg.classList.contains('expanded');
+    console.log('🔄 Filter toggle clicked, current state:', isExpanded ? 'expanded' : 'collapsed');
     
     if (isExpanded) {
       // Collapse
@@ -109,12 +112,14 @@ function handleFilterToggle(e) {
       if (filterArrow) {
         filterArrow.classList.remove('rotated');
       }
+      console.log('📉 Filter collapsed');
     } else {
       // Expand
       filterBg.classList.add('expanded');
       if (filterArrow) {
         filterArrow.classList.add('rotated');
       }
+      console.log('📈 Filter expanded');
     }
     
   }
