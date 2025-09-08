@@ -78,11 +78,11 @@
 }
 
 .text-block-30 {
-  font-family: Gotham, Georgia, sans-serif;
-  color: #212121;
-  font-size: 30px;
-  line-height: 35px;
-  font-weight: 500;
+  font-family: var(--section-title);
+  color: var(--duva-d-grey);
+  font-size: var(--section-title-size);
+  line-height: var(--section-title-height);
+  font-weight: var(--section-title-weight);
   margin-right: 40px;
 }
 
@@ -96,24 +96,24 @@
 }
 
 .heading {
-  color: #F4F5F6;
-  font-family: Gotham, Georgia, sans-serif;
-  font-size: 30px;
-  font-weight: 500;
-  line-height: 35px;
+  color: var(--duva-light-grey);
+  font-family: var(--section-title);
+  font-size: var(--section-title-size);
+  font-weight: var(--section-title-weight);
+  line-height: var(--section-title-height);
 }
 
 .text-block-31 {
-  color: #F4F5F6;
-  font-family: Gotham Rounded, Georgia, sans-serif;
-  font-size: 40px;
-  font-weight: 400;
-  line-height: 50px;
+  color: var(--duva-light-grey);
+  font-family: var(--section-title);
+  font-size: var(--section-title-size);
+  font-weight: var(--section-title-weight);
+  line-height: var(--section-title-height);
 }
 
 .text-block-32 {
-  color: #F4F5F6;
-  font-family: Gotham, Georgia, sans-serif;
+  color: var(--duva-light-grey);
+  font-family: var(--section-title);
   font-size: 16px;
   font-weight: 300;
   line-height: 20px;
@@ -476,7 +476,7 @@
   text-align: center !important;
   color: #333 !important;
   font-weight: 400 !important;
-  font-family: Gotham, Georgia, sans-serif !important;
+  font-family: var(--section-title) !important;
   display: block !important;
   box-sizing: border-box !important;
   margin: 0 !important;
